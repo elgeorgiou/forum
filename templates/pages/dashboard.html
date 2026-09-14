@@ -1,0 +1,307 @@
+{{ define "title" }}Dashboard | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/dashboard.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="dashboard-page">
+    <div class="dashboard-background"></div>
+
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+            <div class="dashboard-sidebar-header">
+                <span class="dashboard-sidebar-icon">🎮</span>
+
+                <div>
+                    <span class="dashboard-sidebar-label">
+                        GameForum
+                    </span>
+
+                    <strong>
+                        {{ if eq .CurrentUser.Role "admin" }}
+                            Admin Panel
+                        {{ else }}
+                            Moderator Panel
+                        {{ end }}
+                    </strong>
+                </div>
+            </div>
+
+            <nav class="dashboard-navigation">
+                <a href="/dashboard" class="dashboard-nav-link active">
+                    Overview
+                </a>
+
+                <a href="/dashboard/reports" class="dashboard-nav-link">
+                    Reports
+
+                    {{ if gt .PendingReportCount 0 }}
+                        <span class="dashboard-nav-count">
+                            {{ .PendingReportCount }}
+                        </span>
+                    {{ end }}
+                </a>
+
+                {{ if eq .CurrentUser.Role "admin" }}
+                    <a href="/dashboard/moderators" class="dashboard-nav-link">
+                        Moderators
+                    </a>
+
+                    <a href="/dashboard/requests" class="dashboard-nav-link">
+                        Moderator Requests
+
+                        {{ if gt .PendingModeratorRequestCount 0 }}
+                            <span class="dashboard-nav-count">
+                                {{ .PendingModeratorRequestCount }}
+                            </span>
+                        {{ end }}
+                    </a>
+
+                    <a href="/dashboard/categories" class="dashboard-nav-link">
+                        Categories
+                    </a>
+                {{ end }}
+
+                <a href="/" class="dashboard-nav-link dashboard-back-link">
+                    Back to Forum
+                </a>
+            </nav>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="dashboard-header">
+                <div>
+                    <p class="dashboard-eyebrow">
+                        COMMUNITY CONTROL CENTER
+                    </p>
+
+                    <h1>
+                        {{ if eq .CurrentUser.Role "admin" }}
+                            Admin Dashboard
+                        {{ else }}
+                            Moderator Dashboard
+                        {{ end }}
+                    </h1>
+
+                    <p class="dashboard-subtitle">
+                        Review reports, manage community activity,
+                        and keep discussions healthy.
+                    </p>
+                </div>
+
+                <div class="dashboard-user">
+                    <div class="dashboard-user-avatar">
+                        {{ .CurrentUser.Username }}
+                    </div>
+
+                    <div>
+                        <strong>{{ .CurrentUser.Username }}</strong>
+                        <span>{{ .CurrentUser.Role }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <section class="dashboard-stats">
+                <article class="dashboard-stat-card">
+                    <span class="dashboard-stat-label">
+                        Pending Reports
+                    </span>
+
+                    <strong>
+                        {{ .Stats.PendingReports }}
+                    </strong>
+                </article>
+
+                <article class="dashboard-stat-card">
+                    <span class="dashboard-stat-label">
+                        Total Posts
+                    </span>
+
+                    <strong>
+                        {{ .Stats.TotalPosts }}
+                    </strong>
+                </article>
+
+                <article class="dashboard-stat-card">
+                    <span class="dashboard-stat-label">
+                        Total Comments
+                    </span>
+
+                    <strong>
+                        {{ .Stats.TotalComments }}
+                    </strong>
+                </article>
+
+                <article class="dashboard-stat-card">
+                    <span class="dashboard-stat-label">
+                        Community Members
+                    </span>
+
+                    <strong>
+                        {{ .Stats.TotalUsers }}
+                    </strong>
+                </article>
+            </section>
+
+            <section class="dashboard-section">
+                <div class="dashboard-section-heading">
+                    <div>
+                        <p class="dashboard-section-label">
+                            MODERATION QUEUE
+                        </p>
+
+                        <h2>Recent Reports</h2>
+                    </div>
+
+                    <a href="/dashboard/reports">
+                        View all reports
+                    </a>
+                </div>
+
+                <div class="report-list">
+                    {{ range .RecentReports }}
+                        <article class="report-card">
+                            <div class="report-main">
+                                <div class="report-meta">
+                                    <span class="report-type">
+                                        {{ .TargetType }}
+                                    </span>
+
+                                    <span>
+                                        Report #{{ .ID }}
+                                    </span>
+
+                                    <span>
+                                        {{ .CreatedAt }}
+                                    </span>
+                                </div>
+
+                                <h3>
+                                    {{ .TargetTitle }}
+                                </h3>
+
+                                <p>
+                                    {{ .Reason }}
+                                </p>
+
+                                <div class="report-reporter">
+                                    Reported by
+                                    <strong>{{ .ReporterUsername }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="report-actions">
+                                <a
+                                    href="{{ .TargetURL }}"
+                                    class="dashboard-secondary-button"
+                                >
+                                    Review
+                                </a>
+
+                                <form
+                                    action="/dashboard/reports/{{ .ID }}/resolve"
+                                    method="POST"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="dashboard-success-button"
+                                    >
+                                        Resolve
+                                    </button>
+                                </form>
+
+                                <form
+                                    action="/dashboard/reports/{{ .ID }}/reject"
+                                    method="POST"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="dashboard-danger-button"
+                                    >
+                                        Reject
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    {{ else }}
+                        <div class="dashboard-empty-state">
+                            <h3>No pending reports</h3>
+
+                            <p>
+                                The moderation queue is currently clear.
+                            </p>
+                        </div>
+                    {{ end }}
+                </div>
+            </section>
+
+            {{ if eq .CurrentUser.Role "admin" }}
+                <section class="dashboard-section">
+                    <div class="dashboard-section-heading">
+                        <div>
+                            <p class="dashboard-section-label">
+                                ROLE MANAGEMENT
+                            </p>
+
+                            <h2>Moderator Requests</h2>
+                        </div>
+
+                        <a href="/dashboard/requests">
+                            View all requests
+                        </a>
+                    </div>
+
+                    <div class="moderator-request-list">
+                        {{ range .ModeratorRequests }}
+                            <article class="moderator-request-card">
+                                <div>
+                                    <strong>{{ .Username }}</strong>
+
+                                    <span>
+                                        Requested {{ .CreatedAt }}
+                                    </span>
+                                </div>
+
+                                <div class="moderator-request-actions">
+                                    <form
+                                        action="/dashboard/requests/{{ .ID }}/approve"
+                                        method="POST"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="dashboard-success-button"
+                                        >
+                                            Approve
+                                        </button>
+                                    </form>
+
+                                    <form
+                                        action="/dashboard/requests/{{ .ID }}/reject"
+                                        method="POST"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="dashboard-danger-button"
+                                        >
+                                            Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </article>
+                        {{ else }}
+                            <div class="dashboard-empty-state">
+                                <h3>No moderator requests</h3>
+
+                                <p>
+                                    There are no pending role requests.
+                                </p>
+                            </div>
+                        {{ end }}
+                    </div>
+                </section>
+            {{ end }}
+        </main>
+    </div>
+</section>
+{{ end }}
