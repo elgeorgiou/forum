@@ -1,0 +1,269 @@
+{{ define "title" }}{{ .Category.Name }} | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/category.css">
+{{ end }}
+
+{{ define "content" }}
+<section
+    class="category-hero"
+    style="--category-background: url('/static/images/categories/{{ .Category.Slug }}.webp');"
+>
+    <div class="category-hero-overlay"></div>
+
+    <div class="category-hero-content">
+        <p class="category-label">GAMEFORUM CATEGORY</p>
+
+        <h1>{{ .Category.Name }}</h1>
+
+        <p class="category-description">
+            {{ .Category.Description }}
+        </p>
+
+        {{ if .Category.Tagline }}
+            <p class="category-tagline">
+                {{ .Category.Tagline }}
+            </p>
+        {{ end }}
+
+        <div class="category-stats">
+            <span>
+                <strong>{{ .Category.PostCount }}</strong>
+                Discussions
+            </span>
+
+            <span>
+                <strong>{{ .Category.MemberCount }}</strong>
+                Members
+            </span>
+        </div>
+    </div>
+</section>
+
+<div class="category-layout">
+    <section class="category-main">
+        <div class="category-toolbar">
+            <div class="category-tabs">
+                <a href="?tab=discussions" class="category-tab active">
+                    Discussions
+                </a>
+
+                <a href="?tab=members" class="category-tab">
+                    Members
+                </a>
+            </div>
+
+            <form action="" method="GET" class="category-sort">
+                <label for="category-sort" class="sr-only">
+                    Sort discussions
+                </label>
+
+                <select id="category-sort" name="sort">
+                    <option value="recent">Most Recent</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="liked">Most Liked</option>
+                </select>
+
+                <button type="submit">Sort</button>
+            </form>
+        </div>
+
+        {{ if .IsAuthenticated }}
+            <form
+                class="post-composer"
+                action="/posts/create"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+                <input
+                    type="hidden"
+                    name="category_id"
+                    value="{{ .Category.ID }}"
+                >
+
+                <div class="composer-avatar" aria-hidden="true">
+                    {{ .CurrentUser.Username }}
+                </div>
+
+                <div class="composer-content">
+                    <input
+                        class="composer-title"
+                        type="text"
+                        name="title"
+                        placeholder="Discussion title"
+                        required
+                    >
+
+                    <textarea
+                        name="content"
+                        placeholder="Create a post in {{ .Category.Name }}..."
+                        rows="3"
+                        required
+                    ></textarea>
+
+                    <div class="composer-footer">
+                        <label class="composer-upload">
+                            <span aria-hidden="true">▧</span>
+                            Add image
+
+                            <input
+                                type="file"
+                                name="image"
+                                accept="image/jpeg,image/png,image/gif"
+                            >
+                        </label>
+
+                        <button
+                            type="submit"
+                            class="button button-primary"
+                        >
+                            Post
+                        </button>
+                    </div>
+                </div>
+            </form>
+        {{ else }}
+            <div class="category-login-prompt">
+                <span>Want to join the discussion?</span>
+
+                <a href="/auth?mode=login">
+                    Log in to create a post
+                </a>
+            </div>
+        {{ end }}
+
+        <div class="category-posts">
+            {{ range .Posts }}
+                <article class="forum-post">
+                    <div class="post-votes">
+                        <span class="vote-score">
+                            {{ .Score }}
+                        </span>
+
+                        <span class="vote-label">
+                            votes
+                        </span>
+                    </div>
+
+                    <div class="post-body">
+                        <div class="post-meta">
+                            <span class="post-author">
+                                {{ .Username }}
+                            </span>
+
+                            <span>•</span>
+
+                            <span>{{ .CreatedAt }}</span>
+                        </div>
+
+                        <h2>
+                            <a href="/posts/{{ .ID }}">
+                                {{ .Title }}
+                            </a>
+                        </h2>
+
+                        <p class="post-preview">
+                            {{ .Preview }}
+                        </p>
+
+                        {{ if .Categories }}
+                            <div class="post-tags">
+                                {{ range .Categories }}
+                                    <a href="/categories/{{ .Slug }}">
+                                        {{ .Name }}
+                                    </a>
+                                {{ end }}
+                            </div>
+                        {{ end }}
+
+                        <div class="post-info">
+                            <a href="/posts/{{ .ID }}">
+                                {{ .CommentCount }} comments
+                            </a>
+
+                            <span>
+                                {{ .ViewCount }} views
+                            </span>
+
+                            <span>
+                                {{ .LikeCount }} likes
+                            </span>
+
+                            <span>
+                                {{ .DislikeCount }} dislikes
+                            </span>
+                        </div>
+                    </div>
+
+                    {{ if .ImagePath }}
+                        <a
+                            href="/posts/{{ .ID }}"
+                            class="post-thumbnail"
+                        >
+                            <img
+                                src="{{ .ImagePath }}"
+                                alt=""
+                            >
+                        </a>
+                    {{ end }}
+                </article>
+            {{ else }}
+                <div class="category-empty">
+                    <h2>No discussions yet</h2>
+
+                    <p>
+                        Be the first player to start a discussion
+                        in {{ .Category.Name }}.
+                    </p>
+                </div>
+            {{ end }}
+        </div>
+    </section>
+
+    <aside class="category-sidebar">
+        <section class="category-sidebar-card">
+            <h2>About This Category</h2>
+
+            <p>
+                {{ .Category.Description }}
+            </p>
+
+            <div class="sidebar-category-stat">
+                <span>Discussions</span>
+                <strong>{{ .Category.PostCount }}</strong>
+            </div>
+
+            <div class="sidebar-category-stat">
+                <span>Members</span>
+                <strong>{{ .Category.MemberCount }}</strong>
+            </div>
+        </section>
+
+        {{ if .Category.Rules }}
+            <section class="category-sidebar-card">
+                <h2>Category Rules</h2>
+
+                <ol class="category-rules">
+                    {{ range .Category.Rules }}
+                        <li>{{ . }}</li>
+                    {{ end }}
+                </ol>
+            </section>
+        {{ end }}
+
+        {{ if .PopularTags }}
+            <section class="category-sidebar-card">
+                <h2>Popular Tags</h2>
+
+                <div class="category-tags">
+                    {{ range .PopularTags }}
+                        <a href="/search?q={{ . }}">
+                            #{{ . }}
+                        </a>
+                    {{ end }}
+                </div>
+            </section>
+        {{ end }}
+    </aside>
+</div>
+{{ end }}
