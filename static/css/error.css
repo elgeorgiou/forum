@@ -1,0 +1,130 @@
+.error-page {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    min-height: calc(100vh - 72px);
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7, 11, 20, 0.98) 0%,
+            rgba(7, 11, 20, 0.88) 38%,
+            rgba(7, 11, 20, 0.42) 70%,
+            rgba(7, 11, 20, 0.2) 100%
+        ),
+        url("/static/images/backgrounds/error.webp")
+        center / cover no-repeat;
+}
+
+.error-background-overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 65% 45%,
+            rgba(139, 92, 246, 0.16),
+            transparent 40%
+        ),
+        linear-gradient(
+            180deg,
+            transparent 65%,
+            rgba(7, 11, 20, 0.75)
+        );
+}
+
+.error-container {
+    position: relative;
+    z-index: 1;
+
+    width: min(100% - 40px, var(--content-width));
+
+    margin: 0 auto;
+
+    padding: 80px 0;
+}
+
+.error-content {
+    max-width: 650px;
+}
+
+.error-label {
+    margin: 0 0 8px;
+
+    color: var(--color-cyan);
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 0.2em;
+}
+
+.error-code {
+    margin: 0;
+
+    color: transparent;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--color-purple-bright),
+            var(--color-cyan)
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    font-size: clamp(92px, 14vw, 180px);
+    font-weight: 900;
+
+    letter-spacing: -0.08em;
+    line-height: 0.85;
+
+    text-shadow:
+        0 0 50px rgba(139, 92, 246, 0.08);
+}
+
+.error-content h1 {
+    margin: 24px 0 0;
+
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 900;
+
+    letter-spacing: -0.03em;
+}
+
+.error-message {
+    max-width: 550px;
+
+    margin: 15px 0 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.error-actions {
+    display: flex;
+    gap: 12px;
+
+    margin-top: 30px;
+}
+
+.error-help {
+    margin: 22px 0 0;
+
+    color: var(--color-text-muted);
+
+    font-size: 13px;
+}
+
+.error-help a {
+    color: var(--color-purple-bright);
+
+    font-weight: 700;
+}
