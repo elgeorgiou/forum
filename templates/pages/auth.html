@@ -1,0 +1,205 @@
+{{ define "title" }}
+{{ if eq .AuthMode "signup" }}Sign Up{{ else }}Log In{{ end }} | GameForum
+{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/auth.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="auth-page">
+    <div class="auth-background-overlay"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-heading">
+                <span class="auth-controller" aria-hidden="true">🎮</span>
+
+                {{ if eq .AuthMode "signup" }}
+                    <h1>Create Your Account</h1>
+
+                    <p>
+                        Join the GameForum community and start
+                        sharing your gaming opinions.
+                    </p>
+                {{ else }}
+                    <h1>Welcome Back</h1>
+
+                    <p>
+                        Log in and jump back into the discussion.
+                    </p>
+                {{ end }}
+            </div>
+
+            <div class="auth-mode-switch">
+                <a
+                    href="/auth?mode=login"
+                    class="auth-mode-button {{ if ne .AuthMode "signup" }}active{{ end }}"
+                >
+                    Log In
+                </a>
+
+                <a
+                    href="/auth?mode=signup"
+                    class="auth-mode-button {{ if eq .AuthMode "signup" }}active{{ end }}"
+                >
+                    Sign Up
+                </a>
+            </div>
+
+            {{ if .Error }}
+                <div class="auth-error" role="alert">
+                    {{ .Error }}
+                </div>
+            {{ end }}
+
+            {{ if eq .AuthMode "signup" }}
+                <form
+                    class="auth-form"
+                    action="/register"
+                    method="POST"
+                >
+                    <div class="form-group">
+                        <label for="signup-username">
+                            Username
+                        </label>
+
+                        <input
+                            id="signup-username"
+                            type="text"
+                            name="username"
+                            value="{{ .Form.Username }}"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-email">
+                            Email
+                        </label>
+
+                        <input
+                            id="signup-email"
+                            type="email"
+                            name="email"
+                            value="{{ .Form.Email }}"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password">
+                            Password
+                        </label>
+
+                        <input
+                            id="signup-password"
+                            type="password"
+                            name="password"
+                            autocomplete="new-password"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-confirm-password">
+                            Confirm Password
+                        </label>
+
+                        <input
+                            id="signup-confirm-password"
+                            type="password"
+                            name="confirm_password"
+                            autocomplete="new-password"
+                            required
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="button button-primary auth-submit"
+                    >
+                        Create Account
+                    </button>
+                </form>
+            {{ else }}
+                <form
+                    class="auth-form"
+                    action="/login"
+                    method="POST"
+                >
+                    <div class="form-group">
+                        <label for="login-identifier">
+                            Email or Username
+                        </label>
+
+                        <input
+                            id="login-identifier"
+                            type="text"
+                            name="identifier"
+                            value="{{ .Form.Identifier }}"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">
+                            Password
+                        </label>
+
+                        <input
+                            id="login-password"
+                            type="password"
+                            name="password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="button button-primary auth-submit"
+                    >
+                        Log In
+                    </button>
+                </form>
+            {{ end }}
+
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+            <div class="oauth-buttons">
+                <a
+                    href="/auth/google"
+                    class="oauth-button"
+                >
+                    <span aria-hidden="true">G</span>
+                    Google
+                </a>
+
+                <a
+                    href="/auth/github"
+                    class="oauth-button"
+                >
+                    <span aria-hidden="true">⌘</span>
+                    GitHub
+                </a>
+            </div>
+
+            <p class="auth-footer-message">
+                {{ if eq .AuthMode "signup" }}
+                    Already have an account?
+                    <a href="/auth?mode=login">Log In</a>
+                {{ else }}
+                    New to GameForum?
+                    <a href="/auth?mode=signup">Create an account</a>
+                {{ end }}
+            </p>
+        </div>
+    </div>
+</section>
+{{ end }}
