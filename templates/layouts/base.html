@@ -1,0 +1,25 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ block "title" . }}GameForum{{ end }}</title>
+
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+
+    {{ block "styles" . }}{{ end }}
+</head>
+<body>
+    {{ template "navbar" . }}
+
+    <main>
+        {{ block "content" . }}{{ end }}
+    </main>
+
+    {{ template "footer" . }}
+</body>
+</html>
+{{ end }}

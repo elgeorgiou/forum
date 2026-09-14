@@ -1,0 +1,212 @@
+{{ define "title" }}Home | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/home.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="home-hero">
+    <div class="home-hero-overlay"></div>
+
+    <div class="home-hero-content">
+        <p class="hero-eyebrow">
+            GAMING COMMUNITY
+        </p>
+
+        <h1 class="hero-title">
+            <span>Pause the Game.</span>
+            <strong>Join the Argument.</strong>
+        </h1>
+
+        <p class="hero-tagline">
+            DISCUSS · SHARE · DISCOVER · BELONG
+        </p>
+
+        <p class="hero-description">
+            Join players from every genre, platform, and playstyle.
+            Share opinions, discover discussions, and find your next community.
+        </p>
+
+        <div class="hero-actions">
+            {{ if .IsAuthenticated }}
+                <a href="/categories" class="button button-primary">
+                    Start a Discussion
+                </a>
+            {{ else }}
+                <a href="/auth?mode=signup" class="button button-primary">
+                    Join the Community
+                </a>
+            {{ end }}
+
+            <a href="/categories" class="button button-secondary">
+                Explore Categories
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="home-section">
+    <div class="section-heading">
+        <div>
+            <p class="section-kicker">
+                FIND YOUR SPACE
+            </p>
+
+            <h2>Explore Categories</h2>
+        </div>
+
+        <a href="/categories" class="section-link">
+            View all categories
+        </a>
+    </div>
+
+    <div class="category-grid">
+        {{ range .Categories }}
+            <a
+                href="/categories/{{ .Slug }}"
+                class="category-card category-{{ .Slug }}"
+            >
+                <div class="category-card-overlay"></div>
+
+                <div class="category-card-content">
+                    <h3>{{ .Name }}</h3>
+
+                    <p>{{ .Description }}</p>
+                </div>
+            </a>
+        {{ end }}
+    </div>
+</section>
+
+<section class="home-section home-discussions">
+    <div class="discussion-column">
+        <div class="section-heading">
+            <div>
+                <p class="section-kicker">
+                    WHAT PLAYERS ARE TALKING ABOUT
+                </p>
+
+                <h2>Recent Discussions</h2>
+            </div>
+
+            <a href="/recent" class="section-link">
+                View all
+            </a>
+        </div>
+
+        <div class="discussion-list">
+            {{ range .RecentPosts }}
+                <article class="discussion-card">
+                    <div class="discussion-main">
+                        <div class="discussion-meta">
+                            <a href="/categories/{{ .CategorySlug }}">
+                                {{ .CategoryName }}
+                            </a>
+
+                            <span>•</span>
+
+                            <span>{{ .CreatedAt }}</span>
+                        </div>
+
+                        <h3>
+                            <a href="/posts/{{ .ID }}">
+                                {{ .Title }}
+                            </a>
+                        </h3>
+
+                        <p>
+                            {{ .Preview }}
+                        </p>
+
+                        <div class="discussion-footer">
+                            <span>
+                                by {{ .Username }}
+                            </span>
+
+                            <span>
+                                {{ .CommentCount }} comments
+                            </span>
+
+                            <span>
+                                {{ .LikeCount }} likes
+                            </span>
+                        </div>
+                    </div>
+
+                    {{ if .ImagePath }}
+                        <a
+                            href="/posts/{{ .ID }}"
+                            class="discussion-thumbnail"
+                        >
+                            <img
+                                src="{{ .ImagePath }}"
+                                alt=""
+                            >
+                        </a>
+                    {{ end }}
+                </article>
+            {{ else }}
+                <div class="empty-state">
+                    <p>No discussions yet.</p>
+                </div>
+            {{ end }}
+        </div>
+    </div>
+
+    <aside class="home-sidebar">
+        {{ if .IsAuthenticated }}
+            <section class="sidebar-card profile-card">
+                <div class="profile-heading">
+                    <div class="profile-avatar">
+                        {{ .CurrentUser.Username }}
+                    </div>
+
+                    <div>
+                        <strong>{{ .CurrentUser.Username }}</strong>
+                        <span>{{ .CurrentUser.Role }}</span>
+                    </div>
+                </div>
+
+                <a href="/profile" class="sidebar-link">
+                    View Profile
+                </a>
+
+                <a href="/activity" class="sidebar-link">
+                    My Activity
+                </a>
+            </section>
+        {{ end }}
+
+        <section class="sidebar-card">
+            <h3>Community</h3>
+
+            <div class="community-stat">
+                <span>Members</span>
+                <strong>{{ .CommunityStats.MemberCount }}</strong>
+            </div>
+
+            <div class="community-stat">
+                <span>Discussions</span>
+                <strong>{{ .CommunityStats.PostCount }}</strong>
+            </div>
+
+            <div class="community-stat">
+                <span>Comments</span>
+                <strong>{{ .CommunityStats.CommentCount }}</strong>
+            </div>
+        </section>
+
+        <section class="sidebar-card">
+            <h3>Popular Tags</h3>
+
+            <div class="tag-list">
+                {{ range .PopularTags }}
+                    <a href="/search?q={{ . }}">
+                        #{{ . }}
+                    </a>
+                {{ end }}
+            </div>
+        </section>
+    </aside>
+</section>
+{{ end }}

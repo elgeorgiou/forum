@@ -1,0 +1,273 @@
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    width: 100%;
+
+    background:
+        rgba(7, 11, 20, 0.92);
+
+    border-bottom:
+        1px solid var(--color-border);
+
+    backdrop-filter: blur(18px);
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+
+    width: min(100% - 40px, var(--content-width));
+
+    min-height: 72px;
+
+    margin: 0 auto;
+}
+
+.navbar-brand,
+.footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    font-weight: 800;
+}
+
+.brand-controller {
+    font-size: 24px;
+}
+
+.brand-name {
+    font-size: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--color-purple-bright),
+            var(--color-cyan)
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.nav-link {
+    color: var(--color-text-secondary);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: var(--color-text-primary);
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.navbar-search input {
+    width: 220px;
+
+    padding: 10px 14px;
+
+    color: var(--color-text-primary);
+
+    background:
+        var(--color-surface);
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius:
+        var(--radius-small);
+
+    outline: none;
+}
+
+.navbar-search input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.navbar-search input:focus {
+    border-color:
+        rgba(139, 92, 246, 0.7);
+
+    box-shadow:
+        0 0 0 3px rgba(139, 92, 246, 0.12);
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 40px;
+
+    padding: 0 18px;
+
+    border:
+        1px solid transparent;
+
+    border-radius:
+        var(--radius-small);
+
+    font-weight: 700;
+}
+
+.button-primary {
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--color-purple),
+            var(--color-purple-bright)
+        );
+
+    box-shadow:
+        0 8px 24px rgba(139, 92, 246, 0.28);
+}
+
+.nav-login {
+    color: var(--color-text-secondary);
+
+    font-weight: 600;
+}
+
+.notification-button {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    background:
+        var(--color-surface);
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius:
+        50%;
+}
+
+.notification-count {
+    position: absolute;
+
+    top: -5px;
+    right: -5px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 18px;
+    height: 18px;
+
+    padding: 0 5px;
+
+    color: #ffffff;
+
+    background:
+        var(--color-pink);
+
+    border-radius:
+        999px;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.user-menu {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    color: var(--color-text-secondary);
+}
+
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    overflow: hidden;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--color-purple),
+            var(--color-cyan)
+        );
+
+    border-radius:
+        50%;
+
+    font-size: 0;
+}
+
+.user-avatar::first-letter {
+    font-size: 15px;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.site-footer {
+    margin-top: 80px;
+
+    border-top:
+        1px solid var(--color-border);
+
+    background:
+        var(--color-background-soft);
+}
+
+.footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    width: min(100% - 40px, var(--content-width));
+
+    min-height: 88px;
+
+    margin: 0 auto;
+}
+
+.footer-text,
+.footer-copyright {
+    margin: 0;
+
+    color: var(--color-text-muted);
+
+    font-size: 13px;
+}
