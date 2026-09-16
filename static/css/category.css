@@ -1,7 +1,7 @@
 .category-hero {
     position: relative;
 
-    min-height: 330px;
+    min-height: 570px;
 
     overflow: hidden;
 
@@ -9,9 +9,9 @@
         linear-gradient(
             90deg,
             rgba(7, 11, 20, 0.98) 0%,
-            rgba(7, 11, 20, 0.9) 32%,
-            rgba(7, 11, 20, 0.4) 68%,
-            rgba(7, 11, 20, 0.18) 100%
+            rgba(7, 11, 20, 0.88) 28%,
+            rgba(7, 11, 20, 0.32) 58%,
+            rgba(7, 11, 20, 0.08) 100%
         ),
         var(--category-background)
         center / cover no-repeat;
@@ -36,11 +36,15 @@
     position: relative;
     z-index: 1;
 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
     width: min(100% - 40px, var(--content-width));
+    min-height: 520px;
 
     margin: 0 auto;
-
-    padding: 58px 0;
+    padding: 50px 0;
 }
 
 .category-label {
@@ -52,6 +56,49 @@
     font-weight: 800;
 
     letter-spacing: 0.18em;
+}
+
+.category-heading {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.category-icon {
+    flex: 0 0 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 76px;
+    height: 76px;
+
+    overflow: hidden;
+
+    background:
+        rgba(139, 92, 246, 0.12);
+
+    border:
+        1px solid rgba(139, 92, 246, 0.45);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 24px rgba(139, 92, 246, 0.12);
+}
+
+.category-icon img {
+    display: block;
+
+    width: 54px;
+    height: 54px;
+
+    object-fit: contain;
+}
+
+.category-heading-text {
+    min-width: 0;
 }
 
 .category-hero h1 {
@@ -110,21 +157,35 @@
 
 .category-layout {
     display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 24px;
 
-    grid-template-columns:
-        minmax(0, 1fr) 300px;
+    width: min(100% - 48px, var(--content-width));
 
-    gap: 28px;
+    margin: 32px auto 48px;
+    padding: 24px;
 
-    width: min(100% - 40px, var(--content-width));
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.98),
+            rgba(8, 13, 25, 0.98)
+        );
 
-    margin: 0 auto;
+    border:
+        1px solid rgba(139, 92, 246, 0.22);
 
-    padding: 34px 0 20px;
+    border-radius: 20px;
+
+    box-shadow:
+        0 24px 70px rgba(0, 0, 0, 0.32),
+        0 0 40px rgba(139, 92, 246, 0.04);
 }
 
 .category-main {
     min-width: 0;
+
+    padding: 4px;
 }
 
 .category-toolbar {
@@ -133,7 +194,8 @@
     justify-content: space-between;
     gap: 20px;
 
-    margin-bottom: 18px;
+    margin-bottom: 20px;
+    padding: 0 4px;
 
     border-bottom:
         1px solid var(--color-border);
@@ -349,15 +411,15 @@
     gap: 20px;
 
     margin-bottom: 20px;
-    padding: 17px 18px;
+    padding: 18px 20px;
 
     color: var(--color-text-secondary);
 
     background:
-        var(--color-surface);
+        rgba(12, 19, 35, 0.9);
 
     border:
-        1px solid var(--color-border);
+        1px solid rgba(139, 92, 246, 0.18);
 
     border-radius:
         var(--radius-medium);
@@ -532,13 +594,18 @@
     display: grid;
     align-content: start;
     gap: 16px;
+
+    padding-left: 24px;
+
+    border-left:
+        1px solid var(--color-border);
 }
 
 .category-sidebar-card {
-    padding: 19px;
+    padding: 20px;
 
     background:
-        var(--color-surface);
+        rgba(12, 19, 35, 0.9);
 
     border:
         1px solid var(--color-border);
@@ -601,15 +668,15 @@
 }
 
 .category-empty {
-    padding: 55px 24px;
+    padding: 48px 24px;
 
     text-align: center;
 
     background:
-        var(--color-surface);
+        rgba(12, 19, 35, 0.72);
 
     border:
-        1px solid var(--color-border);
+        1px dashed rgba(139, 92, 246, 0.24);
 
     border-radius:
         var(--radius-medium);

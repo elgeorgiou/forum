@@ -12,19 +12,24 @@
     <div class="category-hero-overlay"></div>
 
     <div class="category-hero-content">
-        <p class="category-label">GAMEFORUM CATEGORY</p>
+    <p class="category-label">GAMEFORUM CATEGORY</p>
 
-        <h1>{{ .Category.Name }}</h1>
+    <div class="category-heading">
+        <div class="category-icon">
+            <img
+                src="/static/images/category-icons/{{ .Category.Slug }}.webp"
+                alt=""
+            >
+        </div>
 
-        <p class="category-description">
-            {{ .Category.Description }}
-        </p>
+        <div class="category-heading-text">
+            <h1>{{ .Category.Name }}</h1>
 
-        {{ if .Category.Tagline }}
-            <p class="category-tagline">
-                {{ .Category.Tagline }}
+            <p class="category-description">
+                {{ .Category.Description }}
             </p>
-        {{ end }}
+        </div>
+    </div>
 
         <div class="category-stats">
             <span>
