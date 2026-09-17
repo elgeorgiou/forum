@@ -46,6 +46,11 @@ func Run() error {
 		pageHandler,
 	)
 
+	githubOAuthHandler := handlers.NewGitHubOAuthHandler(
+		db,
+		sessionManager,
+	)
+
 	mux := http.NewServeMux()
 
 	staticFiles := http.FileServer(
@@ -83,6 +88,16 @@ func Run() error {
 	mux.HandleFunc(
 		"/logout",
 		authHandler.Logout,
+	)
+
+	mux.HandleFunc(
+		"/auth/github",
+		githubOAuthHandler.Login,
+	)
+
+	mux.HandleFunc(
+		"/auth/github/callback",
+		githubOAuthHandler.Callback,
 	)
 
 	mux.HandleFunc(
