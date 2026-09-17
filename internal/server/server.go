@@ -51,6 +51,11 @@ func Run() error {
 		sessionManager,
 	)
 
+	googleOAuthHandler := handlers.NewGoogleOAuthHandler(
+		db,
+		sessionManager,
+	)
+
 	mux := http.NewServeMux()
 
 	staticFiles := http.FileServer(
@@ -98,6 +103,16 @@ func Run() error {
 	mux.HandleFunc(
 		"/auth/github/callback",
 		githubOAuthHandler.Callback,
+	)
+
+	mux.HandleFunc(
+		"/auth/google",
+		googleOAuthHandler.Login,
+	)
+
+	mux.HandleFunc(
+		"/auth/google/callback",
+		googleOAuthHandler.Callback,
 	)
 
 	mux.HandleFunc(
