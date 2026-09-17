@@ -13,14 +13,31 @@ type Category struct {
 	Name        string
 	Slug        string
 	Description string
+	Tagline     string
 	CreatedAt   string
 }
 
-func CreateCategory(db *sql.DB, name, slug, description string) (int64, error) {
+func CreateCategory(
+	db *sql.DB,
+	name string,
+	slug string,
+	description string,
+	tagline string,
+) (int64, error) {
 	result, err := db.Exec(`
-		INSERT INTO categories (name, slug, description)
-		VALUES (?, ?, ?)
-	`, name, slug, description)
+		INSERT INTO categories (
+			name,
+			slug,
+			description,
+			tagline
+		)
+		VALUES (?, ?, ?, ?)
+	`,
+		name,
+		slug,
+		description,
+		tagline,
+	)
 	if err != nil {
 		return 0, fmt.Errorf("create category: %w", err)
 	}
@@ -37,7 +54,13 @@ func GetCategoryByID(db *sql.DB, id int64) (Category, error) {
 	var category Category
 
 	err := db.QueryRow(`
-		SELECT id, name, slug, description, created_at
+		SELECT
+			id,
+			name,
+			slug,
+			description,
+			tagline,
+			created_at
 		FROM categories
 		WHERE id = ?
 	`, id).Scan(
@@ -45,6 +68,7 @@ func GetCategoryByID(db *sql.DB, id int64) (Category, error) {
 		&category.Name,
 		&category.Slug,
 		&category.Description,
+		&category.Tagline,
 		&category.CreatedAt,
 	)
 
@@ -63,7 +87,13 @@ func GetCategoryBySlug(db *sql.DB, slug string) (Category, error) {
 	var category Category
 
 	err := db.QueryRow(`
-		SELECT id, name, slug, description, created_at
+		SELECT
+			id,
+			name,
+			slug,
+			description,
+			tagline,
+			created_at
 		FROM categories
 		WHERE slug = ?
 	`, slug).Scan(
@@ -71,6 +101,7 @@ func GetCategoryBySlug(db *sql.DB, slug string) (Category, error) {
 		&category.Name,
 		&category.Slug,
 		&category.Description,
+		&category.Tagline,
 		&category.CreatedAt,
 	)
 
@@ -87,7 +118,13 @@ func GetCategoryBySlug(db *sql.DB, slug string) (Category, error) {
 
 func GetAllCategories(db *sql.DB) ([]Category, error) {
 	rows, err := db.Query(`
-		SELECT id, name, slug, description, created_at
+		SELECT
+			id,
+			name,
+			slug,
+			description,
+			tagline,
+			created_at
 		FROM categories
 		ORDER BY name ASC
 	`)
@@ -106,6 +143,7 @@ func GetAllCategories(db *sql.DB) ([]Category, error) {
 			&category.Name,
 			&category.Slug,
 			&category.Description,
+			&category.Tagline,
 			&category.CreatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("scan category: %w", err)

@@ -53,6 +53,7 @@ func createTestCategory(t *testing.T, db *sql.DB, name, slug string) int64 {
 		name,
 		slug,
 		"Test category",
+		"Test category tagline",
 	)
 	if err != nil {
 		t.Fatalf("create test category: %v", err)
