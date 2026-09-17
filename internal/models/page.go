@@ -13,6 +13,7 @@ type CategoryPageData struct {
 	Name        string
 	Slug        string
 	Description string
+	Tagline     string
 
 	PostCount   int
 	MemberCount int

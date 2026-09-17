@@ -143,6 +143,7 @@ func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
 			Name:        category.Name,
 			Slug:        category.Slug,
 			Description: category.Description,
+			Tagline:     category.Tagline,
 			PostCount:   len(posts),
 		},
 		Posts: posts,

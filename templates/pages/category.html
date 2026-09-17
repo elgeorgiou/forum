@@ -12,35 +12,125 @@
     <div class="category-hero-overlay"></div>
 
     <div class="category-hero-content">
-    <p class="category-label">GAMEFORUM CATEGORY</p>
+        <p class="category-label">
+            GAMEFORUM CATEGORY
+        </p>
 
-    <div class="category-heading">
-        <div class="category-icon">
-            <img
-                src="/static/images/category-icons/{{ .Category.Slug }}.webp"
-                alt=""
-            >
+        <div class="category-heading">
+            <div class="category-icon">
+                <img
+                    src="/static/images/category-icons/{{ .Category.Slug }}.webp"
+                    alt=""
+                >
+            </div>
+
+            <div class="category-heading-text">
+                <h1>
+                    {{ .Category.Name }}
+                </h1>
+
+                <p class="category-tagline">
+                    {{ .Category.Tagline }}
+                </p>
+
+                <p class="category-description">
+                    {{ .Category.Description }}
+                </p>
+            </div>
         </div>
-
-        <div class="category-heading-text">
-            <h1>{{ .Category.Name }}</h1>
-
-            <p class="category-description">
-                {{ .Category.Description }}
-            </p>
-        </div>
-    </div>
 
         <div class="category-stats">
-            <span>
-                <strong>{{ .Category.PostCount }}</strong>
-                Discussions
-            </span>
+            <div class="category-stat">
+                <div
+                    class="category-stat-icon"
+                    aria-hidden="true"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"
+                        ></path>
+                    </svg>
+                </div>
 
-            <span>
-                <strong>{{ .Category.MemberCount }}</strong>
-                Members
-            </span>
+                <div class="category-stat-content">
+                    <strong class="category-stat-value">
+                        {{ .Category.PostCount }}
+                    </strong>
+
+                    <span class="category-stat-label">
+                        Discussions
+                    </span>
+                </div>
+            </div>
+
+            <div class="category-stat">
+                <div
+                    class="category-stat-icon"
+                    aria-hidden="true"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                        ></path>
+
+                        <circle
+                            cx="9"
+                            cy="7"
+                            r="4"
+                        ></circle>
+
+                        <path
+                            d="M22 21v-2a4 4 0 0 0-3-3.87"
+                        ></path>
+
+                        <path
+                            d="M16 3.13a4 4 0 0 1 0 7.75"
+                        ></path>
+                    </svg>
+                </div>
+
+                <div class="category-stat-content">
+                    <strong class="category-stat-value">
+                        {{ .Category.MemberCount }}
+                    </strong>
+
+                    <span class="category-stat-label">
+                        Members
+                    </span>
+                </div>
+            </div>
+
+            <div class="category-stat">
+                <div
+                    class="category-stat-icon"
+                    aria-hidden="true"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"
+                        ></path>
+                    </svg>
+                </div>
+
+                <div class="category-stat-content">
+                    <strong class="category-stat-value">
+                        0
+                    </strong>
+
+                    <span class="category-stat-label">
+                        Followers
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -49,27 +139,53 @@
     <section class="category-main">
         <div class="category-toolbar">
             <div class="category-tabs">
-                <a href="?tab=discussions" class="category-tab active">
+                <a
+                    href="?tab=discussions"
+                    class="category-tab active"
+                >
                     Discussions
                 </a>
 
-                <a href="?tab=members" class="category-tab">
+                <a
+                    href="?tab=members"
+                    class="category-tab"
+                >
                     Members
                 </a>
             </div>
 
-            <form action="" method="GET" class="category-sort">
-                <label for="category-sort" class="sr-only">
+            <form
+                action=""
+                method="GET"
+                class="category-sort"
+            >
+                <label
+                    for="category-sort"
+                    class="sr-only"
+                >
                     Sort discussions
                 </label>
 
-                <select id="category-sort" name="sort">
-                    <option value="recent">Most Recent</option>
-                    <option value="popular">Most Popular</option>
-                    <option value="liked">Most Liked</option>
+                <select
+                    id="category-sort"
+                    name="sort"
+                >
+                    <option value="recent">
+                        Most Recent
+                    </option>
+
+                    <option value="popular">
+                        Most Popular
+                    </option>
+
+                    <option value="liked">
+                        Most Liked
+                    </option>
                 </select>
 
-                <button type="submit">Sort</button>
+                <button type="submit">
+                    Sort
+                </button>
             </form>
         </div>
 
@@ -86,7 +202,10 @@
                     value="{{ .Category.ID }}"
                 >
 
-                <div class="composer-avatar" aria-hidden="true">
+                <div
+                    class="composer-avatar"
+                    aria-hidden="true"
+                >
                     {{ .CurrentUser.Username }}
                 </div>
 
@@ -108,7 +227,10 @@
 
                     <div class="composer-footer">
                         <label class="composer-upload">
-                            <span aria-hidden="true">▧</span>
+                            <span aria-hidden="true">
+                                ▧
+                            </span>
+
                             Add image
 
                             <input
@@ -129,7 +251,9 @@
             </form>
         {{ else }}
             <div class="category-login-prompt">
-                <span>Want to join the discussion?</span>
+                <span>
+                    Want to join the discussion?
+                </span>
 
                 <a href="/auth?mode=login">
                     Log in to create a post
@@ -158,7 +282,9 @@
 
                             <span>•</span>
 
-                            <span>{{ .CreatedAt }}</span>
+                            <span>
+                                {{ .CreatedAt }}
+                            </span>
                         </div>
 
                         <h2>
@@ -214,7 +340,9 @@
                 </article>
             {{ else }}
                 <div class="category-empty">
-                    <h2>No discussions yet</h2>
+                    <h2>
+                        No discussions yet
+                    </h2>
 
                     <p>
                         Be the first player to start a discussion
@@ -227,30 +355,46 @@
 
     <aside class="category-sidebar">
         <section class="category-sidebar-card">
-            <h2>About This Category</h2>
+            <h2>
+                About This Category
+            </h2>
 
             <p>
                 {{ .Category.Description }}
             </p>
 
             <div class="sidebar-category-stat">
-                <span>Discussions</span>
-                <strong>{{ .Category.PostCount }}</strong>
+                <span>
+                    Discussions
+                </span>
+
+                <strong>
+                    {{ .Category.PostCount }}
+                </strong>
             </div>
 
             <div class="sidebar-category-stat">
-                <span>Members</span>
-                <strong>{{ .Category.MemberCount }}</strong>
+                <span>
+                    Members
+                </span>
+
+                <strong>
+                    {{ .Category.MemberCount }}
+                </strong>
             </div>
         </section>
 
         {{ if .Category.Rules }}
             <section class="category-sidebar-card">
-                <h2>Category Rules</h2>
+                <h2>
+                    Category Rules
+                </h2>
 
                 <ol class="category-rules">
                     {{ range .Category.Rules }}
-                        <li>{{ . }}</li>
+                        <li>
+                            {{ . }}
+                        </li>
                     {{ end }}
                 </ol>
             </section>
@@ -258,7 +402,9 @@
 
         {{ if .PopularTags }}
             <section class="category-sidebar-card">
-                <h2>Popular Tags</h2>
+                <h2>
+                    Popular Tags
+                </h2>
 
                 <div class="category-tags">
                     {{ range .PopularTags }}
