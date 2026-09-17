@@ -240,6 +240,55 @@
     font-weight: 700;
 }
 
+.logout-form {
+    margin: 0;
+}
+
+.logout-button {
+    min-height: 38px;
+
+    padding: 0 14px;
+
+    color: var(--color-text-secondary);
+
+    background:
+        transparent;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius:
+        var(--radius-small);
+
+    cursor: pointer;
+
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.logout-button:hover {
+    color: #ffffff;
+
+    background:
+        rgba(239, 68, 68, 0.1);
+
+    border-color:
+        rgba(239, 68, 68, 0.4);
+}
+
+.logout-button:focus-visible {
+    outline:
+        2px solid var(--color-purple);
+
+    outline-offset: 2px;
+}
+
 .site-footer {
     margin-top: 80px;
 
