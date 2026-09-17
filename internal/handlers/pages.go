@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"forum/internal/database"
+	"forum/internal/middleware"
 	"forum/internal/models"
 )
 
@@ -47,12 +48,16 @@ func (h *PageHandler) Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := models.PageData{
-		Categories:  categories,
-		RecentPosts: posts,
-	}
+	data := h.pageData(r)
+	data.Categories = categories
+	data.RecentPosts = posts
 
-	h.render(w, http.StatusOK, "home.html", data)
+	h.render(
+		w,
+		http.StatusOK,
+		"home.html",
+		data,
+	)
 }
 
 func (h *PageHandler) Auth(w http.ResponseWriter, r *http.Request) {
@@ -72,11 +77,15 @@ func (h *PageHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := models.PageData{
-		AuthMode: mode,
-	}
+	data := h.pageData(r)
+	data.AuthMode = mode
 
-	h.render(w, http.StatusOK, "auth.html", data)
+	h.render(
+		w,
+		http.StatusOK,
+		"auth.html",
+		data,
+	)
 }
 
 func (h *PageHandler) Categories(w http.ResponseWriter, r *http.Request) {
@@ -96,11 +105,15 @@ func (h *PageHandler) Categories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := models.PageData{
-		Categories: categories,
-	}
+	data := h.pageData(r)
+	data.Categories = categories
 
-	h.render(w, http.StatusOK, "home.html", data)
+	h.render(
+		w,
+		http.StatusOK,
+		"home.html",
+		data,
+	)
 }
 
 func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +122,11 @@ func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	slug := strings.TrimPrefix(r.URL.Path, "/categories/")
+	slug := strings.TrimPrefix(
+		r.URL.Path,
+		"/categories/",
+	)
+
 	slug = strings.Trim(slug, "/")
 
 	if slug == "" || strings.Contains(slug, "/") {
@@ -117,9 +134,15 @@ func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	category, err := database.GetCategoryBySlug(h.db, slug)
+	category, err := database.GetCategoryBySlug(
+		h.db,
+		slug,
+	)
 	if err != nil {
-		if errors.Is(err, database.ErrCategoryNotFound) {
+		if errors.Is(
+			err,
+			database.ErrCategoryNotFound,
+		) {
 			h.renderNotFound(w)
 			return
 		}
@@ -137,19 +160,25 @@ func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := models.PageData{
-		Category: models.CategoryPageData{
-			ID:          category.ID,
-			Name:        category.Name,
-			Slug:        category.Slug,
-			Description: category.Description,
-			Tagline:     category.Tagline,
-			PostCount:   len(posts),
-		},
-		Posts: posts,
+	data := h.pageData(r)
+
+	data.Category = models.CategoryPageData{
+		ID:          category.ID,
+		Name:        category.Name,
+		Slug:        category.Slug,
+		Description: category.Description,
+		Tagline:     category.Tagline,
+		PostCount:   len(posts),
 	}
 
-	h.render(w, http.StatusOK, "category.html", data)
+	data.Posts = posts
+
+	h.render(
+		w,
+		http.StatusOK,
+		"category.html",
+		data,
+	)
 }
 
 func (h *PageHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
@@ -163,12 +192,44 @@ func (h *PageHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data := h.pageData(r)
+
 	h.render(
 		w,
 		http.StatusOK,
 		"dashboard.html",
-		models.PageData{},
+		data,
 	)
+}
+
+func (h *PageHandler) pageData(
+	r *http.Request,
+) models.PageData {
+	data := models.PageData{}
+
+	user := middleware.UserFromContext(
+		r.Context(),
+	)
+
+	if user == nil {
+		return data
+	}
+
+	data.IsAuthenticated = true
+	data.CurrentUser = user
+
+	unreadCount, err :=
+		database.GetUnreadNotificationCount(
+			h.db,
+			user.ID,
+		)
+
+	if err == nil {
+		data.UnreadNotificationCount =
+			unreadCount
+	}
+
+	return data
 }
 
 func (h *PageHandler) renderBadRequest(w http.ResponseWriter) {

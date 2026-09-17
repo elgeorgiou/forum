@@ -6,6 +6,8 @@ import (
 
 	"forum/internal/database"
 	"forum/internal/handlers"
+	"forum/internal/middleware"
+	"forum/internal/session"
 )
 
 func Run() error {
@@ -26,31 +28,92 @@ func Run() error {
 		return fmt.Errorf("seed categories: %w", err)
 	}
 
+	sessionManager := session.NewManager(db)
+
+	if err := sessionManager.DeleteExpired(); err != nil {
+		return fmt.Errorf("delete expired sessions: %w", err)
+	}
+
+	authMiddleware := middleware.NewAuth(
+		sessionManager,
+	)
+
 	pageHandler := handlers.NewPageHandler(db)
+
+	authHandler := handlers.NewAuthHandler(
+		db,
+		sessionManager,
+		pageHandler,
+	)
 
 	mux := http.NewServeMux()
 
-	staticFiles := http.FileServer(http.Dir("static"))
+	staticFiles := http.FileServer(
+		http.Dir("static"),
+	)
 
 	mux.Handle(
 		"/static/",
-		http.StripPrefix("/static/", staticFiles),
+		http.StripPrefix(
+			"/static/",
+			staticFiles,
+		),
 	)
 
-	mux.HandleFunc("/", pageHandler.Home)
-	mux.HandleFunc("/auth", pageHandler.Auth)
+	mux.HandleFunc(
+		"/",
+		pageHandler.Home,
+	)
 
-	mux.HandleFunc("/categories", pageHandler.Categories)
-	mux.HandleFunc("/categories/", pageHandler.Category)
+	mux.HandleFunc(
+		"/auth",
+		pageHandler.Auth,
+	)
 
-	mux.HandleFunc("/dashboard", pageHandler.Dashboard)
+	mux.HandleFunc(
+		"/register",
+		authHandler.Register,
+	)
+
+	mux.HandleFunc(
+		"/login",
+		authHandler.Login,
+	)
+
+	mux.HandleFunc(
+		"/logout",
+		authHandler.Logout,
+	)
+
+	mux.HandleFunc(
+		"/categories",
+		pageHandler.Categories,
+	)
+
+	mux.HandleFunc(
+		"/categories/",
+		pageHandler.Category,
+	)
+
+	mux.Handle(
+		"/dashboard",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				pageHandler.Dashboard,
+			),
+		),
+	)
+
+	handler := authMiddleware.LoadUser(mux)
 
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: handler,
 	}
 
-	fmt.Println("Server running at http://localhost:8080")
+	fmt.Println(
+		"Server running at http://localhost:8080",
+	)
 
 	return server.ListenAndServe()
 }
