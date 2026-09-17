@@ -94,13 +94,25 @@
                             Password
                         </label>
 
-                        <input
-                            id="signup-password"
-                            type="password"
-                            name="password"
-                            autocomplete="new-password"
-                            required
-                        >
+                        <div class="password-field">
+                            <input
+                                id="signup-password"
+                                type="password"
+                                name="password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-password-toggle="signup-password"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                            >
+                                <span aria-hidden="true">👁</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -108,13 +120,25 @@
                             Confirm Password
                         </label>
 
-                        <input
-                            id="signup-confirm-password"
-                            type="password"
-                            name="confirm_password"
-                            autocomplete="new-password"
-                            required
-                        >
+                        <div class="password-field">
+                            <input
+                                id="signup-confirm-password"
+                                type="password"
+                                name="confirm_password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-password-toggle="signup-confirm-password"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                            >
+                                <span aria-hidden="true">👁</span>
+                            </button>
+                        </div>
                     </div>
 
                     <button
@@ -150,13 +174,25 @@
                             Password
                         </label>
 
-                        <input
-                            id="login-password"
-                            type="password"
-                            name="password"
-                            autocomplete="current-password"
-                            required
-                        >
+                        <div class="password-field">
+                            <input
+                                id="login-password"
+                                type="password"
+                                name="password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-password-toggle="login-password"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                            >
+                                <span aria-hidden="true">👁</span>
+                            </button>
+                        </div>
                     </div>
 
                     <button
@@ -202,4 +238,31 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const inputId = button.getAttribute("data-password-toggle");
+            const input = document.getElementById(inputId);
+
+            if (!input) {
+                return;
+            }
+
+            const passwordIsVisible = input.type === "text";
+
+            input.type = passwordIsVisible ? "password" : "text";
+
+            button.setAttribute(
+                "aria-label",
+                passwordIsVisible ? "Show password" : "Hide password"
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                passwordIsVisible ? "false" : "true"
+            );
+        });
+    });
+</script>
 {{ end }}
