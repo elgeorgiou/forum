@@ -1,0 +1,8 @@
+.env
+
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+static/uploads/*
+!static/uploads/.gitkeep
