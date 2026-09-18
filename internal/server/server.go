@@ -51,6 +51,10 @@ func Run() error {
 		pageHandler,
 	)
 
+	commentHandler := handlers.NewCommentHandler(
+		db,
+	)
+
 	githubOAuthHandler := handlers.NewGitHubOAuthHandler(
 		db,
 		sessionManager,
@@ -135,6 +139,15 @@ func Run() error {
 		authMiddleware.RequireAuthentication(
 			http.HandlerFunc(
 				postHandler.Create,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/posts/{id}/comments",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				commentHandler.Create,
 			),
 		),
 	)

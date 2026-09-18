@@ -38,6 +38,7 @@ type PageData struct {
 	RecentPosts []database.PostView
 	Posts       []database.PostView
 	Post        database.PostView
+	Comments    []database.CommentView
 
 	CommunityStats CommunityStats
 

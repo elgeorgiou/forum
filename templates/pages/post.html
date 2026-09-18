@@ -13,17 +13,13 @@
 
         <nav class="post-breadcrumbs">
             <a href="/">Home</a>
-
             <span>/</span>
-
             {{ if .Post.CategorySlug }}
             <a href="/categories/{{ .Post.CategorySlug }}">
                 {{ .Post.CategoryName }}
             </a>
-
             <span>/</span>
             {{ end }}
-
             <span>Post</span>
         </nav>
 
@@ -51,9 +47,7 @@
             <div class="post-detail-main">
                 <header class="post-detail-header">
                     <div class="post-detail-meta">
-                        <span>
-                            Posted by
-                        </span>
+                        <span>Posted by</span>
 
                         <span class="post-detail-author">
                             {{ .Post.Username }}
@@ -130,17 +124,40 @@
             </div>
 
             {{ if .IsAuthenticated }}
-            <div class="comment-placeholder">
-                <div class="comment-placeholder-avatar">
-                    {{ .CurrentUser.Username }}
+            <form
+                class="comment-form"
+                action="/posts/{{ .Post.ID }}/comments"
+                method="POST"
+            >
+                <div class="comment-form-user">
+                    <div class="comment-form-avatar">
+                        {{ .CurrentUser.Username }}
+                    </div>
+
+                    <span>
+                        Comment as
+                        <strong>
+                            {{ .CurrentUser.Username }}
+                        </strong>
+                    </span>
                 </div>
 
-                <div class="comment-placeholder-content">
-                    <p>
-                        Comment creation is coming next.
-                    </p>
+                <textarea
+                    name="content"
+                    placeholder="Join the discussion..."
+                    maxlength="5000"
+                    required
+                ></textarea>
+
+                <div class="comment-form-actions">
+                    <button
+                        type="submit"
+                        class="button button-primary"
+                    >
+                        Post comment
+                    </button>
                 </div>
-            </div>
+            </form>
             {{ else }}
             <div class="comment-login-prompt">
                 <p>
@@ -155,6 +172,68 @@
                 </a>
             </div>
             {{ end }}
+
+            <div class="comments-list">
+                {{ if .Comments }}
+
+                {{ range .Comments }}
+                <article class="comment-card">
+                    <aside class="comment-votes">
+                        <span class="comment-score">
+                            {{ .Score }}
+                        </span>
+
+                        <span class="comment-score-label">
+                            score
+                        </span>
+                    </aside>
+
+                    <div class="comment-main">
+                        <header class="comment-header">
+                            <span class="comment-author">
+                                {{ .Username }}
+                            </span>
+
+                            <span>•</span>
+
+                            <span>
+                                {{ .CreatedAt }}
+                            </span>
+                        </header>
+
+                        <div class="comment-content">
+                            <p>
+                                {{ .Content }}
+                            </p>
+                        </div>
+
+                        <footer class="comment-footer">
+                            <span>
+                                ▲ {{ .LikeCount }}
+                            </span>
+
+                            <span>
+                                ▼ {{ .DislikeCount }}
+                            </span>
+                        </footer>
+                    </div>
+                </article>
+                {{ end }}
+
+                {{ else }}
+
+                <div class="comments-empty">
+                    <p>
+                        No comments yet.
+                    </p>
+
+                    <span>
+                        Be the first to join the discussion.
+                    </span>
+                </div>
+
+                {{ end }}
+            </div>
         </section>
 
     </div>

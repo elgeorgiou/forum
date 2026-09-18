@@ -63,8 +63,19 @@ func (h *PostHandler) View(
 		return
 	}
 
+	comments, err := database.GetCommentViewsByPost(
+		h.db,
+		postID,
+	)
+	if err != nil {
+		h.pages.renderInternalServerError(w)
+		return
+	}
+
 	data := h.pages.pageData(r)
+
 	data.Post = post
+	data.Comments = comments
 
 	h.pages.render(
 		w,

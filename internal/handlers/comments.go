@@ -1,0 +1,186 @@
+package handlers
+
+import (
+	"database/sql"
+	"errors"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"forum/internal/database"
+	"forum/internal/middleware"
+)
+
+type CommentHandler struct {
+	db *sql.DB
+}
+
+func NewCommentHandler(
+	db *sql.DB,
+) *CommentHandler {
+	return &CommentHandler{
+		db: db,
+	}
+}
+
+func (h *CommentHandler) Create(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			http.StatusText(http.StatusMethodNotAllowed),
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user := middleware.UserFromContext(
+		r.Context(),
+	)
+
+	if user == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	postID, err := commentPostIDFromPath(
+		r.URL.Path,
+	)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	_, err = database.GetPostByID(
+		h.db,
+		postID,
+	)
+	if errors.Is(
+		err,
+		database.ErrPostNotFound,
+	) {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err != nil {
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Invalid comment form",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	content := strings.TrimSpace(
+		r.FormValue("content"),
+	)
+
+	if content == "" {
+		http.Error(
+			w,
+			"Comment cannot be empty",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	_, err = database.CreateComment(
+		h.db,
+		postID,
+		user.ID,
+		content,
+	)
+	if err != nil {
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/posts/"+strconv.FormatInt(
+			postID,
+			10,
+		),
+		http.StatusSeeOther,
+	)
+}
+
+func commentPostIDFromPath(
+	path string,
+) (int64, error) {
+	const prefix = "/posts/"
+	const suffix = "/comments"
+
+	if !strings.HasPrefix(
+		path,
+		prefix,
+	) || !strings.HasSuffix(
+		path,
+		suffix,
+	) {
+		return 0, errors.New(
+			"invalid comment path",
+		)
+	}
+
+	value := strings.TrimPrefix(
+		path,
+		prefix,
+	)
+
+	value = strings.TrimSuffix(
+		value,
+		suffix,
+	)
+
+	value = strings.Trim(
+		value,
+		"/",
+	)
+
+	if value == "" ||
+		strings.Contains(value, "/") {
+		return 0, errors.New(
+			"invalid post id",
+		)
+	}
+
+	postID, err := strconv.ParseInt(
+		value,
+		10,
+		64,
+	)
+	if err != nil || postID <= 0 {
+		return 0, errors.New(
+			"invalid post id",
+		)
+	}
+
+	return postID, nil
+}
