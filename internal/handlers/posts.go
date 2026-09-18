@@ -76,6 +76,48 @@ func (h *PostHandler) View(
 
 	data.Post = post
 	data.Comments = comments
+	data.CommentReactions = make(map[int64]int)
+
+	if data.CurrentUser != nil {
+		reaction, err := database.GetPostReactionByUser(
+			h.db,
+			data.CurrentUser.ID,
+			postID,
+		)
+
+		if err == nil {
+			data.PostReaction = reaction
+		} else if !errors.Is(
+			err,
+			database.ErrReactionNotFound,
+		) {
+			h.pages.renderInternalServerError(w)
+			return
+		}
+
+		for _, comment := range comments {
+			reaction, err :=
+				database.GetCommentReactionByUser(
+					h.db,
+					data.CurrentUser.ID,
+					comment.ID,
+				)
+
+			if err == nil {
+				data.CommentReactions[comment.ID] =
+					reaction
+				continue
+			}
+
+			if !errors.Is(
+				err,
+				database.ErrReactionNotFound,
+			) {
+				h.pages.renderInternalServerError(w)
+				return
+			}
+		}
+	}
 
 	h.pages.render(
 		w,

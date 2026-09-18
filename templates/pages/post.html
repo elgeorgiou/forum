@@ -1,115 +1,237 @@
 {{ define "title" }}{{ .Post.Title }} | GameForum{{ end }}
 
 {{ define "styles" }}
-<link
-    rel="stylesheet"
-    href="/static/css/post.css"
->
+<link rel="stylesheet" href="/static/css/post.css">
+{{ end }}
+
+{{ define "scripts" }}
+<script src="/static/js/reactions.js" defer></script>
 {{ end }}
 
 {{ define "content" }}
-<section class="post-page">
+
+<main class="post-page">
     <div class="post-page-container">
 
-        <nav class="post-breadcrumbs">
+        <nav class="post-breadcrumbs" aria-label="Breadcrumb">
             <a href="/">Home</a>
-            <span>/</span>
+
             {{ if .Post.CategorySlug }}
-            <a href="/categories/{{ .Post.CategorySlug }}">
-                {{ .Post.CategoryName }}
-            </a>
-            <span>/</span>
+                <span>/</span>
+                <a href="/categories/{{ .Post.CategorySlug }}">
+                    {{ .Post.CategoryName }}
+                </a>
             {{ end }}
+
+            <span>/</span>
             <span>Post</span>
         </nav>
 
         <article class="post-detail">
-            <aside class="post-detail-votes">
-                <div class="post-detail-score">
-                    {{ .Post.Score }}
-                </div>
 
-                <span class="post-detail-score-label">
-                    score
-                </span>
-
-                <div class="post-detail-reaction-counts">
-                    <span>
-                        ▲ {{ .Post.LikeCount }}
-                    </span>
-
-                    <span>
-                        ▼ {{ .Post.DislikeCount }}
-                    </span>
-                </div>
-            </aside>
-
-            <div class="post-detail-main">
-                <header class="post-detail-header">
-                    <div class="post-detail-meta">
-                        <span>Posted by</span>
-
-                        <span class="post-detail-author">
-                            {{ .Post.Username }}
-                        </span>
-
-                        <span>•</span>
-
-                        <span>
-                            {{ .Post.CreatedAt }}
-                        </span>
-                    </div>
-
-                    <h1>
-                        {{ .Post.Title }}
-                    </h1>
-
-                    {{ if .Post.Categories }}
-                    <div class="post-detail-tags">
-                        {{ range .Post.Categories }}
-                        <a href="/categories/{{ .Slug }}">
-                            {{ .Name }}
-                        </a>
+            <header class="post-detail-header">
+                <div class="post-detail-author">
+                    <div class="post-detail-avatar">
+                        {{ if .Post.Username }}
+                            {{ slice .Post.Username 0 1 }}
+                        {{ else }}
+                            ?
                         {{ end }}
                     </div>
-                    {{ end }}
-                </header>
+
+                    <div>
+                        <div class="post-detail-author-name">
+                            {{ .Post.Username }}
+                        </div>
+
+                        <div class="post-detail-date">
+                            {{ .Post.CreatedAt }}
+                        </div>
+                    </div>
+                </div>
+
+                {{ if .Post.Categories }}
+                    <div class="post-detail-categories">
+                        {{ range .Post.Categories }}
+                            <a
+                                class="post-detail-category"
+                                href="/categories/{{ .Slug }}"
+                            >
+                                {{ .Name }}
+                            </a>
+                        {{ end }}
+                    </div>
+                {{ end }}
+            </header>
+
+            <div class="post-detail-body">
+                <h1 class="post-detail-title">
+                    {{ .Post.Title }}
+                </h1>
 
                 <div class="post-detail-content">
-                    <p>
-                        {{ .Post.Content }}
-                    </p>
+                    {{ .Post.Content }}
                 </div>
 
                 {{ if .Post.ImagePath }}
-                <div class="post-detail-image">
-                    <img
-                        src="{{ .Post.ImagePath }}"
-                        alt="{{ .Post.Title }}"
-                    >
-                </div>
+                    <div class="post-detail-image-wrapper">
+                        <img
+                            class="post-detail-image"
+                            src="{{ .Post.ImagePath }}"
+                            alt="Image attached to {{ .Post.Title }}"
+                        >
+                    </div>
                 {{ end }}
-
-                <footer class="post-detail-footer">
-                    <span>
-                        💬 {{ .Post.CommentCount }} comments
-                    </span>
-
-                    <span>
-                        ▲ {{ .Post.LikeCount }} likes
-                    </span>
-
-                    <span>
-                        ▼ {{ .Post.DislikeCount }} dislikes
-                    </span>
-                </footer>
             </div>
+
+            <footer class="post-detail-footer">
+
+                <div class="post-detail-meta">
+                    <span class="post-detail-comments-count">
+                        {{ .Post.CommentCount }}
+
+                        {{ if eq .Post.CommentCount 1 }}
+                            comment
+                        {{ else }}
+                            comments
+                        {{ end }}
+                    </span>
+                </div>
+
+                <div class="reaction-group">
+
+                    {{ if .IsAuthenticated }}
+
+                        <form
+                            class="reaction-form"
+                            action="/posts/react"
+                            method="POST"
+                        >
+                            <input
+                                type="hidden"
+                                name="post_id"
+                                value="{{ .Post.ID }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="reaction"
+                                value="1"
+                            >
+
+                            <button
+                                type="submit"
+                                class="reaction-button reaction-like {{ if eq .PostReaction 1 }}is-active{{ end }}"
+                                aria-label="Like post"
+                            >
+                                <svg
+                                    class="reaction-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
+                                    />
+                                </svg>
+
+                                <span>Like</span>
+
+                                <span class="reaction-count">
+                                    {{ .Post.LikeCount }}
+                                </span>
+                            </button>
+                        </form>
+
+                        <form
+                            class="reaction-form"
+                            action="/posts/react"
+                            method="POST"
+                        >
+                            <input
+                                type="hidden"
+                                name="post_id"
+                                value="{{ .Post.ID }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="reaction"
+                                value="-1"
+                            >
+
+                            <button
+                                type="submit"
+                                class="reaction-button reaction-dislike {{ if eq .PostReaction -1 }}is-active{{ end }}"
+                                aria-label="Dislike post"
+                            >
+                                <svg
+                                    class="reaction-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
+                                    />
+                                </svg>
+
+                                <span>Dislike</span>
+
+                                <span class="reaction-count">
+                                    {{ .Post.DislikeCount }}
+                                </span>
+                            </button>
+                        </form>
+
+                    {{ else }}
+
+                        <div class="reaction-button reaction-readonly">
+                            <svg
+                                class="reaction-icon"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
+                                />
+                            </svg>
+
+                            <span>Like</span>
+
+                            <span class="reaction-count">
+                                {{ .Post.LikeCount }}
+                            </span>
+                        </div>
+
+                        <div class="reaction-button reaction-readonly">
+                            <svg
+                                class="reaction-icon"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
+                                />
+                            </svg>
+
+                            <span>Dislike</span>
+
+                            <span class="reaction-count">
+                                {{ .Post.DislikeCount }}
+                            </span>
+                        </div>
+
+                    {{ end }}
+
+                </div>
+            </footer>
+
         </article>
 
         <section class="post-comments">
+
             <div class="post-comments-heading">
                 <div>
-                    <span class="post-comments-label">
+                    <span class="post-comments-eyebrow">
                         Discussion
                     </span>
 
@@ -118,124 +240,260 @@
                     </h2>
                 </div>
 
-                <span class="post-comments-count">
+                <span class="post-comments-total">
                     {{ .Post.CommentCount }}
                 </span>
             </div>
 
             {{ if .IsAuthenticated }}
-            <form
-                class="comment-form"
-                action="/posts/{{ .Post.ID }}/comments"
-                method="POST"
-            >
-                <div class="comment-form-user">
-                    <div class="comment-form-avatar">
-                        {{ .CurrentUser.Username }}
-                    </div>
 
-                    <span>
-                        Comment as
-                        <strong>
-                            {{ .CurrentUser.Username }}
-                        </strong>
-                    </span>
-                </div>
-
-                <textarea
-                    name="content"
-                    placeholder="Join the discussion..."
-                    maxlength="5000"
-                    required
-                ></textarea>
-
-                <div class="comment-form-actions">
-                    <button
-                        type="submit"
-                        class="button button-primary"
-                    >
-                        Post comment
-                    </button>
-                </div>
-            </form>
-            {{ else }}
-            <div class="comment-login-prompt">
-                <p>
-                    Join the discussion by logging in.
-                </p>
-
-                <a
-                    href="/auth?mode=login"
-                    class="button button-primary"
+                <form
+                    class="comment-form"
+                    action="/posts/{{ .Post.ID }}/comments"
+                    method="POST"
                 >
-                    Log in
-                </a>
-            </div>
-            {{ end }}
-
-            <div class="comments-list">
-                {{ if .Comments }}
-
-                {{ range .Comments }}
-                <article class="comment-card">
-                    <aside class="comment-votes">
-                        <span class="comment-score">
-                            {{ .Score }}
-                        </span>
-
-                        <span class="comment-score-label">
-                            score
-                        </span>
-                    </aside>
-
-                    <div class="comment-main">
-                        <header class="comment-header">
-                            <span class="comment-author">
-                                {{ .Username }}
-                            </span>
-
-                            <span>•</span>
-
-                            <span>
-                                {{ .CreatedAt }}
-                            </span>
-                        </header>
-
-                        <div class="comment-content">
-                            <p>
-                                {{ .Content }}
-                            </p>
+                    <div class="comment-form-user">
+                        <div class="comment-form-avatar">
+                            {{ if .CurrentUser.Username }}
+                                {{ slice .CurrentUser.Username 0 1 }}
+                            {{ else }}
+                                ?
+                            {{ end }}
                         </div>
 
-                        <footer class="comment-footer">
-                            <span>
-                                ▲ {{ .LikeCount }}
+                        <div>
+                            <span class="comment-form-label">
+                                Commenting as
                             </span>
 
-                            <span>
-                                ▼ {{ .DislikeCount }}
-                            </span>
-                        </footer>
+                            <strong>
+                                {{ .CurrentUser.Username }}
+                            </strong>
+                        </div>
                     </div>
-                </article>
-                {{ end }}
 
-                {{ else }}
+                    <textarea
+                        name="content"
+                        placeholder="Join the discussion..."
+                        maxlength="5000"
+                        required
+                    ></textarea>
 
-                <div class="comments-empty">
+                    <div class="comment-form-actions">
+                        <span class="comment-form-hint">
+                            Keep the discussion respectful.
+                        </span>
+
+                        <button
+                            type="submit"
+                            class="comment-submit-button"
+                        >
+                            Post comment
+                        </button>
+                    </div>
+                </form>
+
+            {{ else }}
+
+                <div class="comment-login-prompt">
                     <p>
-                        No comments yet.
+                        Sign in to join the discussion.
                     </p>
 
-                    <span>
-                        Be the first to join the discussion.
-                    </span>
+                    <a href="/auth?mode=login">
+                        Sign in
+                    </a>
                 </div>
 
-                {{ end }}
-            </div>
+            {{ end }}
+
+            {{ if .Comments }}
+
+                <div class="comments-list">
+
+                    {{ range .Comments }}
+
+                        <article class="comment-card">
+
+                            <header class="comment-header">
+                                <div class="comment-author">
+
+                                    <div class="comment-avatar">
+                                        {{ if .Username }}
+                                            {{ slice .Username 0 1 }}
+                                        {{ else }}
+                                            ?
+                                        {{ end }}
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            {{ .Username }}
+                                        </strong>
+
+                                        <span>
+                                            {{ .CreatedAt }}
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </header>
+
+                            <div class="comment-content">
+                                {{ .Content }}
+                            </div>
+
+                            <footer class="comment-footer">
+
+                                <div class="comment-reactions">
+
+                                    {{ if $.IsAuthenticated }}
+
+                                        <form
+                                            class="reaction-form"
+                                            action="/comments/react"
+                                            method="POST"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="comment_id"
+                                                value="{{ .ID }}"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="reaction"
+                                                value="1"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="reaction-button reaction-like {{ if eq (index $.CommentReactions .ID) 1 }}is-active{{ end }}"
+                                                aria-label="Like comment"
+                                            >
+                                                <svg
+                                                    class="reaction-icon"
+                                                    viewBox="0 0 24 24"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
+                                                    />
+                                                </svg>
+
+                                                <span>Like</span>
+
+                                                <span class="reaction-count">
+                                                    {{ .LikeCount }}
+                                                </span>
+                                            </button>
+                                        </form>
+
+                                        <form
+                                            class="reaction-form"
+                                            action="/comments/react"
+                                            method="POST"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="comment_id"
+                                                value="{{ .ID }}"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="reaction"
+                                                value="-1"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="reaction-button reaction-dislike {{ if eq (index $.CommentReactions .ID) -1 }}is-active{{ end }}"
+                                                aria-label="Dislike comment"
+                                            >
+                                                <svg
+                                                    class="reaction-icon"
+                                                    viewBox="0 0 24 24"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path
+                                                        d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
+                                                    />
+                                                </svg>
+
+                                                <span>Dislike</span>
+
+                                                <span class="reaction-count">
+                                                    {{ .DislikeCount }}
+                                                </span>
+                                            </button>
+                                        </form>
+
+                                    {{ else }}
+
+                                        <div class="reaction-button reaction-readonly">
+                                            <svg
+                                                class="reaction-icon"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
+                                                />
+                                            </svg>
+
+                                            <span>Like</span>
+
+                                            <span class="reaction-count">
+                                                {{ .LikeCount }}
+                                            </span>
+                                        </div>
+
+                                        <div class="reaction-button reaction-readonly">
+                                            <svg
+                                                class="reaction-icon"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
+                                                />
+                                            </svg>
+
+                                            <span>Dislike</span>
+
+                                            <span class="reaction-count">
+                                                {{ .DislikeCount }}
+                                            </span>
+                                        </div>
+
+                                    {{ end }}
+
+                                </div>
+
+                            </footer>
+
+                        </article>
+
+                    {{ end }}
+
+                </div>
+
+            {{ else }}
+
+                <div class="comments-empty">
+                    <h3>No comments yet</h3>
+
+                    <p>
+                        Be the first player to join the discussion.
+                    </p>
+                </div>
+
+            {{ end }}
+
         </section>
 
     </div>
-</section>
+</main>
+
 {{ end }}

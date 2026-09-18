@@ -55,6 +55,10 @@ func Run() error {
 		db,
 	)
 
+	reactionHandler := handlers.NewReactionHandler(
+		db,
+	)
+
 	githubOAuthHandler := handlers.NewGitHubOAuthHandler(
 		db,
 		sessionManager,
@@ -139,6 +143,24 @@ func Run() error {
 		authMiddleware.RequireAuthentication(
 			http.HandlerFunc(
 				postHandler.Create,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/posts/react",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				reactionHandler.Post,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/comments/react",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				reactionHandler.Comment,
 			),
 		),
 	)
