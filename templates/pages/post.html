@@ -1,0 +1,162 @@
+{{ define "title" }}{{ .Post.Title }} | GameForum{{ end }}
+
+{{ define "styles" }}
+<link
+    rel="stylesheet"
+    href="/static/css/post.css"
+>
+{{ end }}
+
+{{ define "content" }}
+<section class="post-page">
+    <div class="post-page-container">
+
+        <nav class="post-breadcrumbs">
+            <a href="/">Home</a>
+
+            <span>/</span>
+
+            {{ if .Post.CategorySlug }}
+            <a href="/categories/{{ .Post.CategorySlug }}">
+                {{ .Post.CategoryName }}
+            </a>
+
+            <span>/</span>
+            {{ end }}
+
+            <span>Post</span>
+        </nav>
+
+        <article class="post-detail">
+            <aside class="post-detail-votes">
+                <div class="post-detail-score">
+                    {{ .Post.Score }}
+                </div>
+
+                <span class="post-detail-score-label">
+                    score
+                </span>
+
+                <div class="post-detail-reaction-counts">
+                    <span>
+                        ▲ {{ .Post.LikeCount }}
+                    </span>
+
+                    <span>
+                        ▼ {{ .Post.DislikeCount }}
+                    </span>
+                </div>
+            </aside>
+
+            <div class="post-detail-main">
+                <header class="post-detail-header">
+                    <div class="post-detail-meta">
+                        <span>
+                            Posted by
+                        </span>
+
+                        <span class="post-detail-author">
+                            {{ .Post.Username }}
+                        </span>
+
+                        <span>•</span>
+
+                        <span>
+                            {{ .Post.CreatedAt }}
+                        </span>
+                    </div>
+
+                    <h1>
+                        {{ .Post.Title }}
+                    </h1>
+
+                    {{ if .Post.Categories }}
+                    <div class="post-detail-tags">
+                        {{ range .Post.Categories }}
+                        <a href="/categories/{{ .Slug }}">
+                            {{ .Name }}
+                        </a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </header>
+
+                <div class="post-detail-content">
+                    <p>
+                        {{ .Post.Content }}
+                    </p>
+                </div>
+
+                {{ if .Post.ImagePath }}
+                <div class="post-detail-image">
+                    <img
+                        src="{{ .Post.ImagePath }}"
+                        alt="{{ .Post.Title }}"
+                    >
+                </div>
+                {{ end }}
+
+                <footer class="post-detail-footer">
+                    <span>
+                        💬 {{ .Post.CommentCount }} comments
+                    </span>
+
+                    <span>
+                        ▲ {{ .Post.LikeCount }} likes
+                    </span>
+
+                    <span>
+                        ▼ {{ .Post.DislikeCount }} dislikes
+                    </span>
+                </footer>
+            </div>
+        </article>
+
+        <section class="post-comments">
+            <div class="post-comments-heading">
+                <div>
+                    <span class="post-comments-label">
+                        Discussion
+                    </span>
+
+                    <h2>
+                        Comments
+                    </h2>
+                </div>
+
+                <span class="post-comments-count">
+                    {{ .Post.CommentCount }}
+                </span>
+            </div>
+
+            {{ if .IsAuthenticated }}
+            <div class="comment-placeholder">
+                <div class="comment-placeholder-avatar">
+                    {{ .CurrentUser.Username }}
+                </div>
+
+                <div class="comment-placeholder-content">
+                    <p>
+                        Comment creation is coming next.
+                    </p>
+                </div>
+            </div>
+            {{ else }}
+            <div class="comment-login-prompt">
+                <p>
+                    Join the discussion by logging in.
+                </p>
+
+                <a
+                    href="/auth?mode=login"
+                    class="button button-primary"
+                >
+                    Log in
+                </a>
+            </div>
+            {{ end }}
+        </section>
+
+    </div>
+</section>
+{{ end }}

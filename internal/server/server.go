@@ -46,6 +46,11 @@ func Run() error {
 		pageHandler,
 	)
 
+	postHandler := handlers.NewPostHandler(
+		db,
+		pageHandler,
+	)
+
 	githubOAuthHandler := handlers.NewGitHubOAuthHandler(
 		db,
 		sessionManager,
@@ -123,6 +128,20 @@ func Run() error {
 	mux.HandleFunc(
 		"/categories/",
 		pageHandler.Category,
+	)
+
+	mux.Handle(
+		"/posts/create",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				postHandler.Create,
+			),
+		),
+	)
+
+	mux.HandleFunc(
+		"/posts/",
+		postHandler.View,
 	)
 
 	mux.Handle(

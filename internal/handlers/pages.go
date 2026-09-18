@@ -25,7 +25,10 @@ func NewPageHandler(db *sql.DB) *PageHandler {
 	}
 }
 
-func (h *PageHandler) Home(w http.ResponseWriter, r *http.Request) {
+func (h *PageHandler) Home(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	if r.URL.Path != "/" {
 		h.renderNotFound(w)
 		return
@@ -36,19 +39,24 @@ func (h *PageHandler) Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categories, err := database.GetAllCategories(h.db)
+	categories, err := database.GetAllCategories(
+		h.db,
+	)
 	if err != nil {
 		h.renderInternalServerError(w)
 		return
 	}
 
-	posts, err := database.GetAllPosts(h.db)
+	posts, err := database.GetAllPostViews(
+		h.db,
+	)
 	if err != nil {
 		h.renderInternalServerError(w)
 		return
 	}
 
 	data := h.pageData(r)
+
 	data.Categories = categories
 	data.RecentPosts = posts
 
@@ -60,7 +68,10 @@ func (h *PageHandler) Home(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func (h *PageHandler) Auth(w http.ResponseWriter, r *http.Request) {
+func (h *PageHandler) Auth(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	if r.Method != http.MethodGet {
 		h.renderMethodNotAllowed(w)
 		return
@@ -72,12 +83,14 @@ func (h *PageHandler) Auth(w http.ResponseWriter, r *http.Request) {
 		mode = "login"
 	}
 
-	if mode != "login" && mode != "signup" {
+	if mode != "login" &&
+		mode != "signup" {
 		h.renderBadRequest(w)
 		return
 	}
 
 	data := h.pageData(r)
+
 	data.AuthMode = mode
 
 	h.render(
@@ -88,7 +101,10 @@ func (h *PageHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func (h *PageHandler) Categories(w http.ResponseWriter, r *http.Request) {
+func (h *PageHandler) Categories(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	if r.URL.Path != "/categories" {
 		h.renderNotFound(w)
 		return
@@ -99,13 +115,16 @@ func (h *PageHandler) Categories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	categories, err := database.GetAllCategories(h.db)
+	categories, err := database.GetAllCategories(
+		h.db,
+	)
 	if err != nil {
 		h.renderInternalServerError(w)
 		return
 	}
 
 	data := h.pageData(r)
+
 	data.Categories = categories
 
 	h.render(
@@ -116,7 +135,10 @@ func (h *PageHandler) Categories(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
+func (h *PageHandler) Category(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	if r.Method != http.MethodGet {
 		h.renderMethodNotAllowed(w)
 		return
@@ -129,7 +151,8 @@ func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
 
 	slug = strings.Trim(slug, "/")
 
-	if slug == "" || strings.Contains(slug, "/") {
+	if slug == "" ||
+		strings.Contains(slug, "/") {
 		h.renderNotFound(w)
 		return
 	}
@@ -151,7 +174,7 @@ func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := database.GetPostsByCategory(
+	posts, err := database.GetPostViewsByCategory(
 		h.db,
 		category.ID,
 	)
@@ -181,7 +204,10 @@ func (h *PageHandler) Category(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func (h *PageHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
+func (h *PageHandler) Dashboard(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	if r.URL.Path != "/dashboard" {
 		h.renderNotFound(w)
 		return
@@ -232,7 +258,9 @@ func (h *PageHandler) pageData(
 	return data
 }
 
-func (h *PageHandler) renderBadRequest(w http.ResponseWriter) {
+func (h *PageHandler) renderBadRequest(
+	w http.ResponseWriter,
+) {
 	h.renderError(
 		w,
 		http.StatusBadRequest,
@@ -243,7 +271,9 @@ func (h *PageHandler) renderBadRequest(w http.ResponseWriter) {
 	)
 }
 
-func (h *PageHandler) renderNotFound(w http.ResponseWriter) {
+func (h *PageHandler) renderNotFound(
+	w http.ResponseWriter,
+) {
 	h.renderError(
 		w,
 		http.StatusNotFound,
@@ -254,7 +284,9 @@ func (h *PageHandler) renderNotFound(w http.ResponseWriter) {
 	)
 }
 
-func (h *PageHandler) renderMethodNotAllowed(w http.ResponseWriter) {
+func (h *PageHandler) renderMethodNotAllowed(
+	w http.ResponseWriter,
+) {
 	h.renderError(
 		w,
 		http.StatusMethodNotAllowed,
@@ -265,7 +297,9 @@ func (h *PageHandler) renderMethodNotAllowed(w http.ResponseWriter) {
 	)
 }
 
-func (h *PageHandler) renderInternalServerError(w http.ResponseWriter) {
+func (h *PageHandler) renderInternalServerError(
+	w http.ResponseWriter,
+) {
 	h.renderError(
 		w,
 		http.StatusInternalServerError,
@@ -329,7 +363,9 @@ func (h *PageHandler) render(
 		),
 	}
 
-	tmpl, err := template.ParseFiles(files...)
+	tmpl, err := template.ParseFiles(
+		files...,
+	)
 	if err != nil {
 		http.Error(
 			w,

@@ -20,6 +20,12 @@ type CategoryPageData struct {
 	Rules       []string
 }
 
+type CommunityStats struct {
+	MemberCount  int
+	PostCount    int
+	CommentCount int
+}
+
 type PageData struct {
 	IsAuthenticated         bool
 	UnreadNotificationCount int
@@ -29,8 +35,11 @@ type PageData struct {
 	Categories []database.Category
 	Category   CategoryPageData
 
-	RecentPosts []database.Post
-	Posts       []database.Post
+	RecentPosts []database.PostView
+	Posts       []database.PostView
+	Post        database.PostView
+
+	CommunityStats CommunityStats
 
 	PopularTags []string
 
