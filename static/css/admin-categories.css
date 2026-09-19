@@ -1,0 +1,137 @@
+.admin-category-form,
+.admin-category-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.admin-category-form {
+    padding: 24px;
+
+    border:
+        1px solid rgba(139, 92, 246, 0.24);
+
+    border-radius: 18px;
+
+    background:
+        rgba(10, 14, 28, 0.72);
+}
+
+.admin-category-form-row {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.admin-category-form label,
+.admin-category-edit-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-category-form label > span,
+.admin-category-edit-form label > span {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+
+    color:
+        var(--color-text-secondary);
+}
+
+.admin-category-form input,
+.admin-category-form textarea,
+.admin-category-edit-form input,
+.admin-category-edit-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 12px 14px;
+
+    color:
+        var(--color-text-primary);
+
+    background:
+        rgba(7, 10, 20, 0.8);
+
+    border:
+        1px solid rgba(148, 163, 184, 0.2);
+
+    border-radius: 10px;
+
+    font: inherit;
+
+    outline: none;
+}
+
+.admin-category-form textarea,
+.admin-category-edit-form textarea {
+    resize: vertical;
+}
+
+.admin-category-form input:focus,
+.admin-category-form textarea:focus,
+.admin-category-edit-form input:focus,
+.admin-category-edit-form textarea:focus {
+    border-color:
+        rgba(139, 92, 246, 0.72);
+
+    box-shadow:
+        0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.admin-category-create-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.admin-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.admin-category-card {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: end;
+
+    padding: 22px;
+
+    border:
+        1px solid rgba(148, 163, 184, 0.16);
+
+    border-radius: 16px;
+
+    background:
+        rgba(10, 14, 28, 0.68);
+}
+
+.admin-category-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.admin-category-delete-form {
+    display: flex;
+    align-items: flex-end;
+}
+
+@media (max-width: 850px) {
+    .admin-category-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-category-card {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-category-delete-form {
+        justify-content: flex-start;
+    }
+}

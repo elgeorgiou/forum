@@ -1,0 +1,289 @@
+{{ define "title" }}Manage Categories | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/dashboard.css">
+<link rel="stylesheet" href="/static/css/admin-categories.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="dashboard-page">
+    <div class="dashboard-background"></div>
+
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+            <div class="dashboard-sidebar-header">
+                <span class="dashboard-sidebar-icon">🎮</span>
+
+                <div>
+                    <span class="dashboard-sidebar-label">
+                        GameForum
+                    </span>
+
+                    <strong>Admin Panel</strong>
+                </div>
+            </div>
+
+            <nav class="dashboard-navigation">
+                <a
+                    href="/dashboard"
+                    class="dashboard-nav-link"
+                >
+                    Overview
+                </a>
+
+                <a
+                    href="/dashboard#reports"
+                    class="dashboard-nav-link"
+                >
+                    Reports
+                </a>
+
+                <a
+                    href="/dashboard#moderator-requests"
+                    class="dashboard-nav-link"
+                >
+                    Moderator Requests
+                </a>
+
+                <a
+                    href="/admin/moderators"
+                    class="dashboard-nav-link"
+                >
+                    Moderators
+                </a>
+
+                <a
+                    href="/admin/categories"
+                    class="dashboard-nav-link active"
+                >
+                    Categories
+                </a>
+
+                <a
+                    href="/"
+                    class="dashboard-nav-link dashboard-back-link"
+                >
+                    Back to Forum
+                </a>
+            </nav>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="dashboard-header">
+                <div>
+                    <p class="dashboard-eyebrow">
+                        FORUM MANAGEMENT
+                    </p>
+
+                    <h1>Manage Categories</h1>
+
+                    <p class="dashboard-subtitle">
+                        Create, edit and remove forum categories.
+                    </p>
+                </div>
+
+                <div class="dashboard-user">
+                    <div class="dashboard-user-avatar">
+                        {{ .CurrentUser.Username }}
+                    </div>
+
+                    <div>
+                        <strong>
+                            {{ .CurrentUser.Username }}
+                        </strong>
+
+                        <span>
+                            {{ .CurrentUser.Role }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <section class="dashboard-section">
+                <div class="dashboard-section-heading">
+                    <div>
+                        <p class="dashboard-section-label">
+                            NEW CATEGORY
+                        </p>
+
+                        <h2>Create Category</h2>
+                    </div>
+                </div>
+
+                <form
+                    action="/admin/categories/create"
+                    method="POST"
+                    class="admin-category-form"
+                >
+                    <div class="admin-category-form-row">
+                        <label>
+                            <span>Name</span>
+
+                            <input
+                                type="text"
+                                name="name"
+                                maxlength="80"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            <span>Slug</span>
+
+                            <input
+                                type="text"
+                                name="slug"
+                                maxlength="80"
+                                placeholder="example-category"
+                                required
+                            >
+                        </label>
+                    </div>
+
+                    <label>
+                        <span>Description</span>
+
+                        <textarea
+                            name="description"
+                            maxlength="500"
+                            rows="3"
+                        ></textarea>
+                    </label>
+
+                    <label>
+                        <span>Tagline</span>
+
+                        <input
+                            type="text"
+                            name="tagline"
+                            maxlength="160"
+                        >
+                    </label>
+
+                    <div class="admin-category-create-action">
+                        <button
+                            type="submit"
+                            class="dashboard-success-button"
+                        >
+                            Create Category
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="dashboard-section">
+                <div class="dashboard-section-heading">
+                    <div>
+                        <p class="dashboard-section-label">
+                            CURRENT CATEGORIES
+                        </p>
+
+                        <h2>Categories</h2>
+                    </div>
+                </div>
+
+                <div class="admin-category-list">
+                    {{ range .Categories }}
+                        <article class="admin-category-card">
+                            <form
+                                action="/admin/categories/update"
+                                method="POST"
+                                class="admin-category-edit-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="category_id"
+                                    value="{{ .ID }}"
+                                >
+
+                                <div class="admin-category-form-row">
+                                    <label>
+                                        <span>Name</span>
+
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value="{{ .Name }}"
+                                            maxlength="80"
+                                            required
+                                        >
+                                    </label>
+
+                                    <label>
+                                        <span>Slug</span>
+
+                                        <input
+                                            type="text"
+                                            name="slug"
+                                            value="{{ .Slug }}"
+                                            maxlength="80"
+                                            required
+                                        >
+                                    </label>
+                                </div>
+
+                                <label>
+                                    <span>Description</span>
+
+                                    <textarea
+                                        name="description"
+                                        maxlength="500"
+                                        rows="3"
+                                    >{{ .Description }}</textarea>
+                                </label>
+
+                                <label>
+                                    <span>Tagline</span>
+
+                                    <input
+                                        type="text"
+                                        name="tagline"
+                                        value="{{ .Tagline }}"
+                                        maxlength="160"
+                                    >
+                                </label>
+
+                                <div class="admin-category-actions">
+                                    <button
+                                        type="submit"
+                                        class="dashboard-success-button"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </form>
+
+                            <form
+                                action="/admin/categories/delete"
+                                method="POST"
+                                class="admin-category-delete-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="category_id"
+                                    value="{{ .ID }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="dashboard-danger-button"
+                                >
+                                    Delete Category
+                                </button>
+                            </form>
+                        </article>
+                    {{ else }}
+                        <div class="dashboard-empty-state">
+                            <h3>No categories</h3>
+
+                            <p>
+                                Create the first forum category above.
+                            </p>
+                        </div>
+                    {{ end }}
+                </div>
+            </section>
+        </main>
+    </div>
+</section>
+{{ end }}
