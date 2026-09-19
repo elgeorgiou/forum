@@ -1,0 +1,70 @@
+{{ define "title" }}Recent Posts | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/recent.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="recent-page">
+    <header class="recent-header">
+        <p class="recent-kicker">LATEST FROM THE COMMUNITY</p>
+        <h1>Recent Posts</h1>
+        <p>
+            Catch up with the newest discussions from players across
+            every category.
+        </p>
+    </header>
+
+    <div class="recent-list">
+        {{ range .RecentPosts }}
+            <article class="recent-card">
+                <div class="recent-card-main">
+                    <div class="recent-meta">
+                        {{ if .CategorySlug }}
+                            <a href="/categories/{{ .CategorySlug }}">
+                                {{ .CategoryName }}
+                            </a>
+                            <span>•</span>
+                        {{ end }}
+
+                        <span>{{ .CreatedAt }}</span>
+                    </div>
+
+                    <h2>
+                        <a href="/posts/{{ .ID }}">
+                            {{ .Title }}
+                        </a>
+                    </h2>
+
+                    <p>{{ .Preview }}</p>
+
+                    <div class="recent-footer">
+                        <span>by {{ .Username }}</span>
+                        <span>{{ .CommentCount }} comments</span>
+                        <span>{{ .LikeCount }} likes</span>
+                    </div>
+                </div>
+
+                {{ if .ImagePath }}
+                    <a
+                        href="/posts/{{ .ID }}"
+                        class="recent-thumbnail"
+                    >
+                        <img
+                            src="{{ .ImagePath }}"
+                            alt=""
+                        >
+                    </a>
+                {{ end }}
+            </article>
+        {{ else }}
+            <div class="recent-empty">
+                <h2>No discussions yet</h2>
+                <p>
+                    New community discussions will appear here.
+                </p>
+            </div>
+        {{ end }}
+    </div>
+</section>
+{{ end }}

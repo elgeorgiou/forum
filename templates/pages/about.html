@@ -1,0 +1,93 @@
+{{ define "title" }}About | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/about.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="about-page">
+    <header class="about-hero">
+        <p class="about-kicker">ABOUT GAMEFORUM</p>
+
+        <h1>
+            Games bring us together.
+            <strong>Conversation keeps us here.</strong>
+        </h1>
+
+        <p class="about-intro">
+            GameForum is a community built for players to discuss
+            games, share opinions, discover new perspectives, and
+            connect across genres and playstyles.
+        </p>
+    </header>
+
+    <div class="about-grid">
+        <article class="about-card">
+            <span class="about-card-number">01</span>
+
+            <h2>Discuss</h2>
+
+            <p>
+                Start conversations about the games you love,
+                share your experiences, and join discussions
+                created by other players.
+            </p>
+        </article>
+
+        <article class="about-card">
+            <span class="about-card-number">02</span>
+
+            <h2>Discover</h2>
+
+            <p>
+                Explore gaming categories, recent discussions,
+                community reactions, and new conversations from
+                across the forum.
+            </p>
+        </article>
+
+        <article class="about-card">
+            <span class="about-card-number">03</span>
+
+            <h2>Connect</h2>
+
+            <p>
+                React to posts, leave comments, follow activity,
+                and become part of a community built around a
+                shared passion for games.
+            </p>
+        </article>
+    </div>
+
+    <section class="about-community">
+        <p class="about-kicker">THE COMMUNITY</p>
+
+        <h2>A forum shaped by its players.</h2>
+
+        <p>
+            GameForum supports community moderation, dedicated
+            discussion categories, player activity, notifications,
+            images, reactions, and tools that help conversations
+            stay organized and useful.
+        </p>
+
+        <div class="about-actions">
+            <a
+                href="/categories"
+                class="button button-primary"
+            >
+                Explore Categories
+            </a>
+
+            {{ if not .IsAuthenticated }}
+                <a
+                    href="/auth?mode=signup"
+                    class="button about-secondary-button"
+                >
+                    Join GameForum
+                </a>
+            {{ end }}
+        </div>
+    </section>
+</section>
+{{ end }}

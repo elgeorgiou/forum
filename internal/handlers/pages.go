@@ -113,6 +113,108 @@ func (h *PageHandler) Home(
 	)
 }
 
+func (h *PageHandler) Recent(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.URL.Path != "/recent" {
+		h.renderNotFound(w)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		h.renderMethodNotAllowed(w)
+		return
+	}
+
+	posts, err := database.GetAllPostViews(
+		h.db,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	data := h.pageData(r)
+	data.RecentPosts = posts
+
+	h.render(
+		w,
+		http.StatusOK,
+		"recent.html",
+		data,
+	)
+}
+
+func (h *PageHandler) Profile(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.URL.Path != "/profile" {
+		h.renderNotFound(w)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		h.renderMethodNotAllowed(w)
+		return
+	}
+
+	data := h.pageData(r)
+
+	if data.CurrentUser == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	posts, err := database.GetPostViewsByUser(
+		h.db,
+		data.CurrentUser.ID,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	data.CreatedPosts = posts
+
+	h.render(
+		w,
+		http.StatusOK,
+		"profile.html",
+		data,
+	)
+}
+
+func (h *PageHandler) About(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.URL.Path != "/about" {
+		h.renderNotFound(w)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		h.renderMethodNotAllowed(w)
+		return
+	}
+
+	data := h.pageData(r)
+
+	h.render(
+		w,
+		http.StatusOK,
+		"about.html",
+		data,
+	)
+}
+
 func (h *PageHandler) Auth(
 	w http.ResponseWriter,
 	r *http.Request,

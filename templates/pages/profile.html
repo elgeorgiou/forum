@@ -1,0 +1,118 @@
+{{ define "title" }}Profile | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/profile.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="profile-page">
+    <header class="profile-hero">
+        <div class="profile-large-avatar">
+            {{ .CurrentUser.Username }}
+        </div>
+
+        <div class="profile-identity">
+            <p class="profile-kicker">PLAYER PROFILE</p>
+
+            <h1>{{ .CurrentUser.Username }}</h1>
+
+            <span class="profile-role">
+                {{ .CurrentUser.Role }}
+            </span>
+        </div>
+    </header>
+
+    <div class="profile-layout">
+        <aside class="profile-sidebar">
+            <section class="profile-panel">
+                <h2>Account</h2>
+
+                <div class="profile-detail">
+                    <span>Username</span>
+                    <strong>{{ .CurrentUser.Username }}</strong>
+                </div>
+
+                <div class="profile-detail">
+                    <span>Email</span>
+                    <strong>{{ .CurrentUser.Email }}</strong>
+                </div>
+
+                <div class="profile-detail">
+                    <span>Role</span>
+                    <strong>{{ .CurrentUser.Role }}</strong>
+                </div>
+            </section>
+
+            <a
+                href="/activity"
+                class="profile-activity-link"
+            >
+                View My Activity
+            </a>
+        </aside>
+
+        <main class="profile-posts">
+            <div class="profile-section-heading">
+                <div>
+                    <p class="profile-kicker">
+                        YOUR CONTRIBUTIONS
+                    </p>
+
+                    <h2>My Discussions</h2>
+                </div>
+
+                <span>
+                    {{ len .CreatedPosts }} posts
+                </span>
+            </div>
+
+            <div class="profile-post-list">
+                {{ range .CreatedPosts }}
+                    <article class="profile-post-card">
+                        <div class="profile-post-meta">
+                            {{ if .CategorySlug }}
+                                <a href="/categories/{{ .CategorySlug }}">
+                                    {{ .CategoryName }}
+                                </a>
+
+                                <span>•</span>
+                            {{ end }}
+
+                            <span>{{ .CreatedAt }}</span>
+                        </div>
+
+                        <h3>
+                            <a href="/posts/{{ .ID }}">
+                                {{ .Title }}
+                            </a>
+                        </h3>
+
+                        <p>{{ .Preview }}</p>
+
+                        <div class="profile-post-footer">
+                            <span>{{ .CommentCount }} comments</span>
+                            <span>{{ .LikeCount }} likes</span>
+                        </div>
+                    </article>
+                {{ else }}
+                    <div class="profile-empty">
+                        <h3>No discussions yet</h3>
+
+                        <p>
+                            Your discussions will appear here after
+                            you create your first post.
+                        </p>
+
+                        <a
+                            href="/categories"
+                            class="button button-primary"
+                        >
+                            Explore Categories
+                        </a>
+                    </div>
+                {{ end }}
+            </div>
+        </main>
+    </div>
+</section>
+{{ end }}

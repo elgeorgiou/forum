@@ -1,0 +1,174 @@
+.recent-page {
+    width: min(100% - 40px, 980px);
+    margin: 0 auto;
+    padding: 72px 0 90px;
+}
+
+.recent-header {
+    margin-bottom: 34px;
+}
+
+.recent-kicker {
+    margin: 0 0 10px;
+
+    color: var(--color-cyan);
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+}
+
+.recent-header h1 {
+    margin: 0;
+
+    font-size: clamp(36px, 5vw, 58px);
+    line-height: 1;
+}
+
+.recent-header > p:last-child {
+    max-width: 620px;
+    margin: 18px 0 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.recent-list {
+    display: grid;
+    gap: 14px;
+}
+
+.recent-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+
+    padding: 22px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.recent-card:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(139, 92, 246, 0.45);
+}
+
+.recent-card-main {
+    min-width: 0;
+}
+
+.recent-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    color: var(--color-text-muted);
+
+    font-size: 12px;
+}
+
+.recent-meta a {
+    color: var(--color-purple-bright);
+
+    font-weight: 700;
+}
+
+.recent-card h2 {
+    margin: 10px 0 8px;
+
+    font-size: 20px;
+}
+
+.recent-card h2 a {
+    color: var(--color-text-primary);
+}
+
+.recent-card p {
+    display: -webkit-box;
+
+    margin: 0;
+
+    overflow: hidden;
+
+    color: var(--color-text-secondary);
+
+    line-height: 1.6;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.recent-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+
+    margin-top: 16px;
+
+    color: var(--color-text-muted);
+
+    font-size: 12px;
+}
+
+.recent-thumbnail {
+    flex: 0 0 150px;
+
+    height: 105px;
+
+    overflow: hidden;
+
+    border-radius: var(--radius-small);
+}
+
+.recent-thumbnail img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.recent-empty {
+    padding: 52px 24px;
+
+    color: var(--color-text-muted);
+
+    text-align: center;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+}
+
+.recent-empty h2 {
+    margin: 0 0 8px;
+
+    color: var(--color-text-primary);
+}
+
+.recent-empty p {
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .recent-card {
+        flex-direction: column;
+    }
+
+    .recent-thumbnail {
+        flex: none;
+
+        width: 100%;
+        height: 180px;
+    }
+}

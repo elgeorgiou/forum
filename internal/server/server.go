@@ -103,6 +103,22 @@ func Run() error {
 		pageHandler.Categories,
 	)
 	mux.HandleFunc(
+		"/recent",
+		pageHandler.Recent,
+	)
+	mux.Handle(
+		"/profile",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				pageHandler.Profile,
+			),
+		),
+	)
+	mux.HandleFunc(
+		"/about",
+		pageHandler.About,
+	)
+	mux.HandleFunc(
 		"/search",
 		pageHandler.Search,
 	)
