@@ -547,7 +547,12 @@ func (h *PostHandler) Delete(
 		return
 	}
 
-	if post.UserID != user.ID {
+	canDelete :=
+		post.UserID == user.ID ||
+			user.Role == "moderator" ||
+			user.Role == "admin"
+
+	if !canDelete {
 		http.Error(
 			w,
 			http.StatusText(http.StatusForbidden),

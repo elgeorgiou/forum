@@ -66,7 +66,7 @@
                         </div>
                     {{ end }}
 
-                    {{ if and .IsAuthenticated (eq .CurrentUser.ID .Post.UserID) }}
+                    {{ if and .IsAuthenticated (or (eq .CurrentUser.ID .Post.UserID) (eq .CurrentUser.Role "moderator") (eq .CurrentUser.Role "admin")) }}
                         <div class="owner-menu">
                             <button
                                 type="button"
@@ -83,14 +83,16 @@
                                 class="owner-menu-dropdown"
                                 hidden
                             >
-                                <button
-                                    type="button"
-                                    class="owner-menu-item"
-                                    data-edit-target="post-edit-form"
-                                    data-display-target="post-display"
-                                >
-                                    Edit post
-                                </button>
+                                {{ if eq .CurrentUser.ID .Post.UserID }}
+                                    <button
+                                        type="button"
+                                        class="owner-menu-item"
+                                        data-edit-target="post-edit-form"
+                                        data-display-target="post-display"
+                                    >
+                                        Edit post
+                                    </button>
+                                {{ end }}
 
                                 <form
                                     class="owner-menu-form"
@@ -446,7 +448,7 @@
                                     </div>
                                 </div>
 
-                                {{ if and $.IsAuthenticated (eq $.CurrentUser.ID .UserID) }}
+                                {{ if and $.IsAuthenticated (or (eq $.CurrentUser.ID .UserID) (eq $.CurrentUser.Role "moderator") (eq $.CurrentUser.Role "admin")) }}
 
                                     <div class="owner-menu comment-owner-menu">
 
@@ -465,14 +467,16 @@
                                             class="owner-menu-dropdown"
                                             hidden
                                         >
-                                            <button
-                                                type="button"
-                                                class="owner-menu-item"
-                                                data-edit-target="comment-edit-{{ .ID }}"
-                                                data-display-target="comment-display-{{ .ID }}"
-                                            >
-                                                Edit comment
-                                            </button>
+                                            {{ if eq $.CurrentUser.ID .UserID }}
+                                                <button
+                                                    type="button"
+                                                    class="owner-menu-item"
+                                                    data-edit-target="comment-edit-{{ .ID }}"
+                                                    data-display-target="comment-display-{{ .ID }}"
+                                                >
+                                                    Edit comment
+                                                </button>
+                                            {{ end }}
 
                                             <form
                                                 class="owner-menu-form"

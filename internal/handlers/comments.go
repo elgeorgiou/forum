@@ -350,7 +350,12 @@ func (h *CommentHandler) Delete(
 		return
 	}
 
-	if comment.UserID != user.ID {
+	canDelete :=
+		comment.UserID == user.ID ||
+			user.Role == "moderator" ||
+			user.Role == "admin"
+
+	if !canDelete {
 		http.Error(
 			w,
 			http.StatusText(http.StatusForbidden),
