@@ -350,6 +350,52 @@ func (h *PageHandler) Activity(
 	)
 }
 
+func (h *PageHandler) Notifications(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.URL.Path != "/notifications" {
+		h.renderNotFound(w)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		h.renderMethodNotAllowed(w)
+		return
+	}
+
+	data := h.pageData(r)
+
+	if data.CurrentUser == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	notifications, err :=
+		database.GetNotificationViewsByUser(
+			h.db,
+			data.CurrentUser.ID,
+		)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	data.Notifications = notifications
+
+	h.render(
+		w,
+		http.StatusOK,
+		"notifications.html",
+		data,
+	)
+}
+
 func (h *PageHandler) pageData(
 	r *http.Request,
 ) models.PageData {

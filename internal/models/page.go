@@ -45,6 +45,8 @@ type PageData struct {
 	DislikedPosts    []database.PostView
 	ActivityComments []database.ActivityComment
 
+	Notifications []database.NotificationView
+
 	PostReaction     int
 	CommentReactions map[int64]int
 

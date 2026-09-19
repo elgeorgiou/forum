@@ -59,6 +59,11 @@ func Run() error {
 		db,
 	)
 
+	notificationHandler :=
+		handlers.NewNotificationHandler(
+			db,
+		)
+
 	githubOAuthHandler := handlers.NewGitHubOAuthHandler(
 		db,
 		sessionManager,
@@ -193,6 +198,33 @@ func Run() error {
 		authMiddleware.RequireAuthentication(
 			http.HandlerFunc(
 				pageHandler.Activity,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/notifications",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				pageHandler.Notifications,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/notifications/read",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				notificationHandler.Read,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/notifications/read-all",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				notificationHandler.ReadAll,
 			),
 		),
 	)

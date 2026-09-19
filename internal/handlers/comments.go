@@ -103,11 +103,28 @@ func (h *CommentHandler) Create(
 		return
 	}
 
-	_, err = database.CreateComment(
+	commentID, err := database.CreateComment(
 		h.db,
 		postID,
 		user.ID,
 		content,
+	)
+	if err != nil {
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	err = database.CreateCommentNotification(
+		h.db,
+		postID,
+		commentID,
+		user.ID,
 	)
 	if err != nil {
 		http.Error(

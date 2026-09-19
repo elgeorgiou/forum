@@ -1,0 +1,172 @@
+{{ define "title" }}Notifications | GameForum{{ end }}
+
+{{ define "styles" }}
+<link
+    rel="stylesheet"
+    href="/static/css/notifications.css"
+>
+{{ end }}
+
+{{ define "content" }}
+<section class="notifications-page">
+    <div class="notifications-shell">
+
+        <header class="notifications-header">
+            <div>
+                <p class="notifications-eyebrow">
+                    PLAYER UPDATES
+                </p>
+
+                <h1>Notifications</h1>
+
+                <p class="notifications-subtitle">
+                    Keep track of activity around your discussions.
+                </p>
+            </div>
+
+            {{ if gt .UnreadNotificationCount 0 }}
+                <form
+                    action="/notifications/read-all"
+                    method="POST"
+                >
+                    <button
+                        type="submit"
+                        class="mark-all-button"
+                    >
+                        Mark all as read
+                    </button>
+                </form>
+            {{ end }}
+        </header>
+
+        <div class="notifications-summary">
+            <div class="summary-icon">
+                🔔
+            </div>
+
+            <div>
+                <strong>
+                    {{ .UnreadNotificationCount }}
+                </strong>
+
+                <span>
+                    unread notifications
+                </span>
+            </div>
+        </div>
+
+        <div class="notifications-list">
+            {{ if .Notifications }}
+
+                {{ range .Notifications }}
+                    <article
+                        class="notification-card {{ if not .IsRead }}notification-unread{{ end }}"
+                    >
+                        <div class="notification-icon">
+                            {{ if eq .Type "comment" }}
+                                💬
+                            {{ else if eq .Type "post_like" }}
+                                👍
+                            {{ else if eq .Type "post_dislike" }}
+                                👎
+                            {{ else }}
+                                🔔
+                            {{ end }}
+                        </div>
+
+                        <div class="notification-content">
+                            <div class="notification-message">
+                                <strong>
+                                    {{ .ActorUsername }}
+                                </strong>
+
+                                {{ if eq .Type "comment" }}
+                                    commented on your discussion
+                                {{ else if eq .Type "post_like" }}
+                                    liked your discussion
+                                {{ else if eq .Type "post_dislike" }}
+                                    disliked your discussion
+                                {{ else }}
+                                    interacted with your discussion
+                                {{ end }}
+
+                                {{ if .PostTitle }}
+                                    <span class="notification-post-title">
+                                        “{{ .PostTitle }}”
+                                    </span>
+                                {{ end }}
+                            </div>
+
+                            <div class="notification-meta">
+                                <span>
+                                    {{ .CreatedAt }}
+                                </span>
+
+                                {{ if .IsRead }}
+                                    <span class="read-label">
+                                        Read
+                                    </span>
+                                {{ else }}
+                                    <span class="unread-label">
+                                        New
+                                    </span>
+                                {{ end }}
+                            </div>
+                        </div>
+
+                        {{ if .PostID.Valid }}
+                            <form
+                                action="/notifications/read"
+                                method="POST"
+                                class="notification-open-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="notification_id"
+                                    value="{{ .ID }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="redirect"
+                                    value="/posts/{{ .PostID.Int64 }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="notification-open-button"
+                                >
+                                    View Discussion
+                                </button>
+                            </form>
+                        {{ end }}
+                    </article>
+                {{ end }}
+
+            {{ else }}
+
+                <div class="notifications-empty">
+                    <div class="notifications-empty-icon">
+                        🔔
+                    </div>
+
+                    <h2>You're all caught up</h2>
+
+                    <p>
+                        New comments and reactions on your discussions
+                        will appear here.
+                    </p>
+
+                    <a
+                        href="/"
+                        class="notifications-home-button"
+                    >
+                        Browse Discussions
+                    </a>
+                </div>
+
+            {{ end }}
+        </div>
+    </div>
+</section>
+{{ end }}

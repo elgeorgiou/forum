@@ -176,6 +176,33 @@ func (h *ReactionHandler) Post(
 		return
 	}
 
+	if reaction != 0 {
+		notificationType :=
+			database.NotificationPostLike
+
+		if reaction == database.ReactionDislike {
+			notificationType =
+				database.NotificationPostDislike
+		}
+
+		err = database.CreatePostNotification(
+			h.db,
+			postID,
+			user.ID,
+			notificationType,
+		)
+		if err != nil {
+			http.Error(
+				w,
+				http.StatusText(
+					http.StatusInternalServerError,
+				),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+	}
+
 	if isFetchRequest(r) {
 		likes, dislikes, err :=
 			database.GetPostReactionCounts(
