@@ -47,18 +47,63 @@ func (h *PageHandler) Home(
 		return
 	}
 
-	posts, err := database.GetAllPostViews(
-		h.db,
-	)
+	data := h.pageData(r)
+
+	filter := r.URL.Query().Get("filter")
+
+	var posts []database.PostView
+
+	switch filter {
+	case "":
+		posts, err = database.GetAllPostViews(
+			h.db,
+		)
+
+	case "mine":
+		if !data.IsAuthenticated {
+			http.Redirect(
+				w,
+				r,
+				"/auth?mode=login",
+				http.StatusSeeOther,
+			)
+			return
+		}
+
+		posts, err = database.GetPostViewsByUser(
+			h.db,
+			data.CurrentUser.ID,
+		)
+
+	case "liked":
+		if !data.IsAuthenticated {
+			http.Redirect(
+				w,
+				r,
+				"/auth?mode=login",
+				http.StatusSeeOther,
+			)
+			return
+		}
+
+		posts, err = database.GetLikedPostViewsByUser(
+			h.db,
+			data.CurrentUser.ID,
+		)
+
+	default:
+		h.renderBadRequest(w)
+		return
+	}
+
 	if err != nil {
 		h.renderInternalServerError(w)
 		return
 	}
 
-	data := h.pageData(r)
-
 	data.Categories = categories
 	data.RecentPosts = posts
+	data.PostFilter = filter
 
 	h.render(
 		w,

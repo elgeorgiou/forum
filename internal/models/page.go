@@ -47,6 +47,8 @@ type PageData struct {
 
 	PopularTags []string
 
+	PostFilter string
+
 	AuthMode string
 	Error    string
 	Form     AuthFormData

@@ -89,13 +89,8 @@ func GetPostViewByID(
 		)
 	}
 
-	post.Preview = postPreview(
-		post.Content,
-	)
-
-	post.Score =
-		post.LikeCount -
-			post.DislikeCount
+	post.Preview = postPreview(post.Content)
+	post.Score = post.LikeCount - post.DislikeCount
 
 	categories, err := GetPostCategories(
 		db,
@@ -108,11 +103,8 @@ func GetPostViewByID(
 	post.Categories = categories
 
 	if len(categories) > 0 {
-		post.CategoryName =
-			categories[0].Name
-
-		post.CategorySlug =
-			categories[0].Slug
+		post.CategoryName = categories[0].Name
+		post.CategorySlug = categories[0].Slug
 	}
 
 	return post, nil
@@ -206,6 +198,105 @@ func GetPostViewsByCategory(
 	if err != nil {
 		return nil, fmt.Errorf(
 			"get post views by category: %w",
+			err,
+		)
+	}
+	defer rows.Close()
+
+	return scanPostViews(db, rows)
+}
+
+func GetPostViewsByUser(
+	db *sql.DB,
+	userID int64,
+) ([]PostView, error) {
+	rows, err := db.Query(`
+		SELECT
+			p.id,
+			p.user_id,
+			u.username,
+			p.title,
+			p.content,
+			COALESCE(p.image_path, ''),
+			p.created_at,
+			p.updated_at,
+			(
+				SELECT COUNT(*)
+				FROM comments AS c
+				WHERE c.post_id = p.id
+			),
+			(
+				SELECT COUNT(*)
+				FROM post_reactions AS pr
+				WHERE pr.post_id = p.id
+				  AND pr.reaction = 1
+			),
+			(
+				SELECT COUNT(*)
+				FROM post_reactions AS pr
+				WHERE pr.post_id = p.id
+				  AND pr.reaction = -1
+			)
+		FROM posts AS p
+		INNER JOIN users AS u
+			ON u.id = p.user_id
+		WHERE p.user_id = ?
+		ORDER BY p.created_at DESC
+	`, userID)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"get post views by user: %w",
+			err,
+		)
+	}
+	defer rows.Close()
+
+	return scanPostViews(db, rows)
+}
+
+func GetLikedPostViewsByUser(
+	db *sql.DB,
+	userID int64,
+) ([]PostView, error) {
+	rows, err := db.Query(`
+		SELECT
+			p.id,
+			p.user_id,
+			u.username,
+			p.title,
+			p.content,
+			COALESCE(p.image_path, ''),
+			p.created_at,
+			p.updated_at,
+			(
+				SELECT COUNT(*)
+				FROM comments AS c
+				WHERE c.post_id = p.id
+			),
+			(
+				SELECT COUNT(*)
+				FROM post_reactions AS counts
+				WHERE counts.post_id = p.id
+				  AND counts.reaction = 1
+			),
+			(
+				SELECT COUNT(*)
+				FROM post_reactions AS counts
+				WHERE counts.post_id = p.id
+				  AND counts.reaction = -1
+			)
+		FROM posts AS p
+		INNER JOIN users AS u
+			ON u.id = p.user_id
+		INNER JOIN post_reactions AS pr
+			ON pr.post_id = p.id
+		WHERE pr.user_id = ?
+		  AND pr.reaction = 1
+		ORDER BY pr.created_at DESC
+	`, userID)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"get liked post views by user: %w",
 			err,
 		)
 	}

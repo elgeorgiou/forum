@@ -4,6 +4,10 @@
 <link rel="stylesheet" href="/static/css/home.css">
 {{ end }}
 
+{{ define "scripts" }}
+<script src="/static/js/home.js" defer></script>
+{{ end }}
+
 {{ define "content" }}
 <section class="home-hero">
     <div class="home-hero-overlay"></div>
@@ -78,7 +82,10 @@
     </div>
 </section>
 
-<section class="home-section home-discussions">
+<section
+    class="home-section home-discussions"
+    id="discussions"
+>
     <div class="discussion-column">
         <div class="section-heading">
             <div>
@@ -86,24 +93,59 @@
                     WHAT PLAYERS ARE TALKING ABOUT
                 </p>
 
-                <h2>Recent Discussions</h2>
+                {{ if eq .PostFilter "mine" }}
+                    <h2 class="discussion-title">
+                        My Discussions
+                    </h2>
+                {{ else if eq .PostFilter "liked" }}
+                    <h2 class="discussion-title">
+                        Liked Discussions
+                    </h2>
+                {{ else }}
+                    <h2 class="discussion-title">
+                        Recent Discussions
+                    </h2>
+                {{ end }}
             </div>
-
-            <a href="/recent" class="section-link">
-                View all
-            </a>
         </div>
+
+        {{ if .IsAuthenticated }}
+            <nav class="discussion-filters">
+                <a
+                    href="/"
+                    class="discussion-filter {{ if eq .PostFilter "" }}is-active{{ end }}"
+                >
+                    All Posts
+                </a>
+
+                <a
+                    href="/?filter=mine"
+                    class="discussion-filter {{ if eq .PostFilter "mine" }}is-active{{ end }}"
+                >
+                    My Posts
+                </a>
+
+                <a
+                    href="/?filter=liked"
+                    class="discussion-filter {{ if eq .PostFilter "liked" }}is-active{{ end }}"
+                >
+                    Liked Posts
+                </a>
+            </nav>
+        {{ end }}
 
         <div class="discussion-list">
             {{ range .RecentPosts }}
                 <article class="discussion-card">
                     <div class="discussion-main">
                         <div class="discussion-meta">
-                            <a href="/categories/{{ .CategorySlug }}">
-                                {{ .CategoryName }}
-                            </a>
+                            {{ if .CategorySlug }}
+                                <a href="/categories/{{ .CategorySlug }}">
+                                    {{ .CategoryName }}
+                                </a>
 
-                            <span>•</span>
+                                <span>•</span>
+                            {{ end }}
 
                             <span>{{ .CreatedAt }}</span>
                         </div>
@@ -147,7 +189,17 @@
                 </article>
             {{ else }}
                 <div class="empty-state">
-                    <p>No discussions yet.</p>
+                    {{ if eq .PostFilter "mine" }}
+                        <p>
+                            You haven't created any discussions yet.
+                        </p>
+                    {{ else if eq .PostFilter "liked" }}
+                        <p>
+                            You haven't liked any discussions yet.
+                        </p>
+                    {{ else }}
+                        <p>No discussions yet.</p>
+                    {{ end }}
                 </div>
             {{ end }}
         </div>

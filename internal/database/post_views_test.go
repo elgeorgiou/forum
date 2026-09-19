@@ -268,6 +268,244 @@ func TestGetPostViewByIDNotFound(t *testing.T) {
 	}
 }
 
+func TestGetPostViewsByUser(t *testing.T) {
+	db := openPostViewTestDatabase(t)
+	defer db.Close()
+
+	firstUserID := createPostViewTestUser(
+		t,
+		db,
+		"player-one",
+		"player-one@example.com",
+	)
+
+	secondUserID := createPostViewTestUser(
+		t,
+		db,
+		"player-two",
+		"player-two@example.com",
+	)
+
+	firstPostID, err := CreatePost(
+		db,
+		firstUserID,
+		"Player One Post",
+		"This post belongs to player one.",
+		sql.NullString{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = CreatePost(
+		db,
+		secondUserID,
+		"Player Two Post",
+		"This post belongs to player two.",
+		sql.NullString{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	posts, err := GetPostViewsByUser(
+		db,
+		firstUserID,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(posts) != 1 {
+		t.Fatalf(
+			"expected 1 post, got %d",
+			len(posts),
+		)
+	}
+
+	if posts[0].ID != firstPostID {
+		t.Fatalf(
+			"expected post ID %d, got %d",
+			firstPostID,
+			posts[0].ID,
+		)
+	}
+
+	if posts[0].UserID != firstUserID {
+		t.Fatalf(
+			"expected user ID %d, got %d",
+			firstUserID,
+			posts[0].UserID,
+		)
+	}
+
+	if posts[0].Title != "Player One Post" {
+		t.Fatalf(
+			"expected Player One Post, got %q",
+			posts[0].Title,
+		)
+	}
+}
+
+func TestGetPostViewsByUserEmpty(t *testing.T) {
+	db := openPostViewTestDatabase(t)
+	defer db.Close()
+
+	userID := createPostViewTestUser(
+		t,
+		db,
+		"player-one",
+		"player-one@example.com",
+	)
+
+	posts, err := GetPostViewsByUser(
+		db,
+		userID,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(posts) != 0 {
+		t.Fatalf(
+			"expected no posts, got %d",
+			len(posts),
+		)
+	}
+}
+
+func TestGetLikedPostViewsByUser(t *testing.T) {
+	db := openPostViewTestDatabase(t)
+	defer db.Close()
+
+	postOwnerID := createPostViewTestUser(
+		t,
+		db,
+		"post-owner",
+		"owner@example.com",
+	)
+
+	viewerID := createPostViewTestUser(
+		t,
+		db,
+		"viewer",
+		"viewer@example.com",
+	)
+
+	likedPostID, err := CreatePost(
+		db,
+		postOwnerID,
+		"Liked Post",
+		"This post should appear in the liked filter.",
+		sql.NullString{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	dislikedPostID, err := CreatePost(
+		db,
+		postOwnerID,
+		"Disliked Post",
+		"This post should not appear in the liked filter.",
+		sql.NullString{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	unreactedPostID, err := CreatePost(
+		db,
+		postOwnerID,
+		"Unreacted Post",
+		"This post has no reaction.",
+		sql.NullString{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := SetPostReaction(
+		db,
+		viewerID,
+		likedPostID,
+		ReactionLike,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := SetPostReaction(
+		db,
+		viewerID,
+		dislikedPostID,
+		ReactionDislike,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	posts, err := GetLikedPostViewsByUser(
+		db,
+		viewerID,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(posts) != 1 {
+		t.Fatalf(
+			"expected 1 liked post, got %d",
+			len(posts),
+		)
+	}
+
+	if posts[0].ID != likedPostID {
+		t.Fatalf(
+			"expected liked post ID %d, got %d",
+			likedPostID,
+			posts[0].ID,
+		)
+	}
+
+	if posts[0].ID == dislikedPostID {
+		t.Fatal(
+			"disliked post was returned by liked filter",
+		)
+	}
+
+	if posts[0].ID == unreactedPostID {
+		t.Fatal(
+			"unreacted post was returned by liked filter",
+		)
+	}
+}
+
+func TestGetLikedPostViewsByUserEmpty(t *testing.T) {
+	db := openPostViewTestDatabase(t)
+	defer db.Close()
+
+	userID := createPostViewTestUser(
+		t,
+		db,
+		"player-one",
+		"player-one@example.com",
+	)
+
+	posts, err := GetLikedPostViewsByUser(
+		db,
+		userID,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(posts) != 0 {
+		t.Fatalf(
+			"expected no liked posts, got %d",
+			len(posts),
+		)
+	}
+}
+
 func openPostViewTestDatabase(
 	t *testing.T,
 ) *sql.DB {
@@ -322,13 +560,13 @@ func openPostViewTestDatabase(
 			updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		);
 
-	CREATE TABLE post_reactions (
-	user_id INTEGER NOT NULL,
-	post_id INTEGER NOT NULL,
-	reaction INTEGER NOT NULL,
-	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (user_id, post_id)
-	);
+		CREATE TABLE post_reactions (
+			user_id INTEGER NOT NULL,
+			post_id INTEGER NOT NULL,
+			reaction INTEGER NOT NULL,
+			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (user_id, post_id)
+		);
 	`
 
 	if _, err := db.Exec(schema); err != nil {
