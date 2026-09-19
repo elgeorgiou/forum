@@ -56,12 +56,9 @@ type PageData struct {
 
 	PostFilter string
 
-	Stats                        database.DashboardStats
-	RecentReports                []database.ReportView
-	ModeratorRequests            []database.ModeratorRequestView
-	PendingModeratorRequest      *database.ModeratorRequest
-	PendingReportCount           int
-	PendingModeratorRequestCount int
+	SearchQuery      string
+	SearchPosts      []database.PostView
+	SearchCategories []database.Category
 
 	AuthMode string
 	Error    string
@@ -72,4 +69,11 @@ type PageData struct {
 	Message    string
 	ButtonURL  string
 	ButtonText string
+
+	Stats                        database.DashboardStats
+	RecentReports                []database.ReportView
+	PendingReportCount           int
+	ModeratorRequests            []database.ModeratorRequestView
+	PendingModeratorRequestCount int
+	PendingModeratorRequest      *database.ModeratorRequest
 }

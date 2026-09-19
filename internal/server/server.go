@@ -144,6 +144,16 @@ func Run() error {
 	)
 
 	mux.HandleFunc(
+		"/search",
+		pageHandler.Search,
+	)
+
+	mux.HandleFunc(
+		"/search/suggestions",
+		pageHandler.SearchSuggestions,
+	)
+
+	mux.HandleFunc(
 		"/categories/",
 		pageHandler.Category,
 	)

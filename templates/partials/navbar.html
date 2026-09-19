@@ -14,19 +14,47 @@
         </div>
 
         <div class="navbar-actions">
-            <form class="navbar-search" action="/search" method="GET">
-                <label class="sr-only" for="navbar-search-input">
-                    Search forum
-                </label>
-
-                <input
-                    id="navbar-search-input"
-                    type="search"
-                    name="q"
-                    placeholder="Search discussions..."
+            <div class="navbar-search-wrapper">
+                <form
+                    class="navbar-search"
+                    action="/search"
+                    method="GET"
+                    role="search"
                     autocomplete="off"
                 >
-            </form>
+                    <label
+                        class="sr-only"
+                        for="navbar-search-input"
+                    >
+                        Search forum
+                    </label>
+
+                    <span
+                        class="navbar-search-icon"
+                        aria-hidden="true"
+                    >
+                        ⌕
+                    </span>
+
+                    <input
+                        id="navbar-search-input"
+                        type="search"
+                        name="q"
+                        placeholder="Search discussions..."
+                        autocomplete="off"
+                        aria-autocomplete="list"
+                        aria-controls="navbar-search-results"
+                        aria-expanded="false"
+                    >
+                </form>
+
+                <div
+                    id="navbar-search-results"
+                    class="navbar-search-results"
+                    role="listbox"
+                    hidden
+                ></div>
+            </div>
 
             {{ if .IsAuthenticated }}
                 <a
@@ -43,28 +71,87 @@
                     {{ end }}
                 </a>
 
-                <a href="/profile" class="user-menu">
-                    <span class="user-avatar">
-                        {{ .CurrentUser.Username }}
-                    </span>
-
-                    <span class="user-name">
-                        {{ .CurrentUser.Username }}
-                    </span>
-                </a>
-
-                <form
-                    class="logout-form"
-                    action="/logout"
-                    method="POST"
-                >
+                <div class="account-menu">
                     <button
-                        type="submit"
-                        class="logout-button"
+                        type="button"
+                        class="account-menu-toggle"
+                        aria-expanded="false"
+                        aria-controls="account-menu-dropdown"
+                        data-account-menu-toggle
                     >
-                        Log Out
+                        <span class="user-avatar">
+                            {{ .CurrentUser.Username }}
+                        </span>
+
+                        <span class="account-menu-user">
+                            <span class="user-name">
+                                {{ .CurrentUser.Username }}
+                            </span>
+
+                            <span class="user-role">
+                                {{ .CurrentUser.Role }}
+                            </span>
+                        </span>
+
+                        <span
+                            class="account-menu-chevron"
+                            aria-hidden="true"
+                        >
+                            ▾
+                        </span>
                     </button>
-                </form>
+
+                    <div
+                        id="account-menu-dropdown"
+                        class="account-menu-dropdown"
+                        data-account-menu-dropdown
+                        hidden
+                    >
+                        <div class="account-menu-header">
+                            <strong>
+                                {{ .CurrentUser.Username }}
+                            </strong>
+
+                            <span>
+                                {{ .CurrentUser.Role }}
+                            </span>
+                        </div>
+
+                        <div class="account-menu-links">
+                            <a href="/profile">
+                                Profile
+                            </a>
+
+                            <a href="/activity">
+                                My Activity
+                            </a>
+
+                            {{ if or (eq .CurrentUser.Role "moderator") (eq .CurrentUser.Role "admin") }}
+                                <a href="/dashboard">
+                                    {{ if eq .CurrentUser.Role "admin" }}
+                                        Admin Dashboard
+                                    {{ else }}
+                                        Moderator Dashboard
+                                    {{ end }}
+                                </a>
+                            {{ else }}
+                                <a href="/moderation/request">
+                                    Request Moderator Role
+                                </a>
+                            {{ end }}
+                        </div>
+
+                        <form
+                            class="account-menu-logout"
+                            action="/logout"
+                            method="POST"
+                        >
+                            <button type="submit">
+                                Log Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
             {{ else }}
                 <a href="/auth?mode=login" class="nav-login">
                     Log In

@@ -1,0 +1,284 @@
+{{ define "title" }}Search | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/search.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="search-page">
+
+    <div class="search-page-header">
+        <p class="search-eyebrow">
+            COMMUNITY SEARCH
+        </p>
+
+        <h1>
+            Search GameForum
+        </h1>
+
+        <form
+            class="search-page-form"
+            action="/search"
+            method="GET"
+        >
+            <label
+                class="sr-only"
+                for="search-page-input"
+            >
+                Search GameForum
+            </label>
+
+            <input
+                id="search-page-input"
+                type="search"
+                name="q"
+                value="{{ .SearchQuery }}"
+                placeholder="Search discussions or categories..."
+                autocomplete="off"
+                autofocus
+            >
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Search
+            </button>
+        </form>
+    </div>
+
+    {{ if .SearchQuery }}
+
+        <div class="search-summary">
+            <div>
+                <p class="search-section-kicker">
+                    SEARCH RESULTS
+                </p>
+
+                <h2>
+                    Results for
+                    <span>"{{ .SearchQuery }}"</span>
+                </h2>
+            </div>
+
+            <div class="search-summary-counts">
+                <span>
+                    {{ len .SearchCategories }}
+                    {{ if eq (len .SearchCategories) 1 }}
+                        category
+                    {{ else }}
+                        categories
+                    {{ end }}
+                </span>
+
+                <span class="search-summary-dot">•</span>
+
+                <span>
+                    {{ len .SearchPosts }}
+                    {{ if eq (len .SearchPosts) 1 }}
+                        discussion
+                    {{ else }}
+                        discussions
+                    {{ end }}
+                </span>
+            </div>
+        </div>
+
+        {{ if .SearchCategories }}
+
+            <section class="search-results-section">
+                <div class="search-section-heading">
+                    <div>
+                        <p class="search-section-kicker">
+                            CATEGORIES
+                        </p>
+
+                        <h2>
+                            Matching Categories
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="search-category-list">
+                    {{ range .SearchCategories }}
+                        <a
+                            href="/categories/{{ .Slug }}"
+                            class="search-category-card"
+                        >
+                            <span class="search-category-icon">
+                                #
+                            </span>
+
+                            <div class="search-category-content">
+                                <h3>
+                                    {{ .Name }}
+                                </h3>
+
+                                {{ if .Tagline }}
+                                    <p>
+                                        {{ .Tagline }}
+                                    </p>
+                                {{ else }}
+                                    <p>
+                                        {{ .Description }}
+                                    </p>
+                                {{ end }}
+                            </div>
+
+                            <span
+                                class="search-category-arrow"
+                                aria-hidden="true"
+                            >
+                                →
+                            </span>
+                        </a>
+                    {{ end }}
+                </div>
+            </section>
+
+        {{ end }}
+
+        <section class="search-results-section">
+            <div class="search-section-heading">
+                <div>
+                    <p class="search-section-kicker">
+                        DISCUSSIONS
+                    </p>
+
+                    <h2>
+                        Matching Discussions
+                    </h2>
+                </div>
+            </div>
+
+            {{ if .SearchPosts }}
+
+                <div class="search-post-list">
+                    {{ range .SearchPosts }}
+
+                        <article class="search-post-card">
+
+                            <div class="search-post-main">
+
+                                <div class="search-post-meta">
+                                    {{ if .CategorySlug }}
+                                        <a
+                                            href="/categories/{{ .CategorySlug }}"
+                                        >
+                                            {{ .CategoryName }}
+                                        </a>
+
+                                        <span>•</span>
+                                    {{ end }}
+
+                                    <span>
+                                        by {{ .Username }}
+                                    </span>
+                                </div>
+
+                                <h3>
+                                    <a href="/posts/{{ .ID }}">
+                                        {{ .Title }}
+                                    </a>
+                                </h3>
+
+                                {{ if .Preview }}
+                                    <p class="search-post-preview">
+                                        {{ .Preview }}
+                                    </p>
+                                {{ end }}
+
+                                <div class="search-post-footer">
+                                    <span>
+                                        {{ .CommentCount }} comments
+                                    </span>
+
+                                    <span>
+                                        {{ .LikeCount }} likes
+                                    </span>
+
+                                    <span>
+                                        {{ .DislikeCount }} dislikes
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            {{ if .ImagePath }}
+                                <a
+                                    href="/posts/{{ .ID }}"
+                                    class="search-post-thumbnail"
+                                >
+                                    <img
+                                        src="{{ .ImagePath }}"
+                                        alt=""
+                                    >
+                                </a>
+                            {{ end }}
+
+                        </article>
+
+                    {{ end }}
+                </div>
+
+            {{ else }}
+
+                <div class="search-no-discussions">
+                    <span class="search-no-discussions-icon">
+                        ◇
+                    </span>
+
+                    <div>
+                        <h3>
+                            No matching discussions
+                        </h3>
+
+                        <p>
+                            No discussions matched "{{ .SearchQuery }}".
+                        </p>
+                    </div>
+                </div>
+
+            {{ end }}
+        </section>
+
+        {{ if and (not .SearchCategories) (not .SearchPosts) }}
+
+            <div class="search-empty-state">
+                <div class="search-empty-icon">
+                    🔎
+                </div>
+
+                <h3>
+                    No results found
+                </h3>
+
+                <p>
+                    Try another game, topic, genre,
+                    category, or discussion title.
+                </p>
+            </div>
+
+        {{ end }}
+
+    {{ else }}
+
+        <div class="search-empty-state search-empty-state-initial">
+            <div class="search-empty-icon">
+                🔎
+            </div>
+
+            <h3>
+                What are you looking for?
+            </h3>
+
+            <p>
+                Search for a game, topic, genre,
+                category, or discussion.
+            </p>
+        </div>
+
+    {{ end }}
+
+</section>
+{{ end }}

@@ -249,6 +249,70 @@ func (h *PageHandler) Category(
 	)
 }
 
+func (h *PageHandler) Search(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.URL.Path != "/search" {
+		h.renderNotFound(w)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		h.renderMethodNotAllowed(w)
+		return
+	}
+
+	query := strings.TrimSpace(
+		r.URL.Query().Get("q"),
+	)
+
+	data := h.pageData(r)
+
+	if query == "" {
+		data.SearchQuery = ""
+		data.SearchPosts = nil
+		data.SearchCategories = nil
+
+		h.render(
+			w,
+			http.StatusOK,
+			"search.html",
+			data,
+		)
+		return
+	}
+
+	posts, err := database.SearchPostViews(
+		h.db,
+		query,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	categories, err := database.SearchCategories(
+		h.db,
+		query,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	data.SearchQuery = query
+	data.SearchPosts = posts
+	data.SearchCategories = categories
+
+	h.render(
+		w,
+		http.StatusOK,
+		"search.html",
+		data,
+	)
+}
+
 func (h *PageHandler) Dashboard(
 	w http.ResponseWriter,
 	r *http.Request,
