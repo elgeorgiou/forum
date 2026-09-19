@@ -1,0 +1,158 @@
+{{ define "title" }}Manage Moderators | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/dashboard.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="dashboard-page">
+    <div class="dashboard-background"></div>
+
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+            <div class="dashboard-sidebar-header">
+                <span class="dashboard-sidebar-icon">🎮</span>
+
+                <div>
+                    <span class="dashboard-sidebar-label">
+                        GameForum
+                    </span>
+
+                    <strong>Admin Panel</strong>
+                </div>
+            </div>
+
+            <nav class="dashboard-navigation">
+                <a
+                    href="/dashboard"
+                    class="dashboard-nav-link"
+                >
+                    Overview
+                </a>
+
+                <a
+                    href="/dashboard#reports"
+                    class="dashboard-nav-link"
+                >
+                    Reports
+                </a>
+
+                <a
+                    href="/dashboard#moderator-requests"
+                    class="dashboard-nav-link"
+                >
+                    Moderator Requests
+                </a>
+
+                <a
+                    href="/admin/moderators"
+                    class="dashboard-nav-link active"
+                >
+                    Moderators
+                </a>
+
+                <a
+                    href="/"
+                    class="dashboard-nav-link dashboard-back-link"
+                >
+                    Back to Forum
+                </a>
+            </nav>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="dashboard-header">
+                <div>
+                    <p class="dashboard-eyebrow">
+                        ROLE MANAGEMENT
+                    </p>
+
+                    <h1>Manage Moderators</h1>
+
+                    <p class="dashboard-subtitle">
+                        View active moderators and manage
+                        their community permissions.
+                    </p>
+                </div>
+
+                <div class="dashboard-user">
+                    <div class="dashboard-user-avatar">
+                        {{ .CurrentUser.Username }}
+                    </div>
+
+                    <div>
+                        <strong>
+                            {{ .CurrentUser.Username }}
+                        </strong>
+
+                        <span>
+                            {{ .CurrentUser.Role }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <section class="dashboard-section">
+                <div class="dashboard-section-heading">
+                    <div>
+                        <p class="dashboard-section-label">
+                            ACTIVE TEAM
+                        </p>
+
+                        <h2>Moderators</h2>
+                    </div>
+                </div>
+
+                <div class="moderator-request-list">
+                    {{ range .Moderators }}
+                        <article class="moderator-request-card">
+                            <div>
+                                <strong>
+                                    {{ .Username }}
+                                </strong>
+
+                                <span>
+                                    {{ .Email }}
+                                </span>
+
+                                <span>
+                                    Member since {{ .CreatedAt }}
+                                </span>
+                            </div>
+
+                            <div class="moderator-request-actions">
+                                <form
+                                    action="/admin/moderators/demote"
+                                    method="POST"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="user_id"
+                                        value="{{ .ID }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="dashboard-danger-button"
+                                    >
+                                        Demote to User
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    {{ else }}
+                        <div class="dashboard-empty-state">
+                            <h3>No active moderators</h3>
+
+                            <p>
+                                There are currently no moderators
+                                in the community.
+                            </p>
+                        </div>
+                    {{ end }}
+                </div>
+            </section>
+        </main>
+    </div>
+</section>
+{{ end }}

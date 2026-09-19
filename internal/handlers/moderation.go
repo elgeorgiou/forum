@@ -587,3 +587,92 @@ func (h *ModerationHandler) ReviewReport(
 		http.StatusSeeOther,
 	)
 }
+
+func (h *ModerationHandler) DemoteModerator(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			"Method Not Allowed",
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	admin := middleware.UserFromContext(r.Context())
+	if admin == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if admin.Role != "admin" {
+		http.Error(
+			w,
+			"Forbidden",
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	userID, err := strconv.ParseInt(
+		r.FormValue("user_id"),
+		10,
+		64,
+	)
+	if err != nil || userID <= 0 {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	err = database.DemoteModerator(
+		h.db,
+		userID,
+	)
+	if err != nil {
+		if errors.Is(
+			err,
+			database.ErrModeratorNotFound,
+		) {
+			http.Error(
+				w,
+				"Not Found",
+				http.StatusNotFound,
+			)
+			return
+		}
+
+		http.Error(
+			w,
+			"Internal Server Error",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/admin/moderators",
+		http.StatusSeeOther,
+	)
+}

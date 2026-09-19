@@ -334,6 +334,24 @@ func Run() error {
 		),
 	)
 
+	mux.Handle(
+		"GET /admin/moderators",
+		authMiddleware.RequireAdmin(
+			http.HandlerFunc(
+				pageHandler.Moderators,
+			),
+		),
+	)
+
+	mux.Handle(
+		"POST /admin/moderators/demote",
+		authMiddleware.RequireAdmin(
+			http.HandlerFunc(
+				moderationHandler.DemoteModerator,
+			),
+		),
+	)
+
 	handler := authMiddleware.LoadUser(mux)
 
 	server := &http.Server{

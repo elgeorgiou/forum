@@ -7,6 +7,7 @@ import (
 )
 
 var ErrUserNotFound = errors.New("user not found")
+var ErrModeratorNotFound = errors.New("moderator not found")
 
 type User struct {
 	ID           int64
@@ -156,6 +157,50 @@ func GetUserByUsername(db *sql.DB, username string) (*User, error) {
 	return user, nil
 }
 
+func GetModerators(db *sql.DB) ([]User, error) {
+	rows, err := db.Query(`
+		SELECT
+			id,
+			username,
+			email,
+			password_hash,
+			role,
+			created_at
+		FROM users
+		WHERE role = 'moderator'
+		ORDER BY username ASC
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("get moderators: %w", err)
+	}
+	defer rows.Close()
+
+	var moderators []User
+
+	for rows.Next() {
+		var moderator User
+
+		if err := rows.Scan(
+			&moderator.ID,
+			&moderator.Username,
+			&moderator.Email,
+			&moderator.PasswordHash,
+			&moderator.Role,
+			&moderator.CreatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("scan moderator: %w", err)
+		}
+
+		moderators = append(moderators, moderator)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate moderators: %w", err)
+	}
+
+	return moderators, nil
+}
+
 func UpdateUserRole(
 	db *sql.DB,
 	userID int64,
@@ -181,6 +226,35 @@ func UpdateUserRole(
 
 	if rowsAffected == 0 {
 		return ErrUserNotFound
+	}
+
+	return nil
+}
+
+func DemoteModerator(
+	db *sql.DB,
+	userID int64,
+) error {
+	result, err := db.Exec(`
+		UPDATE users
+		SET role = 'user'
+		WHERE id = ?
+		AND role = 'moderator'
+	`, userID)
+	if err != nil {
+		return fmt.Errorf("demote moderator: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf(
+			"get demote moderator affected rows: %w",
+			err,
+		)
+	}
+
+	if rowsAffected == 0 {
+		return ErrModeratorNotFound
 	}
 
 	return nil

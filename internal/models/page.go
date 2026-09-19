@@ -76,4 +76,6 @@ type PageData struct {
 	ModeratorRequests            []database.ModeratorRequestView
 	PendingModeratorRequestCount int
 	PendingModeratorRequest      *database.ModeratorRequest
+
+	Moderators []database.User
 }
