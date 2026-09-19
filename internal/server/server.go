@@ -64,6 +64,11 @@ func Run() error {
 			db,
 		)
 
+	moderationHandler :=
+		handlers.NewModerationHandler(
+			db,
+		)
+
 	githubOAuthHandler := handlers.NewGitHubOAuthHandler(
 		db,
 		sessionManager,
@@ -222,7 +227,7 @@ func Run() error {
 
 	mux.Handle(
 		"/dashboard",
-		authMiddleware.RequireAuthentication(
+		authMiddleware.RequireModerator(
 			http.HandlerFunc(
 				pageHandler.Dashboard,
 			),
@@ -261,6 +266,33 @@ func Run() error {
 		authMiddleware.RequireAuthentication(
 			http.HandlerFunc(
 				notificationHandler.ReadAll,
+			),
+		),
+	)
+
+	mux.Handle(
+		"GET /moderation/request",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				pageHandler.ModeratorRequest,
+			),
+		),
+	)
+
+	mux.Handle(
+		"POST /moderation/request",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				moderationHandler.RequestModerator,
+			),
+		),
+	)
+
+	mux.Handle(
+		"POST /admin/moderation/requests/review",
+		authMiddleware.RequireAdmin(
+			http.HandlerFunc(
+				moderationHandler.ReviewModeratorRequest,
 			),
 		),
 	)

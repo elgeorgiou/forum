@@ -265,10 +265,138 @@ func (h *PageHandler) Dashboard(
 
 	data := h.pageData(r)
 
+	if data.CurrentUser == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if data.CurrentUser.Role != "moderator" &&
+		data.CurrentUser.Role != "admin" {
+		http.Error(
+			w,
+			"Forbidden",
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	stats, err := database.GetDashboardStats(
+		h.db,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	reports, err := database.GetPendingReportViews(
+		h.db,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	pendingReportCount, err :=
+		database.GetPendingReportCount(
+			h.db,
+		)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	data.Stats = stats
+	data.RecentReports = reports
+	data.PendingReportCount = pendingReportCount
+
+	if data.CurrentUser.Role == "admin" {
+		requests, err :=
+			database.GetPendingModeratorRequestViews(
+				h.db,
+			)
+		if err != nil {
+			h.renderInternalServerError(w)
+			return
+		}
+
+		requestCount, err :=
+			database.GetPendingModeratorRequestCount(
+				h.db,
+			)
+		if err != nil {
+			h.renderInternalServerError(w)
+			return
+		}
+
+		data.ModeratorRequests = requests
+		data.PendingModeratorRequestCount =
+			requestCount
+	}
+
 	h.render(
 		w,
 		http.StatusOK,
 		"dashboard.html",
+		data,
+	)
+}
+
+func (h *PageHandler) ModeratorRequest(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.URL.Path != "/moderation/request" {
+		h.renderNotFound(w)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		h.renderMethodNotAllowed(w)
+		return
+	}
+
+	data := h.pageData(r)
+
+	if data.CurrentUser == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if data.CurrentUser.Role == "user" {
+		request, err :=
+			database.GetPendingModeratorRequestByUser(
+				h.db,
+				data.CurrentUser.ID,
+			)
+
+		if err != nil &&
+			!errors.Is(
+				err,
+				database.ErrModeratorRequestNotFound,
+			) {
+			h.renderInternalServerError(w)
+			return
+		}
+
+		if err == nil {
+			data.PendingModeratorRequest = request
+		}
+	}
+
+	h.render(
+		w,
+		http.StatusOK,
+		"moderator_request.html",
 		data,
 	)
 }

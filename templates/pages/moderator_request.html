@@ -1,0 +1,158 @@
+{{ define "title" }}Become a Moderator | GameForum{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/moderation.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="moderation-page">
+    <div class="moderation-background"></div>
+
+    <div class="moderation-container">
+        <div class="moderation-card">
+            <div class="moderation-badge">
+                COMMUNITY MODERATION
+            </div>
+
+            {{ if eq .CurrentUser.Role "user" }}
+
+                {{ if .PendingModeratorRequest }}
+                    <div class="moderation-status">
+                        <div class="moderation-status-icon moderation-status-pending">
+                            …
+                        </div>
+
+                        <h1>Request Pending</h1>
+
+                        <p>
+                            Your moderator request has been submitted
+                            and is waiting for administrator review.
+                        </p>
+
+                        <div class="moderation-pending-card">
+                            <span>Request status</span>
+
+                            <strong>
+                                {{ .PendingModeratorRequest.Status }}
+                            </strong>
+                        </div>
+                    </div>
+
+                {{ else }}
+                    <h1>Become a Moderator</h1>
+
+                    <p class="moderation-description">
+                        Help keep GameForum welcoming, organized,
+                        and safe for the whole community.
+                    </p>
+
+                    <div class="moderation-info">
+                        <div class="moderation-info-item">
+                            <span class="moderation-info-icon">01</span>
+
+                            <div>
+                                <strong>Review community content</strong>
+
+                                <p>
+                                    Help monitor discussions and remove
+                                    content that breaks community rules.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="moderation-info-item">
+                            <span class="moderation-info-icon">02</span>
+
+                            <div>
+                                <strong>Report serious violations</strong>
+
+                                <p>
+                                    Escalate problematic content to
+                                    administrators for further review.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="moderation-info-item">
+                            <span class="moderation-info-icon">03</span>
+
+                            <div>
+                                <strong>Support the community</strong>
+
+                                <p>
+                                    Help maintain a healthy space for
+                                    gamers to discuss and connect.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form
+                        action="/moderation/request"
+                        method="POST"
+                        class="moderation-request-form"
+                    >
+                        <button
+                            type="submit"
+                            class="moderation-primary-button"
+                        >
+                            Request Moderator Role
+                        </button>
+                    </form>
+
+                    <p class="moderation-note">
+                        Your request will be reviewed by an administrator.
+                    </p>
+                {{ end }}
+
+            {{ else if eq .CurrentUser.Role "moderator" }}
+                <div class="moderation-status">
+                    <div class="moderation-status-icon">
+                        ✓
+                    </div>
+
+                    <h1>You're a Moderator</h1>
+
+                    <p>
+                        Your account already has moderator permissions.
+                    </p>
+
+                    <a
+                        href="/dashboard"
+                        class="moderation-primary-button"
+                    >
+                        Open Moderator Dashboard
+                    </a>
+                </div>
+
+            {{ else if eq .CurrentUser.Role "admin" }}
+                <div class="moderation-status">
+                    <div class="moderation-status-icon">
+                        ✓
+                    </div>
+
+                    <h1>Administrator Account</h1>
+
+                    <p>
+                        Your account already has full moderation access.
+                    </p>
+
+                    <a
+                        href="/dashboard"
+                        class="moderation-primary-button"
+                    >
+                        Open Admin Dashboard
+                    </a>
+                </div>
+            {{ end }}
+
+            <a
+                href="/"
+                class="moderation-back-link"
+            >
+                ← Back to GameForum
+            </a>
+        </div>
+    </div>
+</section>
+{{ end }}

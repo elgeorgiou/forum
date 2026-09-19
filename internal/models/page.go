@@ -56,6 +56,13 @@ type PageData struct {
 
 	PostFilter string
 
+	Stats                        database.DashboardStats
+	RecentReports                []database.ReportView
+	ModeratorRequests            []database.ModeratorRequestView
+	PendingModeratorRequest      *database.ModeratorRequest
+	PendingReportCount           int
+	PendingModeratorRequestCount int
+
 	AuthMode string
 	Error    string
 	Form     AuthFormData

@@ -33,7 +33,7 @@
                     Overview
                 </a>
 
-                <a href="/dashboard/reports" class="dashboard-nav-link">
+                <a href="/dashboard#reports" class="dashboard-nav-link">
                     Reports
 
                     {{ if gt .PendingReportCount 0 }}
@@ -44,11 +44,7 @@
                 </a>
 
                 {{ if eq .CurrentUser.Role "admin" }}
-                    <a href="/dashboard/moderators" class="dashboard-nav-link">
-                        Moderators
-                    </a>
-
-                    <a href="/dashboard/requests" class="dashboard-nav-link">
+                    <a href="/dashboard#moderator-requests" class="dashboard-nav-link">
                         Moderator Requests
 
                         {{ if gt .PendingModeratorRequestCount 0 }}
@@ -56,10 +52,6 @@
                                 {{ .PendingModeratorRequestCount }}
                             </span>
                         {{ end }}
-                    </a>
-
-                    <a href="/dashboard/categories" class="dashboard-nav-link">
-                        Categories
                     </a>
                 {{ end }}
 
@@ -144,19 +136,18 @@
                 </article>
             </section>
 
-            <section class="dashboard-section">
+            <section
+                class="dashboard-section"
+                id="reports"
+            >
                 <div class="dashboard-section-heading">
                     <div>
                         <p class="dashboard-section-label">
                             MODERATION QUEUE
                         </p>
 
-                        <h2>Recent Reports</h2>
+                        <h2>Pending Reports</h2>
                     </div>
-
-                    <a href="/dashboard/reports">
-                        View all reports
-                    </a>
                 </div>
 
                 <div class="report-list">
@@ -187,7 +178,9 @@
 
                                 <div class="report-reporter">
                                     Reported by
-                                    <strong>{{ .ReporterUsername }}</strong>
+                                    <strong>
+                                        {{ .ReporterUsername }}
+                                    </strong>
                                 </div>
                             </div>
 
@@ -198,30 +191,6 @@
                                 >
                                     Review
                                 </a>
-
-                                <form
-                                    action="/dashboard/reports/{{ .ID }}/resolve"
-                                    method="POST"
-                                >
-                                    <button
-                                        type="submit"
-                                        class="dashboard-success-button"
-                                    >
-                                        Resolve
-                                    </button>
-                                </form>
-
-                                <form
-                                    action="/dashboard/reports/{{ .ID }}/reject"
-                                    method="POST"
-                                >
-                                    <button
-                                        type="submit"
-                                        class="dashboard-danger-button"
-                                    >
-                                        Reject
-                                    </button>
-                                </form>
                             </div>
                         </article>
                     {{ else }}
@@ -237,7 +206,10 @@
             </section>
 
             {{ if eq .CurrentUser.Role "admin" }}
-                <section class="dashboard-section">
+                <section
+                    class="dashboard-section"
+                    id="moderator-requests"
+                >
                     <div class="dashboard-section-heading">
                         <div>
                             <p class="dashboard-section-label">
@@ -246,17 +218,19 @@
 
                             <h2>Moderator Requests</h2>
                         </div>
-
-                        <a href="/dashboard/requests">
-                            View all requests
-                        </a>
                     </div>
 
                     <div class="moderator-request-list">
                         {{ range .ModeratorRequests }}
                             <article class="moderator-request-card">
                                 <div>
-                                    <strong>{{ .Username }}</strong>
+                                    <strong>
+                                        {{ .Username }}
+                                    </strong>
+
+                                    <span>
+                                        {{ .Email }}
+                                    </span>
 
                                     <span>
                                         Requested {{ .CreatedAt }}
@@ -265,9 +239,21 @@
 
                                 <div class="moderator-request-actions">
                                     <form
-                                        action="/dashboard/requests/{{ .ID }}/approve"
+                                        action="/admin/moderation/requests/review"
                                         method="POST"
                                     >
+                                        <input
+                                            type="hidden"
+                                            name="request_id"
+                                            value="{{ .ID }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="approve"
+                                        >
+
                                         <button
                                             type="submit"
                                             class="dashboard-success-button"
@@ -277,9 +263,21 @@
                                     </form>
 
                                     <form
-                                        action="/dashboard/requests/{{ .ID }}/reject"
+                                        action="/admin/moderation/requests/review"
                                         method="POST"
                                     >
+                                        <input
+                                            type="hidden"
+                                            name="request_id"
+                                            value="{{ .ID }}"
+                                        >
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="reject"
+                                        >
+
                                         <button
                                             type="submit"
                                             class="dashboard-danger-button"
