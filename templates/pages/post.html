@@ -6,6 +6,7 @@
 
 {{ define "scripts" }}
 <script src="/static/js/reactions.js" defer></script>
+<script src="/static/js/post.js" defer></script>
 {{ end }}
 
 {{ define "content" }}
@@ -50,28 +51,136 @@
                     </div>
                 </div>
 
-                {{ if .Post.Categories }}
-                    <div class="post-detail-categories">
-                        {{ range .Post.Categories }}
-                            <a
-                                class="post-detail-category"
-                                href="/categories/{{ .Slug }}"
+                <div class="post-header-right">
+
+                    {{ if .Post.Categories }}
+                        <div class="post-detail-categories">
+                            {{ range .Post.Categories }}
+                                <a
+                                    class="post-detail-category"
+                                    href="/categories/{{ .Slug }}"
+                                >
+                                    {{ .Name }}
+                                </a>
+                            {{ end }}
+                        </div>
+                    {{ end }}
+
+                    {{ if and .IsAuthenticated (eq .CurrentUser.ID .Post.UserID) }}
+                        <div class="owner-menu">
+                            <button
+                                type="button"
+                                class="owner-menu-toggle"
+                                data-menu-toggle="post-owner-menu"
+                                aria-label="Post options"
+                                aria-expanded="false"
                             >
-                                {{ .Name }}
-                            </a>
-                        {{ end }}
-                    </div>
-                {{ end }}
+                                ⋯
+                            </button>
+
+                            <div
+                                id="post-owner-menu"
+                                class="owner-menu-dropdown"
+                                hidden
+                            >
+                                <button
+                                    type="button"
+                                    class="owner-menu-item"
+                                    data-edit-target="post-edit-form"
+                                    data-display-target="post-display"
+                                >
+                                    Edit post
+                                </button>
+
+                                <form
+                                    class="owner-menu-form"
+                                    action="/posts/delete"
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this discussion permanently?');"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="post_id"
+                                        value="{{ .Post.ID }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="owner-menu-item owner-menu-item-delete"
+                                    >
+                                        Delete post
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {{ end }}
+
+                </div>
             </header>
 
             <div class="post-detail-body">
-                <h1 class="post-detail-title">
-                    {{ .Post.Title }}
-                </h1>
 
-                <div class="post-detail-content">
-                    {{ .Post.Content }}
+                <div id="post-display">
+                    <h1 class="post-detail-title">
+                        {{ .Post.Title }}
+                    </h1>
+
+                    <div class="post-detail-content">
+                        {{ .Post.Content }}
+                    </div>
                 </div>
+
+                {{ if and .IsAuthenticated (eq .CurrentUser.ID .Post.UserID) }}
+                    <form
+                        id="post-edit-form"
+                        class="post-edit-form"
+                        action="/posts/update"
+                        method="POST"
+                        hidden
+                    >
+                        <input
+                            type="hidden"
+                            name="post_id"
+                            value="{{ .Post.ID }}"
+                        >
+
+                        <input
+                            class="post-edit-title"
+                            type="text"
+                            name="title"
+                            value="{{ .Post.Title }}"
+                            maxlength="200"
+                            aria-label="Post title"
+                            required
+                        >
+
+                        <textarea
+                            class="post-edit-content"
+                            name="content"
+                            maxlength="10000"
+                            aria-label="Post content"
+                            required
+                        >{{ .Post.Content }}</textarea>
+
+                        <div class="edit-form-actions">
+                            <button
+                                type="button"
+                                class="edit-cancel-button"
+                                data-cancel-edit="post-edit-form"
+                                data-display-target="post-display"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="edit-save-button"
+                            >
+                                Save changes
+                            </button>
+                        </div>
+                    </form>
+                {{ end }}
 
                 {{ if .Post.ImagePath }}
                     <div class="post-detail-image-wrapper">
@@ -82,6 +191,7 @@
                         >
                     </div>
                 {{ end }}
+
             </div>
 
             <footer class="post-detail-footer">
@@ -223,6 +333,7 @@
                     {{ end }}
 
                 </div>
+
             </footer>
 
         </article>
@@ -235,9 +346,7 @@
                         Discussion
                     </span>
 
-                    <h2>
-                        Comments
-                    </h2>
+                    <h2>Comments</h2>
                 </div>
 
                 <span class="post-comments-total">
@@ -316,8 +425,8 @@
                         <article class="comment-card">
 
                             <header class="comment-header">
-                                <div class="comment-author">
 
+                                <div class="comment-author">
                                     <div class="comment-avatar">
                                         {{ if .Username }}
                                             {{ slice .Username 0 1 }}
@@ -335,13 +444,113 @@
                                             {{ .CreatedAt }}
                                         </span>
                                     </div>
-
                                 </div>
+
+                                {{ if and $.IsAuthenticated (eq $.CurrentUser.ID .UserID) }}
+
+                                    <div class="owner-menu comment-owner-menu">
+
+                                        <button
+                                            type="button"
+                                            class="owner-menu-toggle"
+                                            data-menu-toggle="comment-owner-menu-{{ .ID }}"
+                                            aria-label="Comment options"
+                                            aria-expanded="false"
+                                        >
+                                            ⋯
+                                        </button>
+
+                                        <div
+                                            id="comment-owner-menu-{{ .ID }}"
+                                            class="owner-menu-dropdown"
+                                            hidden
+                                        >
+                                            <button
+                                                type="button"
+                                                class="owner-menu-item"
+                                                data-edit-target="comment-edit-{{ .ID }}"
+                                                data-display-target="comment-display-{{ .ID }}"
+                                            >
+                                                Edit comment
+                                            </button>
+
+                                            <form
+                                                class="owner-menu-form"
+                                                action="/comments/delete"
+                                                method="POST"
+                                                onsubmit="return confirm('Delete this comment permanently?');"
+                                            >
+                                                <input
+                                                    type="hidden"
+                                                    name="comment_id"
+                                                    value="{{ .ID }}"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="owner-menu-item owner-menu-item-delete"
+                                                >
+                                                    Delete comment
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    </div>
+
+                                {{ end }}
+
                             </header>
 
-                            <div class="comment-content">
+                            <div
+                                id="comment-display-{{ .ID }}"
+                                class="comment-content"
+                            >
                                 {{ .Content }}
                             </div>
+
+                            {{ if and $.IsAuthenticated (eq $.CurrentUser.ID .UserID) }}
+
+                                <form
+                                    id="comment-edit-{{ .ID }}"
+                                    class="comment-edit-form"
+                                    action="/comments/update"
+                                    method="POST"
+                                    hidden
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="comment_id"
+                                        value="{{ .ID }}"
+                                    >
+
+                                    <textarea
+                                        class="comment-edit-content"
+                                        name="content"
+                                        maxlength="5000"
+                                        aria-label="Edit comment"
+                                        required
+                                    >{{ .Content }}</textarea>
+
+                                    <div class="edit-form-actions">
+                                        <button
+                                            type="button"
+                                            class="edit-cancel-button"
+                                            data-cancel-edit="comment-edit-{{ .ID }}"
+                                            data-display-target="comment-display-{{ .ID }}"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            class="edit-save-button"
+                                        >
+                                            Save changes
+                                        </button>
+                                    </div>
+                                </form>
+
+                            {{ end }}
 
                             <footer class="comment-footer">
 

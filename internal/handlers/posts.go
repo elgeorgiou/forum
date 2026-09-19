@@ -339,6 +339,259 @@ func (h *PostHandler) Create(
 	)
 }
 
+func (h *PostHandler) Update(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			http.StatusText(http.StatusMethodNotAllowed),
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user := middleware.UserFromContext(
+		r.Context(),
+	)
+
+	if user == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Invalid post form",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	postID, err := strconv.ParseInt(
+		r.FormValue("post_id"),
+		10,
+		64,
+	)
+	if err != nil || postID <= 0 {
+		http.Error(
+			w,
+			"Invalid post",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	post, err := database.GetPostByID(
+		h.db,
+		postID,
+	)
+	if errors.Is(
+		err,
+		database.ErrPostNotFound,
+	) {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err != nil {
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	if post.UserID != user.ID {
+		http.Error(
+			w,
+			http.StatusText(http.StatusForbidden),
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	title := strings.TrimSpace(
+		r.FormValue("title"),
+	)
+
+	content := strings.TrimSpace(
+		r.FormValue("content"),
+	)
+
+	if title == "" || content == "" {
+		http.Error(
+			w,
+			"Post title and content are required",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	if err := database.UpdatePost(
+		h.db,
+		postID,
+		title,
+		content,
+		post.ImagePath,
+	); err != nil {
+		if errors.Is(
+			err,
+			database.ErrPostNotFound,
+		) {
+			http.NotFound(w, r)
+			return
+		}
+
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/posts/"+strconv.FormatInt(
+			postID,
+			10,
+		),
+		http.StatusSeeOther,
+	)
+}
+
+func (h *PostHandler) Delete(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			http.StatusText(http.StatusMethodNotAllowed),
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user := middleware.UserFromContext(
+		r.Context(),
+	)
+
+	if user == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Invalid post form",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	postID, err := strconv.ParseInt(
+		r.FormValue("post_id"),
+		10,
+		64,
+	)
+	if err != nil || postID <= 0 {
+		http.Error(
+			w,
+			"Invalid post",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	post, err := database.GetPostByID(
+		h.db,
+		postID,
+	)
+	if errors.Is(
+		err,
+		database.ErrPostNotFound,
+	) {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err != nil {
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	if post.UserID != user.ID {
+		http.Error(
+			w,
+			http.StatusText(http.StatusForbidden),
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	if err := database.DeletePost(
+		h.db,
+		postID,
+	); err != nil {
+		if errors.Is(
+			err,
+			database.ErrPostNotFound,
+		) {
+			http.NotFound(w, r)
+			return
+		}
+
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	if post.ImagePath.Valid {
+		_ = upload.DeleteImage(
+			post.ImagePath.String,
+		)
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/",
+		http.StatusSeeOther,
+	)
+}
+
 func postIDFromPath(
 	path string,
 ) (int64, error) {

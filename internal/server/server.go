@@ -153,10 +153,46 @@ func Run() error {
 	)
 
 	mux.Handle(
+		"/posts/update",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				postHandler.Update,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/posts/delete",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				postHandler.Delete,
+			),
+		),
+	)
+
+	mux.Handle(
 		"/posts/react",
 		authMiddleware.RequireAuthentication(
 			http.HandlerFunc(
 				reactionHandler.Post,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/comments/update",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				commentHandler.Update,
+			),
+		),
+	)
+
+	mux.Handle(
+		"/comments/delete",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				commentHandler.Delete,
 			),
 		),
 	)

@@ -148,6 +148,250 @@ func (h *CommentHandler) Create(
 	)
 }
 
+func (h *CommentHandler) Update(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			http.StatusText(http.StatusMethodNotAllowed),
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user := middleware.UserFromContext(
+		r.Context(),
+	)
+
+	if user == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Invalid comment form",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	commentID, err := strconv.ParseInt(
+		r.FormValue("comment_id"),
+		10,
+		64,
+	)
+	if err != nil || commentID <= 0 {
+		http.Error(
+			w,
+			"Invalid comment",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	comment, err := database.GetCommentByID(
+		h.db,
+		commentID,
+	)
+	if errors.Is(
+		err,
+		database.ErrCommentNotFound,
+	) {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err != nil {
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	if comment.UserID != user.ID {
+		http.Error(
+			w,
+			http.StatusText(http.StatusForbidden),
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	content := strings.TrimSpace(
+		r.FormValue("content"),
+	)
+
+	if content == "" {
+		http.Error(
+			w,
+			"Comment cannot be empty",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	if err := database.UpdateComment(
+		h.db,
+		commentID,
+		content,
+	); err != nil {
+		if errors.Is(
+			err,
+			database.ErrCommentNotFound,
+		) {
+			http.NotFound(w, r)
+			return
+		}
+
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/posts/"+strconv.FormatInt(
+			comment.PostID,
+			10,
+		),
+		http.StatusSeeOther,
+	)
+}
+
+func (h *CommentHandler) Delete(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			http.StatusText(http.StatusMethodNotAllowed),
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user := middleware.UserFromContext(
+		r.Context(),
+	)
+
+	if user == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Invalid comment form",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	commentID, err := strconv.ParseInt(
+		r.FormValue("comment_id"),
+		10,
+		64,
+	)
+	if err != nil || commentID <= 0 {
+		http.Error(
+			w,
+			"Invalid comment",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	comment, err := database.GetCommentByID(
+		h.db,
+		commentID,
+	)
+	if errors.Is(
+		err,
+		database.ErrCommentNotFound,
+	) {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err != nil {
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	if comment.UserID != user.ID {
+		http.Error(
+			w,
+			http.StatusText(http.StatusForbidden),
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	if err := database.DeleteComment(
+		h.db,
+		commentID,
+	); err != nil {
+		if errors.Is(
+			err,
+			database.ErrCommentNotFound,
+		) {
+			http.NotFound(w, r)
+			return
+		}
+
+		http.Error(
+			w,
+			http.StatusText(
+				http.StatusInternalServerError,
+			),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/posts/"+strconv.FormatInt(
+			comment.PostID,
+			10,
+		),
+		http.StatusSeeOther,
+	)
+}
+
 func commentPostIDFromPath(
 	path string,
 ) (int64, error) {
