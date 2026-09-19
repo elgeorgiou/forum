@@ -866,7 +866,10 @@ func TestReports(t *testing.T) {
 	}
 
 	if len(reports) != 1 {
-		t.Fatalf("expected 1 pending report, got %d", len(reports))
+		t.Fatalf(
+			"expected 1 pending report, got %d",
+			len(reports),
+		)
 	}
 
 	if err := ReviewReport(
@@ -874,6 +877,7 @@ func TestReports(t *testing.T) {
 		reportID,
 		"resolved",
 		adminID,
+		"Report reviewed and resolved",
 	); err != nil {
 		t.Fatalf("review report: %v", err)
 	}
@@ -884,7 +888,53 @@ func TestReports(t *testing.T) {
 	}
 
 	if len(reports) != 0 {
-		t.Fatalf("expected 0 pending reports, got %d", len(reports))
+		t.Fatalf(
+			"expected 0 pending reports, got %d",
+			len(reports),
+		)
+	}
+
+	notifications, err := GetNotificationViewsByUser(
+		db,
+		reporterID,
+	)
+	if err != nil {
+		t.Fatalf(
+			"get reporter notifications: %v",
+			err,
+		)
+	}
+
+	if len(notifications) != 1 {
+		t.Fatalf(
+			"expected 1 report notification, got %d",
+			len(notifications),
+		)
+	}
+
+	if notifications[0].Type != NotificationReport {
+		t.Fatalf(
+			"expected notification type %q, got %q",
+			NotificationReport,
+			notifications[0].Type,
+		)
+	}
+
+	if notifications[0].ReportStatus != "resolved" {
+		t.Fatalf(
+			"expected report status %q, got %q",
+			"resolved",
+			notifications[0].ReportStatus,
+		)
+	}
+
+	if notifications[0].ReportResponse !=
+		"Report reviewed and resolved" {
+		t.Fatalf(
+			"expected report response %q, got %q",
+			"Report reviewed and resolved",
+			notifications[0].ReportResponse,
+		)
 	}
 }
 

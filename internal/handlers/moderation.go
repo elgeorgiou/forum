@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"forum/internal/database"
 	"forum/internal/middleware"
@@ -194,6 +195,395 @@ func (h *ModerationHandler) ReviewModeratorRequest(
 		w,
 		r,
 		"/dashboard#moderator-requests",
+		http.StatusSeeOther,
+	)
+}
+
+func (h *ModerationHandler) ReportPost(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			"Method Not Allowed",
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if user.Role != "moderator" &&
+		user.Role != "admin" {
+		http.Error(
+			w,
+			"Forbidden",
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	postID, err := strconv.ParseInt(
+		r.FormValue("post_id"),
+		10,
+		64,
+	)
+	if err != nil || postID <= 0 {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	reason := strings.TrimSpace(
+		r.FormValue("reason"),
+	)
+
+	if reason == "" {
+		http.Error(
+			w,
+			"Report reason is required",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	if len([]rune(reason)) > 1000 {
+		http.Error(
+			w,
+			"Report reason is too long",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	_, err = database.GetPostByID(
+		h.db,
+		postID,
+	)
+	if err != nil {
+		if errors.Is(
+			err,
+			database.ErrPostNotFound,
+		) {
+			http.Error(
+				w,
+				"Not Found",
+				http.StatusNotFound,
+			)
+			return
+		}
+
+		http.Error(
+			w,
+			"Internal Server Error",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	_, err = database.CreatePostReport(
+		h.db,
+		user.ID,
+		postID,
+		reason,
+	)
+	if err != nil {
+		http.Error(
+			w,
+			"Internal Server Error",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/posts/"+strconv.FormatInt(postID, 10),
+		http.StatusSeeOther,
+	)
+}
+
+func (h *ModerationHandler) ReportComment(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			"Method Not Allowed",
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user := middleware.UserFromContext(r.Context())
+	if user == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if user.Role != "moderator" &&
+		user.Role != "admin" {
+		http.Error(
+			w,
+			"Forbidden",
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	commentID, err := strconv.ParseInt(
+		r.FormValue("comment_id"),
+		10,
+		64,
+	)
+	if err != nil || commentID <= 0 {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	reason := strings.TrimSpace(
+		r.FormValue("reason"),
+	)
+
+	if reason == "" {
+		http.Error(
+			w,
+			"Report reason is required",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	if len([]rune(reason)) > 1000 {
+		http.Error(
+			w,
+			"Report reason is too long",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	comment, err := database.GetCommentByID(
+		h.db,
+		commentID,
+	)
+	if err != nil {
+		if errors.Is(
+			err,
+			database.ErrCommentNotFound,
+		) {
+			http.Error(
+				w,
+				"Not Found",
+				http.StatusNotFound,
+			)
+			return
+		}
+
+		http.Error(
+			w,
+			"Internal Server Error",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	_, err = database.CreateCommentReport(
+		h.db,
+		user.ID,
+		commentID,
+		reason,
+	)
+	if err != nil {
+		http.Error(
+			w,
+			"Internal Server Error",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/posts/"+
+			strconv.FormatInt(comment.PostID, 10)+
+			"#comment-"+
+			strconv.FormatInt(commentID, 10),
+		http.StatusSeeOther,
+	)
+}
+
+func (h *ModerationHandler) ReviewReport(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			"Method Not Allowed",
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	admin := middleware.UserFromContext(r.Context())
+	if admin == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if admin.Role != "admin" {
+		http.Error(
+			w,
+			"Forbidden",
+			http.StatusForbidden,
+		)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	reportID, err := strconv.ParseInt(
+		r.FormValue("report_id"),
+		10,
+		64,
+	)
+	if err != nil || reportID <= 0 {
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	response := strings.TrimSpace(
+		r.FormValue("response"),
+	)
+
+	if response == "" {
+		http.Error(
+			w,
+			"Response is required",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	if len([]rune(response)) > 1000 {
+		http.Error(
+			w,
+			"Response is too long",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	var status string
+
+	switch r.FormValue("action") {
+	case "resolve":
+		status = "resolved"
+
+	case "reject":
+		status = "rejected"
+
+	default:
+		http.Error(
+			w,
+			"Bad Request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	err = database.ReviewReport(
+		h.db,
+		reportID,
+		status,
+		admin.ID,
+		response,
+	)
+	if err != nil {
+		if errors.Is(
+			err,
+			database.ErrReportNotFound,
+		) {
+			http.Error(
+				w,
+				"Not Found",
+				http.StatusNotFound,
+			)
+			return
+		}
+
+		http.Error(
+			w,
+			"Internal Server Error",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/dashboard#reports",
 		http.StatusSeeOther,
 	)
 }

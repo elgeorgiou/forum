@@ -6,7 +6,9 @@ import (
 	"fmt"
 )
 
-var ErrNotificationNotFound = errors.New("notification not found")
+var ErrNotificationNotFound = errors.New(
+	"notification not found",
+)
 
 const (
 	NotificationPostLike       = "post_like"
@@ -14,6 +16,7 @@ const (
 	NotificationComment        = "comment"
 	NotificationCommentLike    = "comment_like"
 	NotificationCommentDislike = "comment_dislike"
+	NotificationReport         = "report"
 )
 
 type Notification struct {
@@ -23,21 +26,25 @@ type Notification struct {
 	Type      string
 	PostID    sql.NullInt64
 	CommentID sql.NullInt64
+	ReportID  sql.NullInt64
 	IsRead    bool
 	CreatedAt string
 }
 
 type NotificationView struct {
-	ID            int64
-	UserID        int64
-	ActorID       sql.NullInt64
-	ActorUsername string
-	Type          string
-	PostID        sql.NullInt64
-	PostTitle     string
-	CommentID     sql.NullInt64
-	IsRead        bool
-	CreatedAt     string
+	ID             int64
+	UserID         int64
+	ActorID        sql.NullInt64
+	ActorUsername  string
+	Type           string
+	PostID         sql.NullInt64
+	PostTitle      string
+	CommentID      sql.NullInt64
+	ReportID       sql.NullInt64
+	ReportResponse string
+	ReportStatus   string
+	IsRead         bool
+	CreatedAt      string
 }
 
 func CreateNotification(
@@ -57,9 +64,18 @@ func CreateNotification(
 			comment_id
 		)
 		VALUES (?, ?, ?, ?, ?)
-	`, userID, actorID, notificationType, postID, commentID)
+	`,
+		userID,
+		actorID,
+		notificationType,
+		postID,
+		commentID,
+	)
 	if err != nil {
-		return 0, fmt.Errorf("create notification: %w", err)
+		return 0, fmt.Errorf(
+			"create notification: %w",
+			err,
+		)
 	}
 
 	id, err := result.LastInsertId()
@@ -172,6 +188,7 @@ func GetNotificationsByUser(
 			type,
 			post_id,
 			comment_id,
+			report_id,
 			is_read,
 			created_at
 		FROM notifications
@@ -198,6 +215,7 @@ func GetNotificationsByUser(
 			&notification.Type,
 			&notification.PostID,
 			&notification.CommentID,
+			&notification.ReportID,
 			&notification.IsRead,
 			&notification.CreatedAt,
 		); err != nil {
@@ -235,16 +253,32 @@ func GetNotificationViewsByUser(
 			COALESCE(u.username, ''),
 			n.type,
 			n.post_id,
-			COALESCE(p.title, ''),
+			COALESCE(p.title, cp.title, ''),
 			n.comment_id,
+			n.report_id,
+			COALESCE(r.response, ''),
+			COALESCE(r.status, ''),
 			n.is_read,
 			n.created_at
 		FROM notifications AS n
+
 		LEFT JOIN users AS u
 			ON u.id = n.actor_id
+
 		LEFT JOIN posts AS p
 			ON p.id = n.post_id
+
+		LEFT JOIN comments AS c
+			ON c.id = n.comment_id
+
+		LEFT JOIN posts AS cp
+			ON cp.id = c.post_id
+
+		LEFT JOIN reports AS r
+			ON r.id = n.report_id
+
 		WHERE n.user_id = ?
+
 		ORDER BY n.created_at DESC
 	`, userID)
 	if err != nil {
@@ -269,6 +303,9 @@ func GetNotificationViewsByUser(
 			&notification.PostID,
 			&notification.PostTitle,
 			&notification.CommentID,
+			&notification.ReportID,
+			&notification.ReportResponse,
+			&notification.ReportStatus,
 			&notification.IsRead,
 			&notification.CreatedAt,
 		); err != nil {

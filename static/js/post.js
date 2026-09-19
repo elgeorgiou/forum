@@ -17,6 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    const closeReportForms = (exceptID = "") => {
+        document.querySelectorAll(".moderation-report-form").forEach((form) => {
+            if (form.id === exceptID) {
+                return;
+            }
+
+            form.hidden = true;
+        });
+    };
+
     document.querySelectorAll("[data-menu-toggle]").forEach((button) => {
         button.addEventListener("click", (event) => {
             event.stopPropagation();
@@ -54,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
             closeMenus();
+            closeReportForms();
         }
     });
 
@@ -72,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             closeMenus();
+            closeReportForms();
 
             display.hidden = true;
             form.hidden = false;
@@ -102,6 +114,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
             form.hidden = true;
             display.hidden = false;
+        });
+    });
+
+    document.querySelectorAll("[data-report-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const formID = button.dataset.reportToggle;
+            const form = document.getElementById(formID);
+
+            if (!form) {
+                return;
+            }
+
+            const shouldOpen = form.hidden;
+
+            closeMenus();
+            closeReportForms(formID);
+
+            form.hidden = !shouldOpen;
+
+            if (shouldOpen) {
+                const textarea = form.querySelector("textarea");
+
+                if (textarea) {
+                    textarea.focus();
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll("[data-report-close]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const form = document.getElementById(
+                button.dataset.reportClose,
+            );
+
+            if (!form) {
+                return;
+            }
+
+            form.hidden = true;
         });
     });
 });

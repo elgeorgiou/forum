@@ -20,7 +20,8 @@
                 <h1>Notifications</h1>
 
                 <p class="notifications-subtitle">
-                    Keep track of activity around your discussions.
+                    Keep track of activity around your discussions
+                    and moderation reports.
                 </p>
             </div>
 
@@ -69,6 +70,12 @@
                                 👍
                             {{ else if eq .Type "post_dislike" }}
                                 👎
+                            {{ else if eq .Type "comment_like" }}
+                                👍
+                            {{ else if eq .Type "comment_dislike" }}
+                                👎
+                            {{ else if eq .Type "report" }}
+                                🛡️
                             {{ else }}
                                 🔔
                             {{ end }}
@@ -76,24 +83,67 @@
 
                         <div class="notification-content">
                             <div class="notification-message">
-                                <strong>
-                                    {{ .ActorUsername }}
-                                </strong>
+                                {{ if eq .Type "report" }}
+                                    <strong>
+                                        {{ .ActorUsername }}
+                                    </strong>
 
-                                {{ if eq .Type "comment" }}
-                                    commented on your discussion
-                                {{ else if eq .Type "post_like" }}
-                                    liked your discussion
-                                {{ else if eq .Type "post_dislike" }}
-                                    disliked your discussion
+                                    reviewed your moderation report.
+
+                                    {{ if eq .ReportStatus "resolved" }}
+                                        <span class="report-status report-status-resolved">
+                                            Resolved
+                                        </span>
+                                    {{ else if eq .ReportStatus "rejected" }}
+                                        <span class="report-status report-status-rejected">
+                                            Rejected
+                                        </span>
+                                    {{ end }}
+
+                                    {{ if .PostTitle }}
+                                        <span class="notification-post-title">
+                                            “{{ .PostTitle }}”
+                                        </span>
+                                    {{ end }}
+
+                                    {{ if .ReportResponse }}
+                                        <div class="report-response">
+                                            <span class="report-response-title">
+                                                Admin response
+                                            </span>
+
+                                            <p>
+                                                {{ .ReportResponse }}
+                                            </p>
+                                        </div>
+                                    {{ end }}
+
                                 {{ else }}
-                                    interacted with your discussion
-                                {{ end }}
 
-                                {{ if .PostTitle }}
-                                    <span class="notification-post-title">
-                                        “{{ .PostTitle }}”
-                                    </span>
+                                    <strong>
+                                        {{ .ActorUsername }}
+                                    </strong>
+
+                                    {{ if eq .Type "comment" }}
+                                        commented on your discussion
+                                    {{ else if eq .Type "post_like" }}
+                                        liked your discussion
+                                    {{ else if eq .Type "post_dislike" }}
+                                        disliked your discussion
+                                    {{ else if eq .Type "comment_like" }}
+                                        liked your comment
+                                    {{ else if eq .Type "comment_dislike" }}
+                                        disliked your comment
+                                    {{ else }}
+                                        interacted with your discussion
+                                    {{ end }}
+
+                                    {{ if .PostTitle }}
+                                        <span class="notification-post-title">
+                                            “{{ .PostTitle }}”
+                                        </span>
+                                    {{ end }}
+
                                 {{ end }}
                             </div>
 
@@ -136,7 +186,11 @@
                                     type="submit"
                                     class="notification-open-button"
                                 >
-                                    View Discussion
+                                    {{ if eq .Type "report" }}
+                                        View Reported Content
+                                    {{ else }}
+                                        View Discussion
+                                    {{ end }}
                                 </button>
                             </form>
                         {{ end }}
@@ -153,7 +207,7 @@
                     <h2>You're all caught up</h2>
 
                     <p>
-                        New comments and reactions on your discussions
+                        New comments, reactions, and moderation updates
                         will appear here.
                     </p>
 

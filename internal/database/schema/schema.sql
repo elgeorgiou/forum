@@ -148,6 +148,7 @@ CREATE TABLE IF NOT EXISTS reports (
     post_id INTEGER,
     comment_id INTEGER,
     reason TEXT NOT NULL,
+    response TEXT NOT NULL DEFAULT '',
     status TEXT NOT NULL DEFAULT 'pending'
         CHECK (status IN ('pending', 'resolved', 'rejected')),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -182,9 +183,19 @@ CREATE TABLE IF NOT EXISTS notifications (
     user_id INTEGER NOT NULL,
     actor_id INTEGER,
     type TEXT NOT NULL
-        CHECK (type IN ('post_like', 'post_dislike', 'comment_like', 'comment_dislike', 'comment', 'report')),
+        CHECK (
+            type IN (
+                'post_like',
+                'post_dislike',
+                'comment_like',
+                'comment_dislike',
+                'comment',
+                'report'
+            )
+        ),
     post_id INTEGER,
     comment_id INTEGER,
+    report_id INTEGER,
     is_read INTEGER NOT NULL DEFAULT 0
         CHECK (is_read IN (0, 1)),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -203,6 +214,10 @@ CREATE TABLE IF NOT EXISTS notifications (
 
     FOREIGN KEY (comment_id)
         REFERENCES comments(id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (report_id)
+        REFERENCES reports(id)
         ON DELETE CASCADE
 );
 

@@ -44,7 +44,10 @@
                 </a>
 
                 {{ if eq .CurrentUser.Role "admin" }}
-                    <a href="/dashboard#moderator-requests" class="dashboard-nav-link">
+                    <a
+                        href="/dashboard#moderator-requests"
+                        class="dashboard-nav-link"
+                    >
                         Moderator Requests
 
                         {{ if gt .PendingModeratorRequestCount 0 }}
@@ -55,7 +58,10 @@
                     </a>
                 {{ end }}
 
-                <a href="/" class="dashboard-nav-link dashboard-back-link">
+                <a
+                    href="/"
+                    class="dashboard-nav-link dashboard-back-link"
+                >
                     Back to Forum
                 </a>
             </nav>
@@ -88,8 +94,13 @@
                     </div>
 
                     <div>
-                        <strong>{{ .CurrentUser.Username }}</strong>
-                        <span>{{ .CurrentUser.Role }}</span>
+                        <strong>
+                            {{ .CurrentUser.Username }}
+                        </strong>
+
+                        <span>
+                            {{ .CurrentUser.Role }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -153,14 +164,22 @@
                 <div class="report-list">
                     {{ range .RecentReports }}
                         <article class="report-card">
-                            <div class="report-main">
+                            <div class="report-details">
                                 <div class="report-meta">
                                     <span class="report-type">
                                         {{ .TargetType }}
                                     </span>
 
+                                    <span class="report-meta-divider">
+                                        •
+                                    </span>
+
                                     <span>
                                         Report #{{ .ID }}
+                                    </span>
+
+                                    <span class="report-meta-divider">
+                                        •
                                     </span>
 
                                     <span>
@@ -168,30 +187,106 @@
                                     </span>
                                 </div>
 
-                                <h3>
-                                    {{ .TargetTitle }}
-                                </h3>
+                                <div class="report-content">
+                                    <h3>
+                                        {{ .TargetTitle }}
+                                    </h3>
 
-                                <p>
-                                    {{ .Reason }}
-                                </p>
+                                    <div class="report-reason">
+                                        <span class="report-reason-label">
+                                            Report reason
+                                        </span>
 
-                                <div class="report-reporter">
-                                    Reported by
-                                    <strong>
-                                        {{ .ReporterUsername }}
-                                    </strong>
+                                        <p>
+                                            {{ .Reason }}
+                                        </p>
+                                    </div>
+
+                                    <div class="report-reporter">
+                                        Reported by
+
+                                        <strong>
+                                            {{ .ReporterUsername }}
+                                        </strong>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="report-actions">
                                 <a
                                     href="{{ .TargetURL }}"
-                                    class="dashboard-secondary-button"
+                                    class="dashboard-secondary-button report-review-link"
                                 >
-                                    Review
+                                    Review reported content
                                 </a>
                             </div>
+
+                            {{ if eq $.CurrentUser.Role "admin" }}
+                                <div class="report-response-panel">
+                                    <div class="report-response-header">
+                                        <span class="report-response-icon">
+                                            ↳
+                                        </span>
+
+                                        <div>
+                                            <strong>
+                                                Response to moderator
+                                            </strong>
+
+                                            <span>
+                                                This response will be sent
+                                                to {{ .ReporterUsername }}.
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <form
+                                        action="/admin/moderation/reports/review"
+                                        method="POST"
+                                        class="report-review-form"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="report_id"
+                                            value="{{ .ID }}"
+                                        >
+
+                                        <label
+                                            for="report-response-{{ .ID }}"
+                                            class="report-response-label"
+                                        >
+                                            Admin response
+                                        </label>
+
+                                        <textarea
+                                            id="report-response-{{ .ID }}"
+                                            name="response"
+                                            class="report-response-input"
+                                            maxlength="1000"
+                                            placeholder="Explain how this report was handled..."
+                                            required
+                                        ></textarea>
+
+                                        <div class="report-review-buttons">
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="resolve"
+                                                class="dashboard-success-button"
+                                            >
+                                                Resolve
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                name="action"
+                                                value="reject"
+                                                class="dashboard-danger-button"
+                                            >
+                                                Reject
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            {{ end }}
                         </article>
                     {{ else }}
                         <div class="dashboard-empty-state">

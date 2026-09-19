@@ -2,6 +2,7 @@
 
 {{ define "styles" }}
 <link rel="stylesheet" href="/static/css/post.css">
+<link rel="stylesheet" href="/static/css/moderation-report.css">
 {{ end }}
 
 {{ define "scripts" }}
@@ -91,6 +92,16 @@
                                         data-display-target="post-display"
                                     >
                                         Edit post
+                                    </button>
+                                {{ end }}
+
+                                {{ if or (eq .CurrentUser.Role "moderator") (eq .CurrentUser.Role "admin") }}
+                                    <button
+                                        type="button"
+                                        class="owner-menu-item owner-menu-item-report"
+                                        data-report-toggle="post-report-form"
+                                    >
+                                        Report post
                                     </button>
                                 {{ end }}
 
@@ -184,6 +195,62 @@
                     </form>
                 {{ end }}
 
+                {{ if and .IsAuthenticated (or (eq .CurrentUser.Role "moderator") (eq .CurrentUser.Role "admin")) }}
+                    <form
+                        id="post-report-form"
+                        class="moderation-report-form"
+                        action="/moderation/reports/posts"
+                        method="POST"
+                        hidden
+                    >
+                        <input
+                            type="hidden"
+                            name="post_id"
+                            value="{{ .Post.ID }}"
+                        >
+
+                        <div class="moderation-report-heading">
+                            <div>
+                                <strong>Report this post</strong>
+                                <span>Send this discussion to the moderation queue.</span>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="moderation-report-close"
+                                data-report-close="post-report-form"
+                                aria-label="Close report form"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <textarea
+                            name="reason"
+                            maxlength="1000"
+                            placeholder="Explain why this post should be reviewed..."
+                            required
+                        ></textarea>
+
+                        <div class="moderation-report-actions">
+                            <button
+                                type="button"
+                                class="moderation-report-cancel"
+                                data-report-close="post-report-form"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="moderation-report-submit"
+                            >
+                                Submit report
+                            </button>
+                        </div>
+                    </form>
+                {{ end }}
+
                 {{ if .Post.ImagePath }}
                     <div class="post-detail-image-wrapper">
                         <img
@@ -241,9 +308,7 @@
                                     viewBox="0 0 24 24"
                                     aria-hidden="true"
                                 >
-                                    <path
-                                        d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
-                                    />
+                                    <path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z" />
                                 </svg>
 
                                 <span>Like</span>
@@ -281,9 +346,7 @@
                                     viewBox="0 0 24 24"
                                     aria-hidden="true"
                                 >
-                                    <path
-                                        d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
-                                    />
+                                    <path d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z" />
                                 </svg>
 
                                 <span>Dislike</span>
@@ -302,9 +365,7 @@
                                 viewBox="0 0 24 24"
                                 aria-hidden="true"
                             >
-                                <path
-                                    d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
-                                />
+                                <path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z" />
                             </svg>
 
                             <span>Like</span>
@@ -320,9 +381,7 @@
                                 viewBox="0 0 24 24"
                                 aria-hidden="true"
                             >
-                                <path
-                                    d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
-                                />
+                                <path d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z" />
                             </svg>
 
                             <span>Dislike</span>
@@ -424,7 +483,10 @@
 
                     {{ range .Comments }}
 
-                        <article class="comment-card">
+                        <article
+                            id="comment-{{ .ID }}"
+                            class="comment-card"
+                        >
 
                             <header class="comment-header">
 
@@ -475,6 +537,16 @@
                                                     data-display-target="comment-display-{{ .ID }}"
                                                 >
                                                     Edit comment
+                                                </button>
+                                            {{ end }}
+
+                                            {{ if or (eq $.CurrentUser.Role "moderator") (eq $.CurrentUser.Role "admin") }}
+                                                <button
+                                                    type="button"
+                                                    class="owner-menu-item owner-menu-item-report"
+                                                    data-report-toggle="comment-report-{{ .ID }}"
+                                                >
+                                                    Report comment
                                                 </button>
                                             {{ end }}
 
@@ -556,6 +628,62 @@
 
                             {{ end }}
 
+                            {{ if and $.IsAuthenticated (or (eq $.CurrentUser.Role "moderator") (eq $.CurrentUser.Role "admin")) }}
+                                <form
+                                    id="comment-report-{{ .ID }}"
+                                    class="moderation-report-form moderation-comment-report-form"
+                                    action="/moderation/reports/comments"
+                                    method="POST"
+                                    hidden
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="comment_id"
+                                        value="{{ .ID }}"
+                                    >
+
+                                    <div class="moderation-report-heading">
+                                        <div>
+                                            <strong>Report this comment</strong>
+                                            <span>Send this comment to the moderation queue.</span>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            class="moderation-report-close"
+                                            data-report-close="comment-report-{{ .ID }}"
+                                            aria-label="Close report form"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+
+                                    <textarea
+                                        name="reason"
+                                        maxlength="1000"
+                                        placeholder="Explain why this comment should be reviewed..."
+                                        required
+                                    ></textarea>
+
+                                    <div class="moderation-report-actions">
+                                        <button
+                                            type="button"
+                                            class="moderation-report-cancel"
+                                            data-report-close="comment-report-{{ .ID }}"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            class="moderation-report-submit"
+                                        >
+                                            Submit report
+                                        </button>
+                                    </div>
+                                </form>
+                            {{ end }}
+
                             <footer class="comment-footer">
 
                                 <div class="comment-reactions">
@@ -589,9 +717,7 @@
                                                     viewBox="0 0 24 24"
                                                     aria-hidden="true"
                                                 >
-                                                    <path
-                                                        d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
-                                                    />
+                                                    <path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z" />
                                                 </svg>
 
                                                 <span>Like</span>
@@ -629,9 +755,7 @@
                                                     viewBox="0 0 24 24"
                                                     aria-hidden="true"
                                                 >
-                                                    <path
-                                                        d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
-                                                    />
+                                                    <path d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z" />
                                                 </svg>
 
                                                 <span>Dislike</span>
@@ -650,9 +774,7 @@
                                                 viewBox="0 0 24 24"
                                                 aria-hidden="true"
                                             >
-                                                <path
-                                                    d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z"
-                                                />
+                                                <path d="M7 10v10H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3Zm0 10h9.2a2 2 0 0 0 1.94-1.52l1.5-6A2 2 0 0 0 17.7 10H14l.6-3.2A2.4 2.4 0 0 0 12.24 4H12L7 10Z" />
                                             </svg>
 
                                             <span>Like</span>
@@ -668,9 +790,7 @@
                                                 viewBox="0 0 24 24"
                                                 aria-hidden="true"
                                             >
-                                                <path
-                                                    d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z"
-                                                />
+                                                <path d="M7 14V4H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3Zm0-10h9.2a2 2 0 0 1 1.94 1.52l1.5 6A2 2 0 0 1 17.7 14H14l.6 3.2A2.4 2.4 0 0 1 12.24 20H12l-5-6Z" />
                                             </svg>
 
                                             <span>Dislike</span>

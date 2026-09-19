@@ -230,6 +230,24 @@ func Run() error {
 		),
 	)
 
+	mux.Handle(
+		"POST /moderation/reports/posts",
+		authMiddleware.RequireModerator(
+			http.HandlerFunc(
+				moderationHandler.ReportPost,
+			),
+		),
+	)
+
+	mux.Handle(
+		"POST /moderation/reports/comments",
+		authMiddleware.RequireModerator(
+			http.HandlerFunc(
+				moderationHandler.ReportComment,
+			),
+		),
+	)
+
 	mux.HandleFunc(
 		"/posts/",
 		postHandler.View,
@@ -303,6 +321,15 @@ func Run() error {
 		authMiddleware.RequireAdmin(
 			http.HandlerFunc(
 				moderationHandler.ReviewModeratorRequest,
+			),
+		),
+	)
+
+	mux.Handle(
+		"POST /admin/moderation/reports/review",
+		authMiddleware.RequireAdmin(
+			http.HandlerFunc(
+				moderationHandler.ReviewReport,
 			),
 		),
 	)
