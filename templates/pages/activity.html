@@ -1,0 +1,269 @@
+{{ define "title" }}My Activity | GameForum{{ end }}
+
+{{ define "styles" }}
+<link
+    rel="stylesheet"
+    href="/static/css/activity.css"
+>
+{{ end }}
+
+{{ define "content" }}
+<section class="activity-page">
+    <div class="activity-container">
+        <header class="activity-header">
+            <div>
+                <p class="activity-eyebrow">PLAYER HISTORY</p>
+
+                <h1>My Activity</h1>
+
+                <p class="activity-subtitle">
+                    Everything you've created, liked, disliked and commented on.
+                </p>
+            </div>
+
+            <a
+                href="/posts/create"
+                class="activity-create-button"
+            >
+                Start a Discussion
+            </a>
+        </header>
+
+        <section class="activity-section">
+            <div class="activity-section-heading">
+                <div>
+                    <span class="activity-section-icon">✦</span>
+                    <h2>My Discussions</h2>
+                </div>
+
+                <span class="activity-count">
+                    {{ len .CreatedPosts }}
+                </span>
+            </div>
+
+            {{ if .CreatedPosts }}
+                <div class="activity-post-list">
+                    {{ range .CreatedPosts }}
+                        <a
+                            href="/posts/{{ .ID }}"
+                            class="activity-post-card"
+                        >
+                            <div class="activity-post-main">
+                                <div class="activity-post-meta">
+                                    {{ if .CategoryName }}
+                                        <span class="activity-category">
+                                            {{ .CategoryName }}
+                                        </span>
+                                    {{ end }}
+
+                                    <span>
+                                        by {{ .Username }}
+                                    </span>
+                                </div>
+
+                                <h3>{{ .Title }}</h3>
+
+                                <p>{{ .Preview }}</p>
+                            </div>
+
+                            <div class="activity-post-stats">
+                                <span>
+                                    {{ .LikeCount }} likes
+                                </span>
+
+                                <span>
+                                    {{ .DislikeCount }} dislikes
+                                </span>
+
+                                <span>
+                                    {{ .CommentCount }} comments
+                                </span>
+                            </div>
+                        </a>
+                    {{ end }}
+                </div>
+            {{ else }}
+                <div class="activity-empty">
+                    <h3>No discussions yet</h3>
+
+                    <p>
+                        Discussions you create will appear here.
+                    </p>
+                </div>
+            {{ end }}
+        </section>
+
+        <section class="activity-section">
+            <div class="activity-section-heading">
+                <div>
+                    <span class="activity-section-icon">♡</span>
+                    <h2>Liked Discussions</h2>
+                </div>
+
+                <span class="activity-count">
+                    {{ len .LikedPosts }}
+                </span>
+            </div>
+
+            {{ if .LikedPosts }}
+                <div class="activity-post-list">
+                    {{ range .LikedPosts }}
+                        <a
+                            href="/posts/{{ .ID }}"
+                            class="activity-post-card"
+                        >
+                            <div class="activity-post-main">
+                                <div class="activity-post-meta">
+                                    {{ if .CategoryName }}
+                                        <span class="activity-category">
+                                            {{ .CategoryName }}
+                                        </span>
+                                    {{ end }}
+
+                                    <span>
+                                        by {{ .Username }}
+                                    </span>
+                                </div>
+
+                                <h3>{{ .Title }}</h3>
+
+                                <p>{{ .Preview }}</p>
+                            </div>
+
+                            <div class="activity-post-stats">
+                                <span>
+                                    {{ .LikeCount }} likes
+                                </span>
+
+                                <span>
+                                    {{ .DislikeCount }} dislikes
+                                </span>
+
+                                <span>
+                                    {{ .CommentCount }} comments
+                                </span>
+                            </div>
+                        </a>
+                    {{ end }}
+                </div>
+            {{ else }}
+                <div class="activity-empty">
+                    <h3>No liked discussions</h3>
+
+                    <p>
+                        Posts you like will appear here.
+                    </p>
+                </div>
+            {{ end }}
+        </section>
+
+        <section class="activity-section">
+            <div class="activity-section-heading">
+                <div>
+                    <span class="activity-section-icon">⌄</span>
+                    <h2>Disliked Discussions</h2>
+                </div>
+
+                <span class="activity-count">
+                    {{ len .DislikedPosts }}
+                </span>
+            </div>
+
+            {{ if .DislikedPosts }}
+                <div class="activity-post-list">
+                    {{ range .DislikedPosts }}
+                        <a
+                            href="/posts/{{ .ID }}"
+                            class="activity-post-card"
+                        >
+                            <div class="activity-post-main">
+                                <div class="activity-post-meta">
+                                    {{ if .CategoryName }}
+                                        <span class="activity-category">
+                                            {{ .CategoryName }}
+                                        </span>
+                                    {{ end }}
+
+                                    <span>
+                                        by {{ .Username }}
+                                    </span>
+                                </div>
+
+                                <h3>{{ .Title }}</h3>
+
+                                <p>{{ .Preview }}</p>
+                            </div>
+
+                            <div class="activity-post-stats">
+                                <span>
+                                    {{ .LikeCount }} likes
+                                </span>
+
+                                <span>
+                                    {{ .DislikeCount }} dislikes
+                                </span>
+
+                                <span>
+                                    {{ .CommentCount }} comments
+                                </span>
+                            </div>
+                        </a>
+                    {{ end }}
+                </div>
+            {{ else }}
+                <div class="activity-empty">
+                    <h3>No disliked discussions</h3>
+
+                    <p>
+                        Posts you dislike will appear here.
+                    </p>
+                </div>
+            {{ end }}
+        </section>
+
+        <section class="activity-section">
+            <div class="activity-section-heading">
+                <div>
+                    <span class="activity-section-icon">◌</span>
+                    <h2>My Comments</h2>
+                </div>
+
+                <span class="activity-count">
+                    {{ len .ActivityComments }}
+                </span>
+            </div>
+
+            {{ if .ActivityComments }}
+                <div class="activity-comment-list">
+                    {{ range .ActivityComments }}
+                        <a
+                            href="/posts/{{ .PostID }}"
+                            class="activity-comment-card"
+                        >
+                            <div class="activity-comment-label">
+                                Commented on
+                            </div>
+
+                            <h3>{{ .PostTitle }}</h3>
+
+                            <p>{{ .Content }}</p>
+
+                            <span class="activity-comment-date">
+                                {{ .CreatedAt }}
+                            </span>
+                        </a>
+                    {{ end }}
+                </div>
+            {{ else }}
+                <div class="activity-empty">
+                    <h3>No comments yet</h3>
+
+                    <p>
+                        Comments you make will appear here.
+                    </p>
+                </div>
+            {{ end }}
+        </section>
+    </div>
+</section>
+{{ end }}

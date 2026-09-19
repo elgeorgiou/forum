@@ -40,6 +40,11 @@ type PageData struct {
 	Post        database.PostView
 	Comments    []database.CommentView
 
+	CreatedPosts     []database.PostView
+	LikedPosts       []database.PostView
+	DislikedPosts    []database.PostView
+	ActivityComments []database.ActivityComment
+
 	PostReaction     int
 	CommentReactions map[int64]int
 

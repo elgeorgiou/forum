@@ -273,6 +273,83 @@ func (h *PageHandler) Dashboard(
 	)
 }
 
+func (h *PageHandler) Activity(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.URL.Path != "/activity" {
+		h.renderNotFound(w)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		h.renderMethodNotAllowed(w)
+		return
+	}
+
+	data := h.pageData(r)
+
+	if data.CurrentUser == nil {
+		http.Redirect(
+			w,
+			r,
+			"/auth?mode=login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	userID := data.CurrentUser.ID
+
+	createdPosts, err := database.GetPostViewsByUser(
+		h.db,
+		userID,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	likedPosts, err := database.GetLikedPostViewsByUser(
+		h.db,
+		userID,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	dislikedPosts, err := database.GetDislikedPostViewsByUser(
+		h.db,
+		userID,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	comments, err := database.GetActivityCommentsByUser(
+		h.db,
+		userID,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
+	data.CreatedPosts = createdPosts
+	data.LikedPosts = likedPosts
+	data.DislikedPosts = dislikedPosts
+	data.ActivityComments = comments
+
+	h.render(
+		w,
+		http.StatusOK,
+		"activity.html",
+		data,
+	)
+}
+
 func (h *PageHandler) pageData(
 	r *http.Request,
 ) models.PageData {

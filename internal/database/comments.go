@@ -30,6 +30,15 @@ type CommentView struct {
 	Score        int
 }
 
+type ActivityComment struct {
+	ID        int64
+	PostID    int64
+	PostTitle string
+	Content   string
+	CreatedAt string
+	UpdatedAt string
+}
+
 func CreateComment(
 	db *sql.DB,
 	postID int64,
@@ -283,6 +292,67 @@ func GetCommentsByUser(
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf(
 			"iterate comments: %w",
+			err,
+		)
+	}
+
+	return comments, nil
+}
+
+func GetActivityCommentsByUser(
+	db *sql.DB,
+	userID int64,
+) ([]ActivityComment, error) {
+	rows, err := db.Query(`
+		SELECT
+			c.id,
+			c.post_id,
+			p.title,
+			c.content,
+			c.created_at,
+			c.updated_at
+		FROM comments AS c
+		INNER JOIN posts AS p
+			ON p.id = c.post_id
+		WHERE c.user_id = ?
+		ORDER BY c.created_at DESC
+	`, userID)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"get activity comments by user: %w",
+			err,
+		)
+	}
+	defer rows.Close()
+
+	var comments []ActivityComment
+
+	for rows.Next() {
+		var comment ActivityComment
+
+		if err := rows.Scan(
+			&comment.ID,
+			&comment.PostID,
+			&comment.PostTitle,
+			&comment.Content,
+			&comment.CreatedAt,
+			&comment.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf(
+				"scan activity comment: %w",
+				err,
+			)
+		}
+
+		comments = append(
+			comments,
+			comment,
+		)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf(
+			"iterate activity comments: %w",
 			err,
 		)
 	}

@@ -188,6 +188,15 @@ func Run() error {
 		),
 	)
 
+	mux.Handle(
+		"/activity",
+		authMiddleware.RequireAuthentication(
+			http.HandlerFunc(
+				pageHandler.Activity,
+			),
+		),
+	)
+
 	handler := authMiddleware.LoadUser(mux)
 
 	server := &http.Server{

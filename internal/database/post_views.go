@@ -305,6 +305,57 @@ func GetLikedPostViewsByUser(
 	return scanPostViews(db, rows)
 }
 
+func GetDislikedPostViewsByUser(
+	db *sql.DB,
+	userID int64,
+) ([]PostView, error) {
+	rows, err := db.Query(`
+		SELECT
+			p.id,
+			p.user_id,
+			u.username,
+			p.title,
+			p.content,
+			COALESCE(p.image_path, ''),
+			p.created_at,
+			p.updated_at,
+			(
+				SELECT COUNT(*)
+				FROM comments AS c
+				WHERE c.post_id = p.id
+			),
+			(
+				SELECT COUNT(*)
+				FROM post_reactions AS counts
+				WHERE counts.post_id = p.id
+				  AND counts.reaction = 1
+			),
+			(
+				SELECT COUNT(*)
+				FROM post_reactions AS counts
+				WHERE counts.post_id = p.id
+				  AND counts.reaction = -1
+			)
+		FROM posts AS p
+		INNER JOIN users AS u
+			ON u.id = p.user_id
+		INNER JOIN post_reactions AS pr
+			ON pr.post_id = p.id
+		WHERE pr.user_id = ?
+		  AND pr.reaction = -1
+		ORDER BY pr.created_at DESC
+	`, userID)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"get disliked post views by user: %w",
+			err,
+		)
+	}
+	defer rows.Close()
+
+	return scanPostViews(db, rows)
+}
+
 func GetPostCategories(
 	db *sql.DB,
 	postID int64,
