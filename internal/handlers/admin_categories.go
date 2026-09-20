@@ -37,9 +37,8 @@ func (h *PageHandler) ManageCategories(
 	}
 
 	if data.CurrentUser.Role != "admin" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Forbidden",
 			http.StatusForbidden,
 		)
 		return
@@ -66,15 +65,16 @@ func (h *ModerationHandler) CreateCategory(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Method Not Allowed",
 			http.StatusMethodNotAllowed,
 		)
 		return
 	}
 
-	admin := middleware.UserFromContext(r.Context())
+	admin := middleware.UserFromContext(
+		r.Context(),
+	)
 	if admin == nil {
 		http.Redirect(
 			w,
@@ -86,25 +86,27 @@ func (h *ModerationHandler) CreateCategory(
 	}
 
 	if admin.Role != "admin" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Forbidden",
 			http.StatusForbidden,
 		)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Bad Request",
 			http.StatusBadRequest,
 		)
 		return
 	}
 
-	name := strings.TrimSpace(r.FormValue("name"))
-	slug := strings.TrimSpace(r.FormValue("slug"))
+	name := strings.TrimSpace(
+		r.FormValue("name"),
+	)
+	slug := strings.TrimSpace(
+		r.FormValue("slug"),
+	)
 	description := strings.TrimSpace(
 		r.FormValue("description"),
 	)
@@ -113,9 +115,8 @@ func (h *ModerationHandler) CreateCategory(
 	)
 
 	if name == "" || slug == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Name and slug are required",
 			http.StatusBadRequest,
 		)
 		return
@@ -129,9 +130,8 @@ func (h *ModerationHandler) CreateCategory(
 		tagline,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Could not create category",
 			http.StatusBadRequest,
 		)
 		return
@@ -150,15 +150,16 @@ func (h *ModerationHandler) UpdateCategory(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Method Not Allowed",
 			http.StatusMethodNotAllowed,
 		)
 		return
 	}
 
-	admin := middleware.UserFromContext(r.Context())
+	admin := middleware.UserFromContext(
+		r.Context(),
+	)
 	if admin == nil {
 		http.Redirect(
 			w,
@@ -170,18 +171,16 @@ func (h *ModerationHandler) UpdateCategory(
 	}
 
 	if admin.Role != "admin" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Forbidden",
 			http.StatusForbidden,
 		)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Bad Request",
 			http.StatusBadRequest,
 		)
 		return
@@ -193,16 +192,19 @@ func (h *ModerationHandler) UpdateCategory(
 		64,
 	)
 	if err != nil || categoryID <= 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid category",
 			http.StatusBadRequest,
 		)
 		return
 	}
 
-	name := strings.TrimSpace(r.FormValue("name"))
-	slug := strings.TrimSpace(r.FormValue("slug"))
+	name := strings.TrimSpace(
+		r.FormValue("name"),
+	)
+	slug := strings.TrimSpace(
+		r.FormValue("slug"),
+	)
 	description := strings.TrimSpace(
 		r.FormValue("description"),
 	)
@@ -211,9 +213,8 @@ func (h *ModerationHandler) UpdateCategory(
 	)
 
 	if name == "" || slug == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Name and slug are required",
 			http.StatusBadRequest,
 		)
 		return
@@ -232,17 +233,15 @@ func (h *ModerationHandler) UpdateCategory(
 			err,
 			database.ErrCategoryNotFound,
 		) {
-			http.Error(
+			RenderErrorPage(
 				w,
-				"Category not found",
 				http.StatusNotFound,
 			)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Could not update category",
 			http.StatusBadRequest,
 		)
 		return
@@ -261,15 +260,16 @@ func (h *ModerationHandler) DeleteCategory(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Method Not Allowed",
 			http.StatusMethodNotAllowed,
 		)
 		return
 	}
 
-	admin := middleware.UserFromContext(r.Context())
+	admin := middleware.UserFromContext(
+		r.Context(),
+	)
 	if admin == nil {
 		http.Redirect(
 			w,
@@ -281,18 +281,16 @@ func (h *ModerationHandler) DeleteCategory(
 	}
 
 	if admin.Role != "admin" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Forbidden",
 			http.StatusForbidden,
 		)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Bad Request",
 			http.StatusBadRequest,
 		)
 		return
@@ -304,9 +302,8 @@ func (h *ModerationHandler) DeleteCategory(
 		64,
 	)
 	if err != nil || categoryID <= 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid category",
 			http.StatusBadRequest,
 		)
 		return
@@ -321,17 +318,15 @@ func (h *ModerationHandler) DeleteCategory(
 			err,
 			database.ErrCategoryNotFound,
 		) {
-			http.Error(
+			RenderErrorPage(
 				w,
-				"Category not found",
 				http.StatusNotFound,
 			)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Could not delete category",
 			http.StatusInternalServerError,
 		)
 		return

@@ -13,7 +13,10 @@ import (
 func Run() error {
 	db, err := database.Open("data/forum.db")
 	if err != nil {
-		return fmt.Errorf("open database: %w", err)
+		return fmt.Errorf(
+			"open database: %w",
+			err,
+		)
 	}
 	defer db.Close()
 
@@ -21,11 +24,17 @@ func Run() error {
 		db,
 		"internal/database/schema/schema.sql",
 	); err != nil {
-		return fmt.Errorf("initialize database: %w", err)
+		return fmt.Errorf(
+			"initialize database: %w",
+			err,
+		)
 	}
 
 	if err := database.SeedCategories(db); err != nil {
-		return fmt.Errorf("seed categories: %w", err)
+		return fmt.Errorf(
+			"seed categories: %w",
+			err,
+		)
 	}
 
 	sessionManager := session.NewManager(db)
@@ -37,29 +46,50 @@ func Run() error {
 		)
 	}
 
-	authMiddleware := middleware.NewAuth(sessionManager)
+	authMiddleware := middleware.NewAuth(
+		sessionManager,
+	)
+
+	authMiddleware.SetErrorRenderer(
+		handlers.RenderErrorPage,
+	)
+
 	pageHandler := handlers.NewPageHandler(db)
+
 	authHandler := handlers.NewAuthHandler(
 		db,
 		sessionManager,
 		pageHandler,
 	)
+
 	postHandler := handlers.NewPostHandler(
 		db,
 		pageHandler,
 	)
-	commentHandler := handlers.NewCommentHandler(db)
-	reactionHandler := handlers.NewReactionHandler(db)
-	notificationHandler := handlers.NewNotificationHandler(db)
-	moderationHandler := handlers.NewModerationHandler(db)
-	githubOAuthHandler := handlers.NewGitHubOAuthHandler(
-		db,
-		sessionManager,
-	)
-	googleOAuthHandler := handlers.NewGoogleOAuthHandler(
-		db,
-		sessionManager,
-	)
+
+	commentHandler :=
+		handlers.NewCommentHandler(db)
+
+	reactionHandler :=
+		handlers.NewReactionHandler(db)
+
+	notificationHandler :=
+		handlers.NewNotificationHandler(db)
+
+	moderationHandler :=
+		handlers.NewModerationHandler(db)
+
+	githubOAuthHandler :=
+		handlers.NewGitHubOAuthHandler(
+			db,
+			sessionManager,
+		)
+
+	googleOAuthHandler :=
+		handlers.NewGoogleOAuthHandler(
+			db,
+			sessionManager,
+		)
 
 	mux := http.NewServeMux()
 
@@ -75,24 +105,46 @@ func Run() error {
 		),
 	)
 
-	mux.HandleFunc("/", pageHandler.Home)
-	mux.HandleFunc("/auth", pageHandler.Auth)
-	mux.HandleFunc("/register", authHandler.Register)
-	mux.HandleFunc("/login", authHandler.Login)
-	mux.HandleFunc("/logout", authHandler.Logout)
+	mux.HandleFunc(
+		"/",
+		pageHandler.Home,
+	)
+
+	mux.HandleFunc(
+		"/auth",
+		pageHandler.Auth,
+	)
+
+	mux.HandleFunc(
+		"/register",
+		authHandler.Register,
+	)
+
+	mux.HandleFunc(
+		"/login",
+		authHandler.Login,
+	)
+
+	mux.HandleFunc(
+		"/logout",
+		authHandler.Logout,
+	)
 
 	mux.HandleFunc(
 		"/auth/github",
 		githubOAuthHandler.Login,
 	)
+
 	mux.HandleFunc(
 		"/auth/github/callback",
 		githubOAuthHandler.Callback,
 	)
+
 	mux.HandleFunc(
 		"/auth/google",
 		googleOAuthHandler.Login,
 	)
+
 	mux.HandleFunc(
 		"/auth/google/callback",
 		googleOAuthHandler.Callback,
@@ -102,10 +154,12 @@ func Run() error {
 		"/categories",
 		pageHandler.Categories,
 	)
+
 	mux.HandleFunc(
 		"/recent",
 		pageHandler.Recent,
 	)
+
 	mux.Handle(
 		"/profile",
 		authMiddleware.RequireAuthentication(
@@ -114,18 +168,22 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.HandleFunc(
 		"/about",
 		pageHandler.About,
 	)
+
 	mux.HandleFunc(
 		"/search",
 		pageHandler.Search,
 	)
+
 	mux.HandleFunc(
 		"/search/suggestions",
 		pageHandler.SearchSuggestions,
 	)
+
 	mux.HandleFunc(
 		"/categories/",
 		pageHandler.Category,
@@ -139,6 +197,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/posts/update",
 		authMiddleware.RequireAuthentication(
@@ -147,6 +206,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/posts/delete",
 		authMiddleware.RequireAuthentication(
@@ -155,6 +215,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/posts/react",
 		authMiddleware.RequireAuthentication(
@@ -163,6 +224,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/comments/update",
 		authMiddleware.RequireAuthentication(
@@ -171,6 +233,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/comments/delete",
 		authMiddleware.RequireAuthentication(
@@ -179,6 +242,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/comments/react",
 		authMiddleware.RequireAuthentication(
@@ -187,6 +251,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/posts/{id}/comments",
 		authMiddleware.RequireAuthentication(
@@ -204,6 +269,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /moderation/reports/comments",
 		authMiddleware.RequireModerator(
@@ -226,6 +292,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/activity",
 		authMiddleware.RequireAuthentication(
@@ -234,6 +301,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/notifications",
 		authMiddleware.RequireAuthentication(
@@ -242,6 +310,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/notifications/read",
 		authMiddleware.RequireAuthentication(
@@ -250,6 +319,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"/notifications/read-all",
 		authMiddleware.RequireAuthentication(
@@ -267,6 +337,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /moderation/request",
 		authMiddleware.RequireAuthentication(
@@ -275,6 +346,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /admin/moderation/requests/review",
 		authMiddleware.RequireAdmin(
@@ -283,6 +355,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /admin/moderation/reports/review",
 		authMiddleware.RequireAdmin(
@@ -300,6 +373,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /admin/moderators/demote",
 		authMiddleware.RequireAdmin(
@@ -317,6 +391,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /admin/categories/create",
 		authMiddleware.RequireAdmin(
@@ -325,6 +400,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /admin/categories/update",
 		authMiddleware.RequireAdmin(
@@ -333,6 +409,7 @@ func Run() error {
 			),
 		),
 	)
+
 	mux.Handle(
 		"POST /admin/categories/delete",
 		authMiddleware.RequireAdmin(

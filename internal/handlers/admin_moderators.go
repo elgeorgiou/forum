@@ -33,9 +33,8 @@ func (h *PageHandler) Moderators(
 	}
 
 	if data.CurrentUser.Role != "admin" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Forbidden",
 			http.StatusForbidden,
 		)
 		return

@@ -34,11 +34,7 @@ func (h *ReactionHandler) Post(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			http.StatusText(http.StatusMethodNotAllowed),
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -57,11 +53,7 @@ func (h *ReactionHandler) Post(
 	}
 
 	if err := r.ParseMultipartForm(1 << 20); err != nil {
-		http.Error(
-			w,
-			"Invalid reaction form",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -71,11 +63,7 @@ func (h *ReactionHandler) Post(
 		64,
 	)
 	if err != nil || postID <= 0 {
-		http.Error(
-			w,
-			"Invalid post",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -83,11 +71,7 @@ func (h *ReactionHandler) Post(
 		r.FormValue("reaction"),
 	)
 	if err != nil {
-		http.Error(
-			w,
-			"Invalid reaction",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -99,18 +83,12 @@ func (h *ReactionHandler) Post(
 		err,
 		database.ErrPostNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(w, http.StatusNotFound)
 		return
 	}
 
 	if err != nil {
-		http.Error(
-			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
-			http.StatusInternalServerError,
-		)
+		RenderErrorPage(w, http.StatusInternalServerError)
 		return
 	}
 
@@ -155,24 +133,12 @@ func (h *ReactionHandler) Post(
 		)
 
 	default:
-		http.Error(
-			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
-			http.StatusInternalServerError,
-		)
+		RenderErrorPage(w, http.StatusInternalServerError)
 		return
 	}
 
 	if err != nil {
-		http.Error(
-			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
-			http.StatusInternalServerError,
-		)
+		RenderErrorPage(w, http.StatusInternalServerError)
 		return
 	}
 
@@ -192,11 +158,8 @@ func (h *ReactionHandler) Post(
 			notificationType,
 		)
 		if err != nil {
-			http.Error(
+			RenderErrorPage(
 				w,
-				http.StatusText(
-					http.StatusInternalServerError,
-				),
 				http.StatusInternalServerError,
 			)
 			return
@@ -210,11 +173,8 @@ func (h *ReactionHandler) Post(
 				postID,
 			)
 		if err != nil {
-			http.Error(
+			RenderErrorPage(
 				w,
-				http.StatusText(
-					http.StatusInternalServerError,
-				),
 				http.StatusInternalServerError,
 			)
 			return
@@ -243,11 +203,7 @@ func (h *ReactionHandler) Comment(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			http.StatusText(http.StatusMethodNotAllowed),
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -266,11 +222,7 @@ func (h *ReactionHandler) Comment(
 	}
 
 	if err := r.ParseMultipartForm(1 << 20); err != nil {
-		http.Error(
-			w,
-			"Invalid reaction form",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -280,11 +232,7 @@ func (h *ReactionHandler) Comment(
 		64,
 	)
 	if err != nil || commentID <= 0 {
-		http.Error(
-			w,
-			"Invalid comment",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -292,11 +240,7 @@ func (h *ReactionHandler) Comment(
 		r.FormValue("reaction"),
 	)
 	if err != nil {
-		http.Error(
-			w,
-			"Invalid reaction",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -308,18 +252,12 @@ func (h *ReactionHandler) Comment(
 		err,
 		database.ErrCommentNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(w, http.StatusNotFound)
 		return
 	}
 
 	if err != nil {
-		http.Error(
-			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
-			http.StatusInternalServerError,
-		)
+		RenderErrorPage(w, http.StatusInternalServerError)
 		return
 	}
 
@@ -364,24 +302,12 @@ func (h *ReactionHandler) Comment(
 		)
 
 	default:
-		http.Error(
-			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
-			http.StatusInternalServerError,
-		)
+		RenderErrorPage(w, http.StatusInternalServerError)
 		return
 	}
 
 	if err != nil {
-		http.Error(
-			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
-			http.StatusInternalServerError,
-		)
+		RenderErrorPage(w, http.StatusInternalServerError)
 		return
 	}
 
@@ -392,11 +318,8 @@ func (h *ReactionHandler) Comment(
 				commentID,
 			)
 		if err != nil {
-			http.Error(
+			RenderErrorPage(
 				w,
-				http.StatusText(
-					http.StatusInternalServerError,
-				),
 				http.StatusInternalServerError,
 			)
 			return

@@ -47,6 +47,14 @@ func (h *PageHandler) Home(
 		return
 	}
 
+	stats, err := database.GetDashboardStats(
+		h.db,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
 	data := h.pageData(r)
 
 	filter := r.URL.Query().Get("filter")
@@ -104,6 +112,12 @@ func (h *PageHandler) Home(
 	data.Categories = categories
 	data.RecentPosts = posts
 	data.PostFilter = filter
+
+	data.CommunityStats = models.CommunityStats{
+		MemberCount:  stats.TotalUsers,
+		PostCount:    stats.TotalPosts,
+		CommentCount: stats.TotalComments,
+	}
 
 	h.render(
 		w,
@@ -443,9 +457,8 @@ func (h *PageHandler) Dashboard(
 
 	if data.CurrentUser.Role != "moderator" &&
 		data.CurrentUser.Role != "admin" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Forbidden",
 			http.StatusForbidden,
 		)
 		return

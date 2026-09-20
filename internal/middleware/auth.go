@@ -13,8 +13,14 @@ type contextKey string
 
 const userContextKey contextKey = "current_user"
 
+type ErrorRenderer func(
+	http.ResponseWriter,
+	int,
+)
+
 type Auth struct {
-	sessions *session.Manager
+	sessions    *session.Manager
+	renderError ErrorRenderer
 }
 
 func NewAuth(sessions *session.Manager) *Auth {
@@ -23,9 +29,36 @@ func NewAuth(sessions *session.Manager) *Auth {
 	}
 }
 
-func (a *Auth) LoadUser(next http.Handler) http.Handler {
+func (a *Auth) SetErrorRenderer(
+	renderer ErrorRenderer,
+) {
+	a.renderError = renderer
+}
+
+func (a *Auth) writeError(
+	w http.ResponseWriter,
+	statusCode int,
+) {
+	if a.renderError != nil {
+		a.renderError(w, statusCode)
+		return
+	}
+
+	http.Error(
+		w,
+		http.StatusText(statusCode),
+		statusCode,
+	)
+}
+
+func (a *Auth) LoadUser(
+	next http.Handler,
+) http.Handler {
 	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
 			user, err := a.sessions.User(r)
 
 			if err != nil {
@@ -37,11 +70,8 @@ func (a *Auth) LoadUser(next http.Handler) http.Handler {
 					return
 				}
 
-				http.Error(
+				a.writeError(
 					w,
-					http.StatusText(
-						http.StatusInternalServerError,
-					),
 					http.StatusInternalServerError,
 				)
 				return
@@ -65,8 +95,13 @@ func (a *Auth) RequireAuthentication(
 	next http.Handler,
 ) http.Handler {
 	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			user := UserFromContext(r.Context())
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			user := UserFromContext(
+				r.Context(),
+			)
 
 			if user == nil {
 				http.Redirect(
@@ -87,8 +122,13 @@ func (a *Auth) RequireModerator(
 	next http.Handler,
 ) http.Handler {
 	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			user := UserFromContext(r.Context())
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			user := UserFromContext(
+				r.Context(),
+			)
 
 			if user == nil {
 				http.Redirect(
@@ -102,11 +142,8 @@ func (a *Auth) RequireModerator(
 
 			if user.Role != "moderator" &&
 				user.Role != "admin" {
-				http.Error(
+				a.writeError(
 					w,
-					http.StatusText(
-						http.StatusForbidden,
-					),
 					http.StatusForbidden,
 				)
 				return
@@ -121,8 +158,13 @@ func (a *Auth) RequireAdmin(
 	next http.Handler,
 ) http.Handler {
 	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			user := UserFromContext(r.Context())
+		func(
+			w http.ResponseWriter,
+			r *http.Request,
+		) {
+			user := UserFromContext(
+				r.Context(),
+			)
 
 			if user == nil {
 				http.Redirect(
@@ -135,11 +177,8 @@ func (a *Auth) RequireAdmin(
 			}
 
 			if user.Role != "admin" {
-				http.Error(
+				a.writeError(
 					w,
-					http.StatusText(
-						http.StatusForbidden,
-					),
 					http.StatusForbidden,
 				)
 				return

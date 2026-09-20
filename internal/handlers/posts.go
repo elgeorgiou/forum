@@ -38,9 +38,7 @@ func (h *PostHandler) View(
 		return
 	}
 
-	postID, err := postIDFromPath(
-		r.URL.Path,
-	)
+	postID, err := postIDFromPath(r.URL.Path)
 	if err != nil {
 		h.pages.renderNotFound(w)
 		return
@@ -132,9 +130,8 @@ func (h *PostHandler) Create(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -166,17 +163,15 @@ func (h *PostHandler) Create(
 		var maxBytesError *http.MaxBytesError
 
 		if errors.As(err, &maxBytesError) {
-			http.Error(
+			RenderErrorPage(
 				w,
-				"Image must not exceed 20MB",
 				http.StatusRequestEntityTooLarge,
 			)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid post form",
 			http.StatusBadRequest,
 		)
 		return
@@ -191,9 +186,8 @@ func (h *PostHandler) Create(
 	)
 
 	if title == "" || content == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Post title and content are required",
 			http.StatusBadRequest,
 		)
 		return
@@ -203,9 +197,8 @@ func (h *PostHandler) Create(
 		r.MultipartForm.Value["category_id"],
 	)
 	if err != nil || len(categoryIDs) == 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Select at least one valid category",
 			http.StatusBadRequest,
 		)
 		return
@@ -221,20 +214,16 @@ func (h *PostHandler) Create(
 			err,
 			database.ErrCategoryNotFound,
 		) {
-			http.Error(
+			RenderErrorPage(
 				w,
-				"Invalid category",
 				http.StatusBadRequest,
 			)
 			return
 		}
 
 		if err != nil {
-			http.Error(
+			RenderErrorPage(
 				w,
-				http.StatusText(
-					http.StatusInternalServerError,
-				),
 				http.StatusInternalServerError,
 			)
 			return
@@ -258,9 +247,8 @@ func (h *PostHandler) Create(
 				saveErr,
 				upload.ErrImageTooLarge,
 			):
-				http.Error(
+				RenderErrorPage(
 					w,
-					"Image must not exceed 20MB",
 					http.StatusRequestEntityTooLarge,
 				)
 
@@ -268,18 +256,14 @@ func (h *PostHandler) Create(
 				saveErr,
 				upload.ErrInvalidImageType,
 			):
-				http.Error(
+				RenderErrorPage(
 					w,
-					"Image must be PNG, JPEG, or GIF",
 					http.StatusBadRequest,
 				)
 
 			default:
-				http.Error(
+				RenderErrorPage(
 					w,
-					http.StatusText(
-						http.StatusInternalServerError,
-					),
 					http.StatusInternalServerError,
 				)
 			}
@@ -295,9 +279,8 @@ func (h *PostHandler) Create(
 		err,
 		http.ErrMissingFile,
 	) {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid image upload",
 			http.StatusBadRequest,
 		)
 		return
@@ -318,11 +301,8 @@ func (h *PostHandler) Create(
 			)
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -344,9 +324,8 @@ func (h *PostHandler) Update(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -367,9 +346,8 @@ func (h *PostHandler) Update(
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid post form",
 			http.StatusBadRequest,
 		)
 		return
@@ -381,9 +359,8 @@ func (h *PostHandler) Update(
 		64,
 	)
 	if err != nil || postID <= 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid post",
 			http.StatusBadRequest,
 		)
 		return
@@ -397,25 +374,24 @@ func (h *PostHandler) Update(
 		err,
 		database.ErrPostNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(
+			w,
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
 	}
 
 	if post.UserID != user.ID {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusForbidden),
 			http.StatusForbidden,
 		)
 		return
@@ -430,9 +406,8 @@ func (h *PostHandler) Update(
 	)
 
 	if title == "" || content == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Post title and content are required",
 			http.StatusBadRequest,
 		)
 		return
@@ -449,15 +424,15 @@ func (h *PostHandler) Update(
 			err,
 			database.ErrPostNotFound,
 		) {
-			http.NotFound(w, r)
+			RenderErrorPage(
+				w,
+				http.StatusNotFound,
+			)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -479,9 +454,8 @@ func (h *PostHandler) Delete(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -502,9 +476,8 @@ func (h *PostHandler) Delete(
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid post form",
 			http.StatusBadRequest,
 		)
 		return
@@ -516,9 +489,8 @@ func (h *PostHandler) Delete(
 		64,
 	)
 	if err != nil || postID <= 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid post",
 			http.StatusBadRequest,
 		)
 		return
@@ -532,16 +504,16 @@ func (h *PostHandler) Delete(
 		err,
 		database.ErrPostNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(
+			w,
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -553,9 +525,8 @@ func (h *PostHandler) Delete(
 			user.Role == "admin"
 
 	if !canDelete {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusForbidden),
 			http.StatusForbidden,
 		)
 		return
@@ -569,15 +540,15 @@ func (h *PostHandler) Delete(
 			err,
 			database.ErrPostNotFound,
 		) {
-			http.NotFound(w, r)
+			RenderErrorPage(
+				w,
+				http.StatusNotFound,
+			)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return

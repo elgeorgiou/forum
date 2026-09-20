@@ -31,9 +31,8 @@ func (h *PageHandler) SearchSuggestions(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodGet {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Method Not Allowed",
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -54,9 +53,8 @@ func (h *PageHandler) SearchSuggestions(
 			query,
 		)
 		if err != nil {
-			http.Error(
+			RenderErrorPage(
 				w,
-				"Internal Server Error",
 				http.StatusInternalServerError,
 			)
 			return
@@ -67,9 +65,8 @@ func (h *PageHandler) SearchSuggestions(
 			query,
 		)
 		if err != nil {
-			http.Error(
+			RenderErrorPage(
 				w,
-				"Internal Server Error",
 				http.StatusInternalServerError,
 			)
 			return
@@ -104,7 +101,5 @@ func (h *PageHandler) SearchSuggestions(
 		"application/json; charset=utf-8",
 	)
 
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		return
-	}
+	_ = json.NewEncoder(w).Encode(response)
 }

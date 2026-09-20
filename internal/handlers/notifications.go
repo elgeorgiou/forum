@@ -28,9 +28,8 @@ func (h *NotificationHandler) Read(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -50,9 +49,8 @@ func (h *NotificationHandler) Read(
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid notification",
 			http.StatusBadRequest,
 		)
 		return
@@ -64,9 +62,8 @@ func (h *NotificationHandler) Read(
 		64,
 	)
 	if err != nil || notificationID <= 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid notification",
 			http.StatusBadRequest,
 		)
 		return
@@ -81,16 +78,16 @@ func (h *NotificationHandler) Read(
 		err,
 		database.ErrNotificationNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(
+			w,
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -120,9 +117,8 @@ func (h *NotificationHandler) ReadAll(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -146,11 +142,8 @@ func (h *NotificationHandler) ReadAll(
 		user.ID,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return

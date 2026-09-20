@@ -72,9 +72,8 @@ func (h *GitHubOAuthHandler) Login(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodGet {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -84,9 +83,8 @@ func (h *GitHubOAuthHandler) Login(
 	clientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
 
 	if clientID == "" || clientSecret == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"GitHub OAuth is not configured",
 			http.StatusInternalServerError,
 		)
 		return
@@ -94,9 +92,8 @@ func (h *GitHubOAuthHandler) Login(
 
 	state, err := generateOAuthState()
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -131,9 +128,8 @@ func (h *GitHubOAuthHandler) Callback(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodGet {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -150,9 +146,8 @@ func (h *GitHubOAuthHandler) Callback(
 	}
 
 	if !validGitHubState(r) {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid OAuth state",
 			http.StatusBadRequest,
 		)
 		return
@@ -162,9 +157,8 @@ func (h *GitHubOAuthHandler) Callback(
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Missing OAuth code",
 			http.StatusBadRequest,
 		)
 		return
@@ -175,9 +169,8 @@ func (h *GitHubOAuthHandler) Callback(
 		code,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -187,9 +180,8 @@ func (h *GitHubOAuthHandler) Callback(
 		accessToken,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -202,9 +194,8 @@ func (h *GitHubOAuthHandler) Callback(
 			accessToken,
 		)
 		if err != nil {
-			http.Error(
+			RenderErrorPage(
 				w,
-				"GitHub account does not provide a verified email",
 				http.StatusBadRequest,
 			)
 			return
@@ -216,18 +207,16 @@ func (h *GitHubOAuthHandler) Callback(
 		email,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
 	}
 
 	if err := h.sessions.Create(w, userID); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -363,7 +352,8 @@ func (h *GitHubOAuthHandler) getGitHubUser(
 		)
 	}
 
-	if user.ID == 0 || strings.TrimSpace(user.Login) == "" {
+	if user.ID == 0 ||
+		strings.TrimSpace(user.Login) == "" {
 		return githubUser{}, errors.New(
 			"github returned incomplete user data",
 		)

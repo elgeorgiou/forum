@@ -28,9 +28,8 @@ func (h *CommentHandler) Create(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -54,7 +53,10 @@ func (h *CommentHandler) Create(
 		r.URL.Path,
 	)
 	if err != nil {
-		http.NotFound(w, r)
+		RenderErrorPage(
+			w,
+			http.StatusNotFound,
+		)
 		return
 	}
 
@@ -66,25 +68,24 @@ func (h *CommentHandler) Create(
 		err,
 		database.ErrPostNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(
+			w,
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid comment form",
 			http.StatusBadRequest,
 		)
 		return
@@ -95,9 +96,8 @@ func (h *CommentHandler) Create(
 	)
 
 	if content == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Comment cannot be empty",
 			http.StatusBadRequest,
 		)
 		return
@@ -110,11 +110,8 @@ func (h *CommentHandler) Create(
 		content,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -127,11 +124,8 @@ func (h *CommentHandler) Create(
 		user.ID,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -153,9 +147,8 @@ func (h *CommentHandler) Update(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -176,9 +169,8 @@ func (h *CommentHandler) Update(
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid comment form",
 			http.StatusBadRequest,
 		)
 		return
@@ -190,9 +182,8 @@ func (h *CommentHandler) Update(
 		64,
 	)
 	if err != nil || commentID <= 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid comment",
 			http.StatusBadRequest,
 		)
 		return
@@ -206,25 +197,24 @@ func (h *CommentHandler) Update(
 		err,
 		database.ErrCommentNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(
+			w,
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
 	}
 
 	if comment.UserID != user.ID {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusForbidden),
 			http.StatusForbidden,
 		)
 		return
@@ -235,9 +225,8 @@ func (h *CommentHandler) Update(
 	)
 
 	if content == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Comment cannot be empty",
 			http.StatusBadRequest,
 		)
 		return
@@ -252,15 +241,15 @@ func (h *CommentHandler) Update(
 			err,
 			database.ErrCommentNotFound,
 		) {
-			http.NotFound(w, r)
+			RenderErrorPage(
+				w,
+				http.StatusNotFound,
+			)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -282,9 +271,8 @@ func (h *CommentHandler) Delete(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -305,9 +293,8 @@ func (h *CommentHandler) Delete(
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid comment form",
 			http.StatusBadRequest,
 		)
 		return
@@ -319,9 +306,8 @@ func (h *CommentHandler) Delete(
 		64,
 	)
 	if err != nil || commentID <= 0 {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid comment",
 			http.StatusBadRequest,
 		)
 		return
@@ -335,16 +321,16 @@ func (h *CommentHandler) Delete(
 		err,
 		database.ErrCommentNotFound,
 	) {
-		http.NotFound(w, r)
+		RenderErrorPage(
+			w,
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return
@@ -356,9 +342,8 @@ func (h *CommentHandler) Delete(
 			user.Role == "admin"
 
 	if !canDelete {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusForbidden),
 			http.StatusForbidden,
 		)
 		return
@@ -372,15 +357,15 @@ func (h *CommentHandler) Delete(
 			err,
 			database.ErrCommentNotFound,
 		) {
-			http.NotFound(w, r)
+			RenderErrorPage(
+				w,
+				http.StatusNotFound,
+			)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(
-				http.StatusInternalServerError,
-			),
 			http.StatusInternalServerError,
 		)
 		return

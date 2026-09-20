@@ -68,9 +68,8 @@ func (h *GoogleOAuthHandler) Login(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodGet {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -80,9 +79,8 @@ func (h *GoogleOAuthHandler) Login(
 	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 
 	if clientID == "" || clientSecret == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Google OAuth is not configured",
 			http.StatusInternalServerError,
 		)
 		return
@@ -90,9 +88,8 @@ func (h *GoogleOAuthHandler) Login(
 
 	state, err := generateGoogleOAuthState()
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -128,9 +125,8 @@ func (h *GoogleOAuthHandler) Callback(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodGet {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusMethodNotAllowed),
 			http.StatusMethodNotAllowed,
 		)
 		return
@@ -147,9 +143,8 @@ func (h *GoogleOAuthHandler) Callback(
 	}
 
 	if !validGoogleState(r) {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Invalid OAuth state",
 			http.StatusBadRequest,
 		)
 		return
@@ -159,9 +154,8 @@ func (h *GoogleOAuthHandler) Callback(
 
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Missing OAuth code",
 			http.StatusBadRequest,
 		)
 		return
@@ -172,9 +166,8 @@ func (h *GoogleOAuthHandler) Callback(
 		code,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -184,9 +177,8 @@ func (h *GoogleOAuthHandler) Callback(
 		accessToken,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -195,9 +187,8 @@ func (h *GoogleOAuthHandler) Callback(
 	if googleUserData.Sub == "" ||
 		googleUserData.Email == "" ||
 		!googleUserData.EmailVerified {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Google account does not provide a verified email",
 			http.StatusBadRequest,
 		)
 		return
@@ -207,18 +198,16 @@ func (h *GoogleOAuthHandler) Callback(
 		googleUserData,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
 	}
 
 	if err := h.sessions.Create(w, userID); err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError,
 		)
 		return
@@ -237,14 +226,17 @@ func (h *GoogleOAuthHandler) exchangeGoogleCode(
 	code string,
 ) (string, error) {
 	values := url.Values{}
+
 	values.Set(
 		"client_id",
 		os.Getenv("GOOGLE_CLIENT_ID"),
 	)
+
 	values.Set(
 		"client_secret",
 		os.Getenv("GOOGLE_CLIENT_SECRET"),
 	)
+
 	values.Set("code", code)
 	values.Set("grant_type", "authorization_code")
 	values.Set("redirect_uri", googleRedirectURL(r))

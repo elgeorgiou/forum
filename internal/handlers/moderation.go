@@ -28,11 +28,7 @@ func (h *ModerationHandler) RequestModerator(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -48,11 +44,7 @@ func (h *ModerationHandler) RequestModerator(
 	}
 
 	if user.Role != "user" {
-		http.Error(
-			w,
-			"Forbidden",
-			http.StatusForbidden,
-		)
+		RenderErrorPage(w, http.StatusForbidden)
 		return
 	}
 
@@ -74,9 +66,8 @@ func (h *ModerationHandler) RequestModerator(
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
@@ -95,11 +86,7 @@ func (h *ModerationHandler) ReviewModeratorRequest(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -115,20 +102,12 @@ func (h *ModerationHandler) ReviewModeratorRequest(
 	}
 
 	if admin.Role != "admin" {
-		http.Error(
-			w,
-			"Forbidden",
-			http.StatusForbidden,
-		)
+		RenderErrorPage(w, http.StatusForbidden)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -138,11 +117,7 @@ func (h *ModerationHandler) ReviewModeratorRequest(
 		64,
 	)
 	if err != nil || requestID <= 0 {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -156,11 +131,7 @@ func (h *ModerationHandler) ReviewModeratorRequest(
 		status = "rejected"
 
 	default:
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -175,17 +146,12 @@ func (h *ModerationHandler) ReviewModeratorRequest(
 			err,
 			database.ErrModeratorRequestNotFound,
 		) {
-			http.Error(
-				w,
-				"Not Found",
-				http.StatusNotFound,
-			)
+			RenderErrorPage(w, http.StatusNotFound)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
@@ -204,11 +170,7 @@ func (h *ModerationHandler) ReportPost(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -225,20 +187,12 @@ func (h *ModerationHandler) ReportPost(
 
 	if user.Role != "moderator" &&
 		user.Role != "admin" {
-		http.Error(
-			w,
-			"Forbidden",
-			http.StatusForbidden,
-		)
+		RenderErrorPage(w, http.StatusForbidden)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -248,11 +202,7 @@ func (h *ModerationHandler) ReportPost(
 		64,
 	)
 	if err != nil || postID <= 0 {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -261,20 +211,12 @@ func (h *ModerationHandler) ReportPost(
 	)
 
 	if reason == "" {
-		http.Error(
-			w,
-			"Report reason is required",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
 	if len([]rune(reason)) > 1000 {
-		http.Error(
-			w,
-			"Report reason is too long",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -287,17 +229,12 @@ func (h *ModerationHandler) ReportPost(
 			err,
 			database.ErrPostNotFound,
 		) {
-			http.Error(
-				w,
-				"Not Found",
-				http.StatusNotFound,
-			)
+			RenderErrorPage(w, http.StatusNotFound)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
@@ -310,9 +247,8 @@ func (h *ModerationHandler) ReportPost(
 		reason,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
@@ -331,11 +267,7 @@ func (h *ModerationHandler) ReportComment(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -352,20 +284,12 @@ func (h *ModerationHandler) ReportComment(
 
 	if user.Role != "moderator" &&
 		user.Role != "admin" {
-		http.Error(
-			w,
-			"Forbidden",
-			http.StatusForbidden,
-		)
+		RenderErrorPage(w, http.StatusForbidden)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -375,11 +299,7 @@ func (h *ModerationHandler) ReportComment(
 		64,
 	)
 	if err != nil || commentID <= 0 {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -388,20 +308,12 @@ func (h *ModerationHandler) ReportComment(
 	)
 
 	if reason == "" {
-		http.Error(
-			w,
-			"Report reason is required",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
 	if len([]rune(reason)) > 1000 {
-		http.Error(
-			w,
-			"Report reason is too long",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -414,17 +326,12 @@ func (h *ModerationHandler) ReportComment(
 			err,
 			database.ErrCommentNotFound,
 		) {
-			http.Error(
-				w,
-				"Not Found",
-				http.StatusNotFound,
-			)
+			RenderErrorPage(w, http.StatusNotFound)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
@@ -437,9 +344,8 @@ func (h *ModerationHandler) ReportComment(
 		reason,
 	)
 	if err != nil {
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
@@ -461,11 +367,7 @@ func (h *ModerationHandler) ReviewReport(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -481,20 +383,12 @@ func (h *ModerationHandler) ReviewReport(
 	}
 
 	if admin.Role != "admin" {
-		http.Error(
-			w,
-			"Forbidden",
-			http.StatusForbidden,
-		)
+		RenderErrorPage(w, http.StatusForbidden)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -504,11 +398,7 @@ func (h *ModerationHandler) ReviewReport(
 		64,
 	)
 	if err != nil || reportID <= 0 {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -517,20 +407,12 @@ func (h *ModerationHandler) ReviewReport(
 	)
 
 	if response == "" {
-		http.Error(
-			w,
-			"Response is required",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
 	if len([]rune(response)) > 1000 {
-		http.Error(
-			w,
-			"Response is too long",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -544,11 +426,7 @@ func (h *ModerationHandler) ReviewReport(
 		status = "rejected"
 
 	default:
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -564,17 +442,12 @@ func (h *ModerationHandler) ReviewReport(
 			err,
 			database.ErrReportNotFound,
 		) {
-			http.Error(
-				w,
-				"Not Found",
-				http.StatusNotFound,
-			)
+			RenderErrorPage(w, http.StatusNotFound)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
@@ -593,11 +466,7 @@ func (h *ModerationHandler) DemoteModerator(
 	r *http.Request,
 ) {
 	if r.Method != http.MethodPost {
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		RenderErrorPage(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -613,20 +482,12 @@ func (h *ModerationHandler) DemoteModerator(
 	}
 
 	if admin.Role != "admin" {
-		http.Error(
-			w,
-			"Forbidden",
-			http.StatusForbidden,
-		)
+		RenderErrorPage(w, http.StatusForbidden)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -636,11 +497,7 @@ func (h *ModerationHandler) DemoteModerator(
 		64,
 	)
 	if err != nil || userID <= 0 {
-		http.Error(
-			w,
-			"Bad Request",
-			http.StatusBadRequest,
-		)
+		RenderErrorPage(w, http.StatusBadRequest)
 		return
 	}
 
@@ -653,17 +510,12 @@ func (h *ModerationHandler) DemoteModerator(
 			err,
 			database.ErrModeratorNotFound,
 		) {
-			http.Error(
-				w,
-				"Not Found",
-				http.StatusNotFound,
-			)
+			RenderErrorPage(w, http.StatusNotFound)
 			return
 		}
 
-		http.Error(
+		RenderErrorPage(
 			w,
-			"Internal Server Error",
 			http.StatusInternalServerError,
 		)
 		return
