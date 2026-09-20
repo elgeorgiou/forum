@@ -70,7 +70,12 @@
                 href="/categories/{{ .Slug }}"
                 class="category-card category-{{ .Slug }}"
             >
-                <div class="category-card-overlay"></div>
+                <div class="category-card-icon">
+                    <img
+                        src="/static/images/category-icons/{{ .Slug }}.webp"
+                        alt="{{ .Name }}"
+                    >
+                </div>
 
                 <div class="category-card-content">
                     <h3>{{ .Name }}</h3>
