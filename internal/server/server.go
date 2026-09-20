@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"forum/internal/database"
 	"forum/internal/handlers"
@@ -421,13 +422,19 @@ func Run() error {
 
 	handler := authMiddleware.LoadUser(mux)
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + port,
 		Handler: handler,
 	}
 
-	fmt.Println(
-		"Server running at http://localhost:8080",
+	fmt.Printf(
+		"Server running on port %s\n",
+		port,
 	)
 
 	return server.ListenAndServe()
