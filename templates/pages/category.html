@@ -225,6 +225,51 @@
                         required
                     ></textarea>
 
+                    <div class="composer-categories">
+                        <div class="composer-categories-header">
+                            <span class="composer-categories-title">
+                                Categories
+                            </span>
+
+                            <span class="composer-categories-hint">
+                                {{ .Category.Name }} is selected automatically.
+                                Choose any additional categories.
+                            </span>
+                        </div>
+
+                        <div class="composer-category-list">
+                            <span
+                                class="composer-category-chip composer-category-chip-primary"
+                            >
+                                <span aria-hidden="true">✓</span>
+                                {{ .Category.Name }}
+                            </span>
+
+                            {{ range .Categories }}
+                                {{ if ne .ID $.Category.ID }}
+                                    <label class="composer-category-option">
+                                        <input
+                                            type="checkbox"
+                                            name="category_id"
+                                            value="{{ .ID }}"
+                                        >
+
+                                        <span class="composer-category-chip">
+                                            <span
+                                                class="composer-category-check"
+                                                aria-hidden="true"
+                                            >
+                                                ✓
+                                            </span>
+
+                                            {{ .Name }}
+                                        </span>
+                                    </label>
+                                {{ end }}
+                            {{ end }}
+                        </div>
+                    </div>
+
                     <div class="composer-footer">
                         <label class="composer-upload">
                             <span aria-hidden="true">

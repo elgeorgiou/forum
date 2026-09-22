@@ -344,6 +344,14 @@ func (h *PageHandler) Category(
 		return
 	}
 
+	categories, err := database.GetAllCategories(
+		h.db,
+	)
+	if err != nil {
+		h.renderInternalServerError(w)
+		return
+	}
+
 	data := h.pageData(r)
 
 	data.Category = models.CategoryPageData{
@@ -355,6 +363,7 @@ func (h *PageHandler) Category(
 		PostCount:   len(posts),
 	}
 
+	data.Categories = categories
 	data.Posts = posts
 
 	h.render(
