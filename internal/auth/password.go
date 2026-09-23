@@ -10,10 +10,14 @@ import (
 const bcryptCost = 12
 
 var (
+	// ErrEmptyPassword is returned when an empty password is provided for hashing.
 	ErrEmptyPassword = errors.New("password cannot be empty")
+
+	// ErrWrongPassword is returned when a password does not match its stored hash.
 	ErrWrongPassword = errors.New("incorrect password")
 )
 
+// HashPassword hashes a non-empty password using bcrypt.
 func HashPassword(password string) (string, error) {
 	if strings.TrimSpace(password) == "" {
 		return "", ErrEmptyPassword
@@ -30,6 +34,7 @@ func HashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
+// CheckPassword compares a password with its stored bcrypt hash.
 func CheckPassword(passwordHash, password string) error {
 	if strings.TrimSpace(password) == "" {
 		return ErrWrongPassword

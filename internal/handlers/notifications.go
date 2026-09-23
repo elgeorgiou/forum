@@ -11,10 +11,12 @@ import (
 	"forum/internal/middleware"
 )
 
+// NotificationHandler handles notification-related HTTP requests.
 type NotificationHandler struct {
 	db *sql.DB
 }
 
+// NewNotificationHandler creates a new NotificationHandler.
 func NewNotificationHandler(
 	db *sql.DB,
 ) *NotificationHandler {
@@ -23,6 +25,7 @@ func NewNotificationHandler(
 	}
 }
 
+// Read marks a notification as read for the authenticated user.
 func (h *NotificationHandler) Read(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -112,6 +115,7 @@ func (h *NotificationHandler) Read(
 	)
 }
 
+// ReadAll marks all notifications as read for the authenticated user.
 func (h *NotificationHandler) ReadAll(
 	w http.ResponseWriter,
 	r *http.Request,

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// SearchPostViews searches posts by title, content, or associated category data.
 func SearchPostViews(
 	db *sql.DB,
 	query string,
@@ -90,6 +91,7 @@ func SearchPostViews(
 	return posts, nil
 }
 
+// SearchCategories searches categories by name, slug, description, or tagline.
 func SearchCategories(
 	db *sql.DB,
 	query string,

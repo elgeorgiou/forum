@@ -6,8 +6,10 @@ import (
 	"fmt"
 )
 
+// ErrCommentNotFound is returned when a requested comment does not exist.
 var ErrCommentNotFound = errors.New("comment not found")
 
+// Comment represents a comment stored in the database.
 type Comment struct {
 	ID        int64
 	PostID    int64
@@ -17,6 +19,7 @@ type Comment struct {
 	UpdatedAt string
 }
 
+// CommentView represents a comment together with its author and reaction data.
 type CommentView struct {
 	ID           int64
 	PostID       int64
@@ -30,6 +33,7 @@ type CommentView struct {
 	Score        int
 }
 
+// ActivityComment represents a user's comment displayed in their activity.
 type ActivityComment struct {
 	ID        int64
 	PostID    int64
@@ -39,6 +43,7 @@ type ActivityComment struct {
 	UpdatedAt string
 }
 
+// CreateComment creates a new comment and returns its database ID.
 func CreateComment(
 	db *sql.DB,
 	postID int64,
@@ -61,6 +66,7 @@ func CreateComment(
 	return id, nil
 }
 
+// GetCommentByID retrieves a comment by its database ID.
 func GetCommentByID(
 	db *sql.DB,
 	commentID int64,
@@ -100,6 +106,7 @@ func GetCommentByID(
 	return comment, nil
 }
 
+// GetCommentsByPost retrieves all comments belonging to a post.
 func GetCommentsByPost(
 	db *sql.DB,
 	postID int64,
@@ -159,6 +166,7 @@ func GetCommentsByPost(
 	return comments, nil
 }
 
+// GetCommentViewsByPost retrieves comments for a post with author and reaction data.
 func GetCommentViewsByPost(
 	db *sql.DB,
 	postID int64,
@@ -240,6 +248,7 @@ func GetCommentViewsByPost(
 	return comments, nil
 }
 
+// GetCommentsByUser retrieves all comments created by a user.
 func GetCommentsByUser(
 	db *sql.DB,
 	userID int64,
@@ -299,6 +308,7 @@ func GetCommentsByUser(
 	return comments, nil
 }
 
+// GetActivityCommentsByUser retrieves a user's comments with their related post titles.
 func GetActivityCommentsByUser(
 	db *sql.DB,
 	userID int64,
@@ -360,6 +370,7 @@ func GetActivityCommentsByUser(
 	return comments, nil
 }
 
+// UpdateComment updates the content of an existing comment.
 func UpdateComment(
 	db *sql.DB,
 	commentID int64,
@@ -393,6 +404,7 @@ func UpdateComment(
 	return nil
 }
 
+// DeleteComment deletes a comment by its database ID.
 func DeleteComment(
 	db *sql.DB,
 	commentID int64,

@@ -6,8 +6,10 @@ import (
 	"fmt"
 )
 
+// ErrCategoryNotFound is returned when a requested category does not exist.
 var ErrCategoryNotFound = errors.New("category not found")
 
+// Category represents a forum category stored in the database.
 type Category struct {
 	ID          int64
 	Name        string
@@ -17,6 +19,7 @@ type Category struct {
 	CreatedAt   string
 }
 
+// CreateCategory creates a new category and returns its database ID.
 func CreateCategory(
 	db *sql.DB,
 	name string,
@@ -50,6 +53,7 @@ func CreateCategory(
 	return id, nil
 }
 
+// GetCategoryByID retrieves a category by its database ID.
 func GetCategoryByID(
 	db *sql.DB,
 	id int64,
@@ -86,6 +90,7 @@ func GetCategoryByID(
 	return category, nil
 }
 
+// GetCategoryBySlug retrieves a category by its slug.
 func GetCategoryBySlug(
 	db *sql.DB,
 	slug string,
@@ -122,6 +127,7 @@ func GetCategoryBySlug(
 	return category, nil
 }
 
+// GetAllCategories retrieves all categories ordered by name.
 func GetAllCategories(
 	db *sql.DB,
 ) ([]Category, error) {
@@ -170,6 +176,7 @@ func GetAllCategories(
 	return categories, nil
 }
 
+// UpdateCategory updates an existing category.
 func UpdateCategory(
 	db *sql.DB,
 	id int64,
@@ -212,6 +219,7 @@ func UpdateCategory(
 	return nil
 }
 
+// DeleteCategory deletes a category by its database ID.
 func DeleteCategory(
 	db *sql.DB,
 	id int64,

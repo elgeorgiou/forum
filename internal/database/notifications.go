@@ -6,10 +6,12 @@ import (
 	"fmt"
 )
 
+// ErrNotificationNotFound is returned when a notification cannot be found.
 var ErrNotificationNotFound = errors.New(
 	"notification not found",
 )
 
+// Notification types identify the action that triggered a notification.
 const (
 	NotificationPostLike       = "post_like"
 	NotificationPostDislike    = "post_dislike"
@@ -19,6 +21,7 @@ const (
 	NotificationReport         = "report"
 )
 
+// Notification represents a notification stored in the database.
 type Notification struct {
 	ID        int64
 	UserID    int64
@@ -31,6 +34,7 @@ type Notification struct {
 	CreatedAt string
 }
 
+// NotificationView represents a notification together with related display data.
 type NotificationView struct {
 	ID             int64
 	UserID         int64
@@ -47,6 +51,7 @@ type NotificationView struct {
 	CreatedAt      string
 }
 
+// CreateNotification creates a notification and returns its database ID.
 func CreateNotification(
 	db *sql.DB,
 	userID int64,
@@ -89,6 +94,7 @@ func CreateNotification(
 	return id, nil
 }
 
+// CreatePostNotification creates a notification for an action on a post.
 func CreatePostNotification(
 	db *sql.DB,
 	postID int64,
@@ -131,6 +137,7 @@ func CreatePostNotification(
 	return nil
 }
 
+// CreateCommentNotification creates a notification when a comment is added to a post.
 func CreateCommentNotification(
 	db *sql.DB,
 	postID int64,
@@ -176,6 +183,7 @@ func CreateCommentNotification(
 	return nil
 }
 
+// GetNotificationsByUser retrieves all notifications belonging to a user.
 func GetNotificationsByUser(
 	db *sql.DB,
 	userID int64,
@@ -241,6 +249,7 @@ func GetNotificationsByUser(
 	return notifications, nil
 }
 
+// GetNotificationViewsByUser retrieves notifications with related display data for a user.
 func GetNotificationViewsByUser(
 	db *sql.DB,
 	userID int64,
@@ -331,6 +340,7 @@ func GetNotificationViewsByUser(
 	return notifications, nil
 }
 
+// GetUnreadNotificationCount returns the number of unread notifications for a user.
 func GetUnreadNotificationCount(
 	db *sql.DB,
 	userID int64,
@@ -353,6 +363,7 @@ func GetUnreadNotificationCount(
 	return count, nil
 }
 
+// MarkNotificationAsRead marks a specific notification belonging to a user as read.
 func MarkNotificationAsRead(
 	db *sql.DB,
 	notificationID int64,
@@ -386,6 +397,7 @@ func MarkNotificationAsRead(
 	return nil
 }
 
+// MarkAllNotificationsAsRead marks all unread notifications belonging to a user as read.
 func MarkAllNotificationsAsRead(
 	db *sql.DB,
 	userID int64,
@@ -406,6 +418,7 @@ func MarkAllNotificationsAsRead(
 	return nil
 }
 
+// DeleteNotification deletes a specific notification belonging to a user.
 func DeleteNotification(
 	db *sql.DB,
 	notificationID int64,

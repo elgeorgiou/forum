@@ -8,12 +8,14 @@ import (
 	"forum/internal/database"
 )
 
+// searchSuggestionPost represents the post data returned in search suggestions.
 type searchSuggestionPost struct {
 	ID       int64  `json:"id"`
 	Title    string `json:"title"`
 	Username string `json:"username"`
 }
 
+// searchSuggestionCategory represents the category data returned in search suggestions.
 type searchSuggestionCategory struct {
 	Name        string `json:"name"`
 	Slug        string `json:"slug"`
@@ -21,11 +23,13 @@ type searchSuggestionCategory struct {
 	Tagline     string `json:"tagline"`
 }
 
+// searchSuggestionsResponse represents the complete search suggestions JSON response.
 type searchSuggestionsResponse struct {
 	Posts      []searchSuggestionPost     `json:"posts"`
 	Categories []searchSuggestionCategory `json:"categories"`
 }
 
+// SearchSuggestions handles search suggestion requests for posts and categories.
 func (h *PageHandler) SearchSuggestions(
 	w http.ResponseWriter,
 	r *http.Request,

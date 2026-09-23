@@ -11,16 +11,19 @@ import (
 	"forum/internal/middleware"
 )
 
+// ReactionHandler handles HTTP requests for post and comment reactions.
 type ReactionHandler struct {
 	db *sql.DB
 }
 
+// reactionResponse represents the JSON response returned after a reaction update.
 type reactionResponse struct {
 	Reaction int `json:"reaction"`
 	Likes    int `json:"likes"`
 	Dislikes int `json:"dislikes"`
 }
 
+// NewReactionHandler creates a new ReactionHandler.
 func NewReactionHandler(
 	db *sql.DB,
 ) *ReactionHandler {
@@ -29,6 +32,7 @@ func NewReactionHandler(
 	}
 }
 
+// Post handles adding, changing, or removing a reaction on a post.
 func (h *ReactionHandler) Post(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -198,6 +202,7 @@ func (h *ReactionHandler) Post(
 	)
 }
 
+// Comment handles adding, changing, or removing a reaction on a comment.
 func (h *ReactionHandler) Comment(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -346,6 +351,7 @@ func (h *ReactionHandler) Comment(
 	)
 }
 
+// parseReaction converts and validates a reaction value.
 func parseReaction(
 	value string,
 ) (int, error) {
@@ -366,6 +372,7 @@ func parseReaction(
 	return reaction, nil
 }
 
+// isFetchRequest reports whether the request was sent using the fetch API.
 func isFetchRequest(
 	r *http.Request,
 ) bool {
@@ -374,6 +381,7 @@ func isFetchRequest(
 	) == "fetch"
 }
 
+// writeReactionJSON writes the updated reaction state as a JSON response.
 func writeReactionJSON(
 	w http.ResponseWriter,
 	reaction int,

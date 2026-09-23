@@ -13,11 +13,13 @@ import (
 	"forum/internal/models"
 )
 
+// PageHandler handles requests for the forum's rendered pages.
 type PageHandler struct {
 	db          *sql.DB
 	templateDir string
 }
 
+// NewPageHandler creates a new PageHandler.
 func NewPageHandler(db *sql.DB) *PageHandler {
 	return &PageHandler{
 		db:          db,
@@ -25,6 +27,7 @@ func NewPageHandler(db *sql.DB) *PageHandler {
 	}
 }
 
+// Home renders the forum home page and applies the requested post filter.
 func (h *PageHandler) Home(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -127,6 +130,7 @@ func (h *PageHandler) Home(
 	)
 }
 
+// Recent renders the page containing the most recent forum posts.
 func (h *PageHandler) Recent(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -160,6 +164,7 @@ func (h *PageHandler) Recent(
 	)
 }
 
+// Profile renders the authenticated user's profile and created posts.
 func (h *PageHandler) Profile(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -205,6 +210,7 @@ func (h *PageHandler) Profile(
 	)
 }
 
+// About renders the forum's about page.
 func (h *PageHandler) About(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -229,6 +235,7 @@ func (h *PageHandler) About(
 	)
 }
 
+// Auth renders the login or signup page according to the requested mode.
 func (h *PageHandler) Auth(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -262,6 +269,7 @@ func (h *PageHandler) Auth(
 	)
 }
 
+// Categories renders the page containing all forum categories.
 func (h *PageHandler) Categories(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -296,6 +304,7 @@ func (h *PageHandler) Categories(
 	)
 }
 
+// Category renders a category page and the posts belonging to that category.
 func (h *PageHandler) Category(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -374,6 +383,7 @@ func (h *PageHandler) Category(
 	)
 }
 
+// Search renders search results for posts and categories matching the query.
 func (h *PageHandler) Search(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -438,6 +448,7 @@ func (h *PageHandler) Search(
 	)
 }
 
+// Dashboard renders moderation data for moderators and administrators.
 func (h *PageHandler) Dashboard(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -534,6 +545,7 @@ func (h *PageHandler) Dashboard(
 	)
 }
 
+// ModeratorRequest renders the page used to request moderator status.
 func (h *PageHandler) ModeratorRequest(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -589,6 +601,7 @@ func (h *PageHandler) ModeratorRequest(
 	)
 }
 
+// Activity renders the authenticated user's forum activity.
 func (h *PageHandler) Activity(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -666,6 +679,7 @@ func (h *PageHandler) Activity(
 	)
 }
 
+// Notifications renders the authenticated user's notifications.
 func (h *PageHandler) Notifications(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -712,6 +726,7 @@ func (h *PageHandler) Notifications(
 	)
 }
 
+// pageData builds common page data for the current request.
 func (h *PageHandler) pageData(
 	r *http.Request,
 ) models.PageData {
@@ -742,6 +757,7 @@ func (h *PageHandler) pageData(
 	return data
 }
 
+// renderBadRequest renders the standard bad request error page.
 func (h *PageHandler) renderBadRequest(
 	w http.ResponseWriter,
 ) {
@@ -755,6 +771,7 @@ func (h *PageHandler) renderBadRequest(
 	)
 }
 
+// renderNotFound renders the standard not found error page.
 func (h *PageHandler) renderNotFound(
 	w http.ResponseWriter,
 ) {
@@ -768,6 +785,7 @@ func (h *PageHandler) renderNotFound(
 	)
 }
 
+// renderMethodNotAllowed renders the standard method not allowed error page.
 func (h *PageHandler) renderMethodNotAllowed(
 	w http.ResponseWriter,
 ) {
@@ -781,6 +799,7 @@ func (h *PageHandler) renderMethodNotAllowed(
 	)
 }
 
+// renderInternalServerError renders the standard internal server error page.
 func (h *PageHandler) renderInternalServerError(
 	w http.ResponseWriter,
 ) {
@@ -794,6 +813,7 @@ func (h *PageHandler) renderInternalServerError(
 	)
 }
 
+// renderError renders an error page using the supplied status and message data.
 func (h *PageHandler) renderError(
 	w http.ResponseWriter,
 	statusCode int,
@@ -818,6 +838,7 @@ func (h *PageHandler) renderError(
 	)
 }
 
+// render parses the shared layout and requested page template and writes the response.
 func (h *PageHandler) render(
 	w http.ResponseWriter,
 	statusCode int,

@@ -11,10 +11,12 @@ import (
 	"forum/internal/middleware"
 )
 
+// ModerationHandler handles moderator and administrator actions.
 type ModerationHandler struct {
 	db *sql.DB
 }
 
+// NewModerationHandler creates a new ModerationHandler.
 func NewModerationHandler(
 	db *sql.DB,
 ) *ModerationHandler {
@@ -23,6 +25,7 @@ func NewModerationHandler(
 	}
 }
 
+// RequestModerator handles requests from users to become moderators.
 func (h *ModerationHandler) RequestModerator(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -81,6 +84,8 @@ func (h *ModerationHandler) RequestModerator(
 	)
 }
 
+// ReviewModeratorRequest handles administrator approval or rejection
+// of moderator requests.
 func (h *ModerationHandler) ReviewModeratorRequest(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -165,6 +170,7 @@ func (h *ModerationHandler) ReviewModeratorRequest(
 	)
 }
 
+// ReportPost handles reports submitted for forum posts.
 func (h *ModerationHandler) ReportPost(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -262,6 +268,7 @@ func (h *ModerationHandler) ReportPost(
 	)
 }
 
+// ReportComment handles reports submitted for forum comments.
 func (h *ModerationHandler) ReportComment(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -362,6 +369,7 @@ func (h *ModerationHandler) ReportComment(
 	)
 }
 
+// ReviewReport handles administrator resolution or rejection of reports.
 func (h *ModerationHandler) ReviewReport(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -461,6 +469,7 @@ func (h *ModerationHandler) ReviewReport(
 	)
 }
 
+// DemoteModerator handles administrator requests to demote a moderator.
 func (h *ModerationHandler) DemoteModerator(
 	w http.ResponseWriter,
 	r *http.Request,

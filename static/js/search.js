@@ -1,4 +1,6 @@
+// Wait until the initial HTML document has been completely loaded and parsed.
 document.addEventListener("DOMContentLoaded", () => {
+    // Select the navbar search input and its suggestions container.
     const searchInput = document.querySelector(
         "#navbar-search-input",
     );
@@ -7,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "#navbar-search-results",
     );
 
+    // Select the account menu toggle and dropdown.
     const accountToggle = document.querySelector(
         "[data-account-menu-toggle]",
     );
@@ -15,9 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
         "[data-account-menu-dropdown]",
     );
 
+    // Keep track of the search debounce timer and active request.
     let searchTimer = null;
     let requestController = null;
 
+    // Escape text before inserting it into generated HTML.
     const escapeHTML = (value) => {
         const element = document.createElement("div");
 
@@ -26,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return element.innerHTML;
     };
 
+    // Hide the search suggestions and update its accessibility state.
     const closeSearch = () => {
         if (!searchResults || !searchInput) {
             return;
@@ -39,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     };
 
+    // Show the search suggestions and update its accessibility state.
     const openSearch = () => {
         if (!searchResults || !searchInput) {
             return;
@@ -52,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     };
 
+    // Render category and discussion suggestions returned by the server.
     const renderSuggestions = (
         query,
         categories,
@@ -63,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let html = "";
 
+        // Add up to three matching category suggestions.
         if (categories.length > 0) {
             html += `
                 <div class="search-suggestion-heading">
@@ -99,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
+        // Add up to five matching discussion suggestions.
         if (posts.length > 0) {
             html += `
                 <div class="search-suggestion-heading">
@@ -131,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
+        // Display an empty-state message when nothing matches the query.
         if (
             categories.length === 0 &&
             posts.length === 0
@@ -143,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
 
+        // Always provide a link to the complete search results page.
         html += `
             <a
                 class="search-suggestion-all"
@@ -157,7 +169,9 @@ document.addEventListener("DOMContentLoaded", () => {
         openSearch();
     };
 
+    // Fetch search suggestions for the current query.
     const search = async (query) => {
+        // Cancel the previous request when a newer search starts.
         if (requestController) {
             requestController.abort();
         }
@@ -177,6 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
             );
 
+            // Hide the suggestions if the server returns an unsuccessful response.
             if (!response.ok) {
                 closeSearch();
                 return;
@@ -184,18 +199,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
+            // Render the suggestions returned by the server.
             renderSuggestions(
                 query,
                 data.categories || [],
                 data.posts || [],
             );
         } catch (error) {
+            // Ignore intentionally aborted requests and close the search on other errors.
             if (error.name !== "AbortError") {
                 closeSearch();
             }
         }
     };
 
+    // Enable live search when the required search elements are available.
     if (searchInput && searchResults) {
         searchInput.addEventListener(
             "input",
@@ -203,13 +221,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 const query =
                     searchInput.value.trim();
 
+                // Reset the previous debounce timer whenever the input changes.
                 clearTimeout(searchTimer);
 
+                // Do not search until at least two characters have been entered.
                 if (query.length < 2) {
                     closeSearch();
                     return;
                 }
 
+                // Delay the request slightly to avoid searching after every keystroke.
                 searchTimer = setTimeout(
                     () => {
                         search(query);
@@ -219,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
         );
 
+        // Reopen existing suggestions when the search input receives focus.
         searchInput.addEventListener(
             "focus",
             () => {
@@ -232,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    // Toggle the account dropdown when its button is clicked.
     if (accountToggle && accountDropdown) {
         accountToggle.addEventListener(
             "click",
@@ -248,11 +271,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 accountDropdown.hidden = isOpen;
 
+                // Close search suggestions while the account menu is being used.
                 closeSearch();
             },
         );
     }
 
+    // Close open navbar controls when the user clicks outside them.
     document.addEventListener(
         "click",
         (event) => {
@@ -286,6 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     );
 
+    // Close search suggestions and the account menu when Escape is pressed.
     document.addEventListener(
         "keydown",
         (event) => {

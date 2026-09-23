@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// PostView represents a post together with its author, engagement,
+// category, and display-related data.
 type PostView struct {
 	ID           int64
 	UserID       int64
@@ -27,6 +29,8 @@ type PostView struct {
 	CategorySlug string
 }
 
+// GetPostViewByID retrieves a post with its author, reaction,
+// comment, and category data by its database ID.
 func GetPostViewByID(
 	db *sql.DB,
 	postID int64,
@@ -110,6 +114,7 @@ func GetPostViewByID(
 	return post, nil
 }
 
+// GetAllPostViews retrieves all posts with their associated display data.
 func GetAllPostViews(
 	db *sql.DB,
 ) ([]PostView, error) {
@@ -156,6 +161,7 @@ func GetAllPostViews(
 	return scanPostViews(db, rows)
 }
 
+// GetPostViewsByCategory retrieves all posts belonging to a category.
 func GetPostViewsByCategory(
 	db *sql.DB,
 	categoryID int64,
@@ -206,6 +212,7 @@ func GetPostViewsByCategory(
 	return scanPostViews(db, rows)
 }
 
+// GetPostViewsByUser retrieves all posts created by a user.
 func GetPostViewsByUser(
 	db *sql.DB,
 	userID int64,
@@ -254,6 +261,7 @@ func GetPostViewsByUser(
 	return scanPostViews(db, rows)
 }
 
+// GetLikedPostViewsByUser retrieves all posts liked by a user.
 func GetLikedPostViewsByUser(
 	db *sql.DB,
 	userID int64,
@@ -305,6 +313,7 @@ func GetLikedPostViewsByUser(
 	return scanPostViews(db, rows)
 }
 
+// GetDislikedPostViewsByUser retrieves all posts disliked by a user.
 func GetDislikedPostViewsByUser(
 	db *sql.DB,
 	userID int64,
@@ -356,6 +365,7 @@ func GetDislikedPostViewsByUser(
 	return scanPostViews(db, rows)
 }
 
+// GetPostCategories retrieves all categories associated with a post.
 func GetPostCategories(
 	db *sql.DB,
 	postID int64,
@@ -417,6 +427,7 @@ func GetPostCategories(
 	return categories, nil
 }
 
+// scanPostViews scans post rows and enriches each post with its categories.
 func scanPostViews(
 	db *sql.DB,
 	rows *sql.Rows,
@@ -489,6 +500,7 @@ func scanPostViews(
 	return posts, nil
 }
 
+// postPreview creates a shortened preview of post content.
 func postPreview(
 	content string,
 ) string {

@@ -11,6 +11,8 @@ import (
 	"forum/internal/session"
 )
 
+// Run initializes the application dependencies, registers the routes,
+// and starts the HTTP server.
 func Run() error {
 	db, err := database.Open("data/forum.db")
 	if err != nil {
@@ -21,6 +23,7 @@ func Run() error {
 	}
 	defer db.Close()
 
+	// Initialize the database schema and apply required migrations.
 	if err := database.InitSchema(
 		db,
 		"internal/database/schema/schema.sql",
@@ -31,6 +34,7 @@ func Run() error {
 		)
 	}
 
+	// Insert the default forum categories if they do not already exist.
 	if err := database.SeedCategories(db); err != nil {
 		return fmt.Errorf(
 			"seed categories: %w",
@@ -38,6 +42,7 @@ func Run() error {
 		)
 	}
 
+	// Create the session manager and remove sessions that have expired.
 	sessionManager := session.NewManager(db)
 
 	if err := sessionManager.DeleteExpired(); err != nil {
@@ -47,6 +52,7 @@ func Run() error {
 		)
 	}
 
+	// Configure authentication and authorization middleware.
 	authMiddleware := middleware.NewAuth(
 		sessionManager,
 	)
@@ -55,6 +61,7 @@ func Run() error {
 		handlers.RenderErrorPage,
 	)
 
+	// Create the application's HTTP handlers and inject their dependencies.
 	pageHandler := handlers.NewPageHandler(db)
 
 	authHandler := handlers.NewAuthHandler(
@@ -92,8 +99,10 @@ func Run() error {
 			sessionManager,
 		)
 
+	// Create the HTTP request multiplexer used to register application routes.
 	mux := http.NewServeMux()
 
+	// Serve static assets such as CSS, JavaScript, and uploaded images.
 	staticFiles := http.FileServer(
 		http.Dir("static"),
 	)
@@ -106,6 +115,7 @@ func Run() error {
 		),
 	)
 
+	// Register public page and authentication routes.
 	mux.HandleFunc(
 		"/",
 		pageHandler.Home,
@@ -131,6 +141,7 @@ func Run() error {
 		authHandler.Logout,
 	)
 
+	// Register OAuth authentication routes.
 	mux.HandleFunc(
 		"/auth/github",
 		githubOAuthHandler.Login,
@@ -151,6 +162,7 @@ func Run() error {
 		googleOAuthHandler.Callback,
 	)
 
+	// Register public forum browsing routes.
 	mux.HandleFunc(
 		"/categories",
 		pageHandler.Categories,
@@ -161,6 +173,7 @@ func Run() error {
 		pageHandler.Recent,
 	)
 
+	// Require authentication before allowing access to the profile page.
 	mux.Handle(
 		"/profile",
 		authMiddleware.RequireAuthentication(
@@ -175,6 +188,7 @@ func Run() error {
 		pageHandler.About,
 	)
 
+	// Register search routes.
 	mux.HandleFunc(
 		"/search",
 		pageHandler.Search,
@@ -190,6 +204,7 @@ func Run() error {
 		pageHandler.Category,
 	)
 
+	// Register authenticated post management routes.
 	mux.Handle(
 		"/posts/create",
 		authMiddleware.RequireAuthentication(
@@ -226,6 +241,7 @@ func Run() error {
 		),
 	)
 
+	// Register authenticated comment management routes.
 	mux.Handle(
 		"/comments/update",
 		authMiddleware.RequireAuthentication(
@@ -262,6 +278,7 @@ func Run() error {
 		),
 	)
 
+	// Register moderation report routes available to moderators and admins.
 	mux.Handle(
 		"POST /moderation/reports/posts",
 		authMiddleware.RequireModerator(
@@ -280,11 +297,13 @@ func Run() error {
 		),
 	)
 
+	// Register individual post pages.
 	mux.HandleFunc(
 		"/posts/",
 		postHandler.View,
 	)
 
+	// Protect the moderation dashboard so only moderators and admins can access it.
 	mux.Handle(
 		"/dashboard",
 		authMiddleware.RequireModerator(
@@ -294,6 +313,7 @@ func Run() error {
 		),
 	)
 
+	// Register authenticated user activity and notification routes.
 	mux.Handle(
 		"/activity",
 		authMiddleware.RequireAuthentication(
@@ -330,6 +350,7 @@ func Run() error {
 		),
 	)
 
+	// Register moderator application routes for authenticated users.
 	mux.Handle(
 		"GET /moderation/request",
 		authMiddleware.RequireAuthentication(
@@ -348,6 +369,7 @@ func Run() error {
 		),
 	)
 
+	// Register administrator moderation management routes.
 	mux.Handle(
 		"POST /admin/moderation/requests/review",
 		authMiddleware.RequireAdmin(
@@ -366,6 +388,7 @@ func Run() error {
 		),
 	)
 
+	// Register administrator moderator management routes.
 	mux.Handle(
 		"GET /admin/moderators",
 		authMiddleware.RequireAdmin(
@@ -384,6 +407,7 @@ func Run() error {
 		),
 	)
 
+	// Register administrator category management routes.
 	mux.Handle(
 		"GET /admin/categories",
 		authMiddleware.RequireAdmin(
@@ -420,13 +444,16 @@ func Run() error {
 		),
 	)
 
+	// Load the authenticated user into the request context before routing requests.
 	handler := authMiddleware.LoadUser(mux)
 
+	// Use the configured port or fall back to the default development port.
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
+	// Configure the HTTP server with the application's middleware-wrapped handler.
 	server := &http.Server{
 		Addr:    ":" + port,
 		Handler: handler,
@@ -437,5 +464,6 @@ func Run() error {
 		port,
 	)
 
+	// Start accepting and serving HTTP requests.
 	return server.ListenAndServe()
 }

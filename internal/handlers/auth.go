@@ -13,12 +13,14 @@ import (
 	"forum/internal/session"
 )
 
+// AuthHandler handles user registration, login, logout, and authentication-related operations.
 type AuthHandler struct {
 	db       *sql.DB
 	sessions *session.Manager
 	pages    *PageHandler
 }
 
+// NewAuthHandler creates a new AuthHandler with its required dependencies.
 func NewAuthHandler(
 	db *sql.DB,
 	sessions *session.Manager,
@@ -31,6 +33,7 @@ func NewAuthHandler(
 	}
 }
 
+// Register handles the creation of a new user account and starts a session for the user.
 func (h *AuthHandler) Register(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -207,6 +210,7 @@ func (h *AuthHandler) Register(
 	)
 }
 
+// Login authenticates a user by email or username and starts a new session.
 func (h *AuthHandler) Login(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -296,6 +300,7 @@ func (h *AuthHandler) Login(
 	)
 }
 
+// Logout destroys the current user session and redirects to the home page.
 func (h *AuthHandler) Logout(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -321,6 +326,8 @@ func (h *AuthHandler) Logout(
 	)
 }
 
+// findUser retrieves a user by email when the identifier contains an @,
+// otherwise it retrieves the user by username.
 func (h *AuthHandler) findUser(
 	identifier string,
 ) (*database.User, error) {
@@ -337,6 +344,7 @@ func (h *AuthHandler) findUser(
 	)
 }
 
+// validEmail reports whether email is a valid email address.
 func validEmail(email string) bool {
 	address, err := mail.ParseAddress(email)
 	if err != nil {
@@ -349,6 +357,7 @@ func validEmail(email string) bool {
 	)
 }
 
+// isDuplicateUserError reports whether an error was caused by a database uniqueness constraint.
 func isDuplicateUserError(err error) bool {
 	if err == nil {
 		return false

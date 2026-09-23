@@ -6,8 +6,10 @@ import (
 	"fmt"
 )
 
+// ErrPostNotFound is returned when a requested post does not exist.
 var ErrPostNotFound = errors.New("post not found")
 
+// Post represents a forum post stored in the database.
 type Post struct {
 	ID        int64
 	UserID    int64
@@ -18,6 +20,7 @@ type Post struct {
 	UpdatedAt string
 }
 
+// CreatePost creates a new post and returns its database ID.
 func CreatePost(
 	db *sql.DB,
 	userID int64,
@@ -41,6 +44,7 @@ func CreatePost(
 	return id, nil
 }
 
+// GetPostByID retrieves a post by its database ID.
 func GetPostByID(db *sql.DB, id int64) (Post, error) {
 	var post Post
 
@@ -69,6 +73,7 @@ func GetPostByID(db *sql.DB, id int64) (Post, error) {
 	return post, nil
 }
 
+// GetAllPosts retrieves all posts ordered from newest to oldest.
 func GetAllPosts(db *sql.DB) ([]Post, error) {
 	rows, err := db.Query(`
 		SELECT id, user_id, title, content, image_path, created_at, updated_at
@@ -83,6 +88,7 @@ func GetAllPosts(db *sql.DB) ([]Post, error) {
 	return scanPosts(rows)
 }
 
+// GetPostsByUser retrieves all posts created by a specific user.
 func GetPostsByUser(db *sql.DB, userID int64) ([]Post, error) {
 	rows, err := db.Query(`
 		SELECT id, user_id, title, content, image_path, created_at, updated_at
@@ -98,6 +104,7 @@ func GetPostsByUser(db *sql.DB, userID int64) ([]Post, error) {
 	return scanPosts(rows)
 }
 
+// GetPostsByCategory retrieves all posts associated with a specific category.
 func GetPostsByCategory(db *sql.DB, categoryID int64) ([]Post, error) {
 	rows, err := db.Query(`
 		SELECT p.id, p.user_id, p.title, p.content, p.image_path,
@@ -116,6 +123,7 @@ func GetPostsByCategory(db *sql.DB, categoryID int64) ([]Post, error) {
 	return scanPosts(rows)
 }
 
+// AddPostCategory associates a post with a category.
 func AddPostCategory(db *sql.DB, postID, categoryID int64) error {
 	_, err := db.Exec(`
 		INSERT INTO post_categories (post_id, category_id)
@@ -128,6 +136,7 @@ func AddPostCategory(db *sql.DB, postID, categoryID int64) error {
 	return nil
 }
 
+// UpdatePost updates the title, content, image, and modification time of a post.
 func UpdatePost(
 	db *sql.DB,
 	postID int64,
@@ -159,6 +168,7 @@ func UpdatePost(
 	return nil
 }
 
+// DeletePost deletes a post by its database ID.
 func DeletePost(db *sql.DB, postID int64) error {
 	result, err := db.Exec(`
 		DELETE FROM posts
@@ -180,6 +190,7 @@ func DeletePost(db *sql.DB, postID int64) error {
 	return nil
 }
 
+// scanPosts scans database rows into a slice of posts.
 func scanPosts(rows *sql.Rows) ([]Post, error) {
 	var posts []Post
 

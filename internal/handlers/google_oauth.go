@@ -27,6 +27,7 @@ const (
 	googleStateCookie = "google_oauth_state"
 )
 
+// GoogleOAuthHandler handles authentication through Google OAuth.
 type GoogleOAuthHandler struct {
 	db       *sql.DB
 	sessions *session.Manager
@@ -50,6 +51,7 @@ type googleUser struct {
 	FamilyName    string `json:"family_name"`
 }
 
+// NewGoogleOAuthHandler creates a new Google OAuth handler.
 func NewGoogleOAuthHandler(
 	db *sql.DB,
 	sessions *session.Manager,
@@ -63,6 +65,7 @@ func NewGoogleOAuthHandler(
 	}
 }
 
+// Login starts the Google OAuth authentication flow.
 func (h *GoogleOAuthHandler) Login(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -120,6 +123,7 @@ func (h *GoogleOAuthHandler) Login(
 	)
 }
 
+// Callback handles the Google OAuth callback and authenticates the user.
 func (h *GoogleOAuthHandler) Callback(
 	w http.ResponseWriter,
 	r *http.Request,

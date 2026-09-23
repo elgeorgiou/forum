@@ -14,11 +14,13 @@ import (
 
 const maxPostRequestSize = upload.MaxImageSize + (1 << 20)
 
+// PostHandler handles HTTP requests related to forum posts.
 type PostHandler struct {
 	db    *sql.DB
 	pages *PageHandler
 }
 
+// NewPostHandler creates a new PostHandler.
 func NewPostHandler(
 	db *sql.DB,
 	pages *PageHandler,
@@ -29,6 +31,7 @@ func NewPostHandler(
 	}
 }
 
+// View renders a single post together with its comments and reactions.
 func (h *PostHandler) View(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -125,6 +128,7 @@ func (h *PostHandler) View(
 	)
 }
 
+// Create validates the submitted post data and creates a new post.
 func (h *PostHandler) Create(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -319,6 +323,7 @@ func (h *PostHandler) Create(
 	)
 }
 
+// Update modifies an existing post owned by the authenticated user.
 func (h *PostHandler) Update(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -449,6 +454,7 @@ func (h *PostHandler) Update(
 	)
 }
 
+// Delete removes a post when the authenticated user has permission to delete it.
 func (h *PostHandler) Delete(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -568,6 +574,7 @@ func (h *PostHandler) Delete(
 	)
 }
 
+// postIDFromPath extracts and validates a post ID from a post URL path.
 func postIDFromPath(
 	path string,
 ) (int64, error) {
@@ -611,6 +618,7 @@ func postIDFromPath(
 	return postID, nil
 }
 
+// parseCategoryIDs parses, validates, and removes duplicate category IDs.
 func parseCategoryIDs(
 	values []string,
 ) ([]int64, error) {
@@ -651,6 +659,7 @@ func parseCategoryIDs(
 	return categoryIDs, nil
 }
 
+// createPostWithCategories creates a post and its category associations in a single transaction.
 func createPostWithCategories(
 	db *sql.DB,
 	userID int64,

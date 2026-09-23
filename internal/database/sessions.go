@@ -7,8 +7,10 @@ import (
 	"time"
 )
 
+// ErrSessionNotFound is returned when a requested session does not exist.
 var ErrSessionNotFound = errors.New("session not found")
 
+// Session represents an authenticated user session stored in the database.
 type Session struct {
 	ID        string
 	UserID    int64
@@ -16,6 +18,7 @@ type Session struct {
 	CreatedAt string
 }
 
+// CreateSession creates a new session or replaces the existing session for a user.
 func CreateSession(
 	db *sql.DB,
 	id string,
@@ -49,6 +52,7 @@ func CreateSession(
 	return nil
 }
 
+// GetSessionByID retrieves a session by its unique session ID.
 func GetSessionByID(
 	db *sql.DB,
 	id string,
@@ -84,6 +88,7 @@ func GetSessionByID(
 	return session, nil
 }
 
+// GetSessionByUserID retrieves the active session associated with a user.
 func GetSessionByUserID(
 	db *sql.DB,
 	userID int64,
@@ -119,6 +124,7 @@ func GetSessionByUserID(
 	return session, nil
 }
 
+// DeleteSessionByID deletes a session by its unique session ID.
 func DeleteSessionByID(
 	db *sql.DB,
 	id string,
@@ -149,6 +155,7 @@ func DeleteSessionByID(
 	return nil
 }
 
+// DeleteSessionByUserID deletes the session associated with a user.
 func DeleteSessionByUserID(
 	db *sql.DB,
 	userID int64,
@@ -179,6 +186,7 @@ func DeleteSessionByUserID(
 	return nil
 }
 
+// DeleteExpiredSessions removes all sessions whose expiration time has passed.
 func DeleteExpiredSessions(db *sql.DB) error {
 	now := time.Now().
 		UTC().

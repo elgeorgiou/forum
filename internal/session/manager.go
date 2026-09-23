@@ -19,18 +19,22 @@ const (
 	tokenBytes      = 32
 )
 
+// ErrUnauthenticated is returned when a request does not have a valid session.
 var ErrUnauthenticated = errors.New("user is not authenticated")
 
+// Manager manages user sessions stored in the database.
 type Manager struct {
 	db *sql.DB
 }
 
+// NewManager creates a new session manager using the provided database.
 func NewManager(db *sql.DB) *Manager {
 	return &Manager{
 		db: db,
 	}
 }
 
+// Create creates a new session for a user and stores its token in a cookie.
 func (m *Manager) Create(
 	w http.ResponseWriter,
 	userID int64,
@@ -68,6 +72,7 @@ func (m *Manager) Create(
 	return nil
 }
 
+// Destroy removes the current session and expires its cookie.
 func (m *Manager) Destroy(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -94,6 +99,7 @@ func (m *Manager) Destroy(
 	return nil
 }
 
+// User returns the user associated with the request's active session.
 func (m *Manager) User(
 	r *http.Request,
 ) (*database.User, error) {
@@ -182,6 +188,7 @@ func (m *Manager) User(
 	return user, nil
 }
 
+// DeleteExpired removes all expired sessions from the database.
 func (m *Manager) DeleteExpired() error {
 	if err := database.DeleteExpiredSessions(m.db); err != nil {
 		return fmt.Errorf(
@@ -193,6 +200,7 @@ func (m *Manager) DeleteExpired() error {
 	return nil
 }
 
+// generateToken creates a cryptographically secure random session token.
 func generateToken() (string, error) {
 	randomBytes := make([]byte, tokenBytes)
 
@@ -204,6 +212,7 @@ func generateToken() (string, error) {
 	return hex.EncodeToString(randomBytes), nil
 }
 
+// parseTime parses a stored session timestamp using the supported time formats.
 func parseTime(value string) (time.Time, error) {
 	formats := []string{
 		time.RFC3339Nano,
@@ -224,6 +233,7 @@ func parseTime(value string) (time.Time, error) {
 	)
 }
 
+// expireCookie replaces the session cookie with an expired cookie.
 func expireCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     CookieName,
@@ -237,6 +247,7 @@ func expireCookie(w http.ResponseWriter) {
 	})
 }
 
+// secureCookies reports whether session cookies should use the Secure flag.
 func secureCookies() bool {
 	return os.Getenv("FORUM_SECURE_COOKIES") == "true"
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// DashboardStats represents the summary statistics displayed on the dashboard.
 type DashboardStats struct {
 	PendingReports int
 	TotalPosts     int
@@ -12,6 +13,7 @@ type DashboardStats struct {
 	TotalUsers     int
 }
 
+// GetDashboardStats retrieves the summary statistics for the dashboard.
 func GetDashboardStats(
 	db *sql.DB,
 ) (DashboardStats, error) {
@@ -45,6 +47,7 @@ func GetDashboardStats(
 	return stats, nil
 }
 
+// GetPendingReportCount returns the number of pending reports.
 func GetPendingReportCount(
 	db *sql.DB,
 ) (int, error) {
@@ -65,6 +68,7 @@ func GetPendingReportCount(
 	return count, nil
 }
 
+// GetPendingModeratorRequestCount returns the number of pending moderator requests.
 func GetPendingModeratorRequestCount(
 	db *sql.DB,
 ) (int, error) {

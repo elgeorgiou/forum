@@ -11,10 +11,12 @@ import (
 	"forum/internal/middleware"
 )
 
+// CommentHandler handles operations related to forum comments.
 type CommentHandler struct {
 	db *sql.DB
 }
 
+// NewCommentHandler creates a new CommentHandler with its database dependency.
 func NewCommentHandler(
 	db *sql.DB,
 ) *CommentHandler {
@@ -23,6 +25,7 @@ func NewCommentHandler(
 	}
 }
 
+// Create handles the creation of a new comment on a post.
 func (h *CommentHandler) Create(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -142,6 +145,7 @@ func (h *CommentHandler) Create(
 	)
 }
 
+// Update handles updates to an existing comment owned by the current user.
 func (h *CommentHandler) Update(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -266,6 +270,7 @@ func (h *CommentHandler) Update(
 	)
 }
 
+// Delete handles deletion of a comment by its owner, a moderator, or an administrator.
 func (h *CommentHandler) Delete(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -382,6 +387,7 @@ func (h *CommentHandler) Delete(
 	)
 }
 
+// commentPostIDFromPath extracts and validates a post ID from a comment creation path.
 func commentPostIDFromPath(
 	path string,
 ) (int64, error) {

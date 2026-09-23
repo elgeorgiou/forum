@@ -29,6 +29,7 @@ const (
 	githubStateCookie = "github_oauth_state"
 )
 
+// GitHubOAuthHandler handles authentication through GitHub OAuth.
 type GitHubOAuthHandler struct {
 	db       *sql.DB
 	sessions *session.Manager
@@ -54,6 +55,7 @@ type githubEmail struct {
 	Verified bool   `json:"verified"`
 }
 
+// NewGitHubOAuthHandler creates a new GitHub OAuth handler.
 func NewGitHubOAuthHandler(
 	db *sql.DB,
 	sessions *session.Manager,
@@ -67,6 +69,7 @@ func NewGitHubOAuthHandler(
 	}
 }
 
+// Login starts the GitHub OAuth authentication flow.
 func (h *GitHubOAuthHandler) Login(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -123,6 +126,7 @@ func (h *GitHubOAuthHandler) Login(
 	)
 }
 
+// Callback handles the GitHub OAuth callback and authenticates the user.
 func (h *GitHubOAuthHandler) Callback(
 	w http.ResponseWriter,
 	r *http.Request,

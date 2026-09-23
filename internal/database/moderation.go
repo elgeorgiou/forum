@@ -8,11 +8,17 @@ import (
 )
 
 var (
+	// ErrModeratorRequestNotFound is returned when a requested moderator request does not exist.
 	ErrModeratorRequestNotFound = errors.New("moderator request not found")
-	ErrModeratorRequestExists   = errors.New("pending moderator request already exists")
-	ErrReportNotFound           = errors.New("report not found")
+
+	// ErrModeratorRequestExists is returned when a user already has a pending moderator request.
+	ErrModeratorRequestExists = errors.New("pending moderator request already exists")
+
+	// ErrReportNotFound is returned when a requested report does not exist.
+	ErrReportNotFound = errors.New("report not found")
 )
 
+// ModeratorRequest represents a request from a user to become a moderator.
 type ModeratorRequest struct {
 	ID         int64
 	UserID     int64
@@ -22,6 +28,7 @@ type ModeratorRequest struct {
 	ReviewedBy sql.NullInt64
 }
 
+// ModeratorRequestView represents a pending moderator request together with user information.
 type ModeratorRequestView struct {
 	ID        int64
 	UserID    int64
@@ -31,6 +38,7 @@ type ModeratorRequestView struct {
 	CreatedAt string
 }
 
+// Report represents a moderation report stored in the database.
 type Report struct {
 	ID         int64
 	ReporterID int64
@@ -44,6 +52,7 @@ type Report struct {
 	ReviewedBy sql.NullInt64
 }
 
+// CreateModeratorRequest creates a pending moderator request for a user.
 func CreateModeratorRequest(
 	db *sql.DB,
 	userID int64,
@@ -91,6 +100,7 @@ func CreateModeratorRequest(
 	return id, nil
 }
 
+// GetModeratorRequestByID retrieves a moderator request by its database ID.
 func GetModeratorRequestByID(
 	db *sql.DB,
 	requestID int64,
@@ -130,6 +140,7 @@ func GetModeratorRequestByID(
 	return request, nil
 }
 
+// GetPendingModeratorRequestByUser retrieves the pending moderator request for a user.
 func GetPendingModeratorRequestByUser(
 	db *sql.DB,
 	userID int64,
@@ -172,6 +183,7 @@ func GetPendingModeratorRequestByUser(
 	return request, nil
 }
 
+// GetPendingModeratorRequests retrieves all pending moderator requests.
 func GetPendingModeratorRequests(
 	db *sql.DB,
 ) ([]ModeratorRequest, error) {
@@ -227,6 +239,7 @@ func GetPendingModeratorRequests(
 	return requests, nil
 }
 
+// GetPendingModeratorRequestViews retrieves pending moderator requests with user information.
 func GetPendingModeratorRequestViews(
 	db *sql.DB,
 ) ([]ModeratorRequestView, error) {
@@ -284,6 +297,7 @@ func GetPendingModeratorRequestViews(
 	return requests, nil
 }
 
+// ReviewModeratorRequest approves or rejects a pending moderator request.
 func ReviewModeratorRequest(
 	db *sql.DB,
 	requestID int64,
@@ -392,6 +406,7 @@ func ReviewModeratorRequest(
 	return nil
 }
 
+// CreatePostReport creates a moderation report for a post.
 func CreatePostReport(
 	db *sql.DB,
 	reporterID int64,
@@ -424,6 +439,7 @@ func CreatePostReport(
 	return id, nil
 }
 
+// CreateCommentReport creates a moderation report for a comment.
 func CreateCommentReport(
 	db *sql.DB,
 	reporterID int64,
@@ -456,6 +472,7 @@ func CreateCommentReport(
 	return id, nil
 }
 
+// GetPendingReports retrieves all pending moderation reports.
 func GetPendingReports(
 	db *sql.DB,
 ) ([]Report, error) {
@@ -519,6 +536,7 @@ func GetPendingReports(
 	return reports, nil
 }
 
+// ReviewReport resolves or rejects a pending moderation report and notifies the reporter.
 func ReviewReport(
 	db *sql.DB,
 	reportID int64,

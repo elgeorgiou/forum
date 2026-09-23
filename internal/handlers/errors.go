@@ -8,6 +8,7 @@ import (
 	"forum/internal/models"
 )
 
+// RenderErrorPage renders the shared error page for the provided HTTP status code.
 func RenderErrorPage(
 	w http.ResponseWriter,
 	statusCode int,

@@ -6,9 +6,13 @@ import (
 	"fmt"
 )
 
+// ErrUserNotFound is returned when a requested user does not exist.
 var ErrUserNotFound = errors.New("user not found")
+
+// ErrModeratorNotFound is returned when a requested moderator does not exist.
 var ErrModeratorNotFound = errors.New("moderator not found")
 
+// User represents a forum user stored in the database.
 type User struct {
 	ID           int64
 	Username     string
@@ -18,6 +22,7 @@ type User struct {
 	CreatedAt    string
 }
 
+// CreateUser creates a new user and returns its database ID.
 func CreateUser(
 	db *sql.DB,
 	username string,
@@ -49,6 +54,7 @@ func CreateUser(
 	return id, nil
 }
 
+// GetUserByID retrieves a user by its database ID.
 func GetUserByID(db *sql.DB, id int64) (*User, error) {
 	user := &User{}
 
@@ -85,6 +91,7 @@ func GetUserByID(db *sql.DB, id int64) (*User, error) {
 	return user, nil
 }
 
+// GetUserByEmail retrieves a user by their email address.
 func GetUserByEmail(db *sql.DB, email string) (*User, error) {
 	user := &User{}
 
@@ -121,6 +128,7 @@ func GetUserByEmail(db *sql.DB, email string) (*User, error) {
 	return user, nil
 }
 
+// GetUserByUsername retrieves a user by their username.
 func GetUserByUsername(db *sql.DB, username string) (*User, error) {
 	user := &User{}
 
@@ -157,6 +165,7 @@ func GetUserByUsername(db *sql.DB, username string) (*User, error) {
 	return user, nil
 }
 
+// GetModerators retrieves all users with the moderator role.
 func GetModerators(db *sql.DB) ([]User, error) {
 	rows, err := db.Query(`
 		SELECT
@@ -201,6 +210,7 @@ func GetModerators(db *sql.DB) ([]User, error) {
 	return moderators, nil
 }
 
+// UpdateUserRole updates the role assigned to a user.
 func UpdateUserRole(
 	db *sql.DB,
 	userID int64,
@@ -231,6 +241,7 @@ func UpdateUserRole(
 	return nil
 }
 
+// DemoteModerator changes a moderator's role back to a regular user.
 func DemoteModerator(
 	db *sql.DB,
 	userID int64,

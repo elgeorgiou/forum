@@ -72,6 +72,7 @@ func InitSchema(db *sql.DB, schemaPath string) error {
 	return nil
 }
 
+// runMigrations applies database schema changes required by existing databases.
 func runMigrations(db *sql.DB) error {
 	migrations := []struct {
 		table      string
@@ -134,6 +135,7 @@ func runMigrations(db *sql.DB) error {
 	return nil
 }
 
+// columnExists reports whether a column exists in the specified database table.
 func columnExists(
 	db *sql.DB,
 	table string,

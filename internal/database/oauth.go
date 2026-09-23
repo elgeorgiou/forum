@@ -6,8 +6,10 @@ import (
 	"fmt"
 )
 
+// ErrOAuthAccountNotFound is returned when a requested OAuth account does not exist.
 var ErrOAuthAccountNotFound = errors.New("oauth account not found")
 
+// OAuthAccount represents an external OAuth account linked to a forum user.
 type OAuthAccount struct {
 	ID             int64
 	UserID         int64
@@ -16,6 +18,7 @@ type OAuthAccount struct {
 	CreatedAt      string
 }
 
+// CreateOAuthAccount creates a new OAuth account linked to a user and returns its database ID.
 func CreateOAuthAccount(
 	db *sql.DB,
 	userID int64,
@@ -42,6 +45,7 @@ func CreateOAuthAccount(
 	return id, nil
 }
 
+// GetOAuthAccount retrieves an OAuth account by its provider and provider user ID.
 func GetOAuthAccount(
 	db *sql.DB,
 	provider string,
@@ -78,6 +82,7 @@ func GetOAuthAccount(
 	return account, nil
 }
 
+// GetOAuthAccountsByUser retrieves all OAuth accounts linked to a user.
 func GetOAuthAccountsByUser(
 	db *sql.DB,
 	userID int64,
@@ -123,6 +128,7 @@ func GetOAuthAccountsByUser(
 	return accounts, nil
 }
 
+// DeleteOAuthAccount deletes an OAuth account linked to a user for the specified provider.
 func DeleteOAuthAccount(
 	db *sql.DB,
 	userID int64,

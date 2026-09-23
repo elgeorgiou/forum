@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// ReportView represents a report together with the information
+// needed to display its reporter and reported target.
 type ReportView struct {
 	ID               int64
 	ReporterID       int64
@@ -19,6 +21,8 @@ type ReportView struct {
 	TargetURL        string
 }
 
+// GetPendingReportViews retrieves all pending reports with their
+// reporter and reported target information.
 func GetPendingReportViews(
 	db *sql.DB,
 ) ([]ReportView, error) {

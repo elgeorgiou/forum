@@ -22,6 +22,7 @@ var (
 	ErrInvalidImageType = errors.New("image must be PNG, JPEG, or GIF")
 )
 
+// SaveImage validates and stores an uploaded image and returns its public path.
 func SaveImage(
 	file multipart.File,
 	header *multipart.FileHeader,
@@ -97,6 +98,7 @@ func SaveImage(
 	return "/static/uploads/" + filename, nil
 }
 
+// DeleteImage removes a previously uploaded image from disk.
 func DeleteImage(imagePath string) error {
 	if imagePath == "" {
 		return nil
@@ -128,6 +130,7 @@ func DeleteImage(imagePath string) error {
 	return nil
 }
 
+// imageExtension returns the file extension for a supported image content type.
 func imageExtension(
 	contentType string,
 ) (string, error) {
@@ -146,6 +149,7 @@ func imageExtension(
 	}
 }
 
+// randomFilename generates a cryptographically secure random image filename.
 func randomFilename(
 	extension string,
 ) (string, error) {

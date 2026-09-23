@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// categorySeed represents the data required to create a default category.
 type categorySeed struct {
 	name        string
 	slug        string
@@ -12,6 +13,7 @@ type categorySeed struct {
 	tagline     string
 }
 
+// defaultCategories contains the categories added to the database during seeding.
 var defaultCategories = []categorySeed{
 	{
 		"Horror",
@@ -141,6 +143,8 @@ var defaultCategories = []categorySeed{
 	},
 }
 
+// SeedCategories inserts the default forum categories into the database,
+// ignoring categories that already exist.
 func SeedCategories(db *sql.DB) error {
 	for _, category := range defaultCategories {
 		_, err := db.Exec(

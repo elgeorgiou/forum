@@ -9,32 +9,39 @@ import (
 	"forum/internal/session"
 )
 
+// contextKey defines a private type for context keys used by this package.
 type contextKey string
 
+// userContextKey is the context key used to store the authenticated user.
 const userContextKey contextKey = "current_user"
 
+// ErrorRenderer defines a function that renders an HTTP error response.
 type ErrorRenderer func(
 	http.ResponseWriter,
 	int,
 )
 
+// Auth provides authentication and authorization middleware.
 type Auth struct {
 	sessions    *session.Manager
 	renderError ErrorRenderer
 }
 
+// NewAuth creates a new authentication middleware using the provided session manager.
 func NewAuth(sessions *session.Manager) *Auth {
 	return &Auth{
 		sessions: sessions,
 	}
 }
 
+// SetErrorRenderer sets the function used to render HTTP error responses.
 func (a *Auth) SetErrorRenderer(
 	renderer ErrorRenderer,
 ) {
 	a.renderError = renderer
 }
 
+// writeError renders an HTTP error using the configured renderer or http.Error as a fallback.
 func (a *Auth) writeError(
 	w http.ResponseWriter,
 	statusCode int,
@@ -51,6 +58,7 @@ func (a *Auth) writeError(
 	)
 }
 
+// LoadUser loads the authenticated user from the session and stores it in the request context.
 func (a *Auth) LoadUser(
 	next http.Handler,
 ) http.Handler {
@@ -91,6 +99,7 @@ func (a *Auth) LoadUser(
 	)
 }
 
+// RequireAuthentication allows the request to continue only for authenticated users.
 func (a *Auth) RequireAuthentication(
 	next http.Handler,
 ) http.Handler {
@@ -118,6 +127,7 @@ func (a *Auth) RequireAuthentication(
 	)
 }
 
+// RequireModerator allows the request to continue only for moderators or administrators.
 func (a *Auth) RequireModerator(
 	next http.Handler,
 ) http.Handler {
@@ -154,6 +164,7 @@ func (a *Auth) RequireModerator(
 	)
 }
 
+// RequireAdmin allows the request to continue only for administrators.
 func (a *Auth) RequireAdmin(
 	next http.Handler,
 ) http.Handler {
@@ -189,6 +200,8 @@ func (a *Auth) RequireAdmin(
 	)
 }
 
+// UserFromContext returns the authenticated user stored in the context.
+// It returns nil when no user is present.
 func UserFromContext(
 	ctx context.Context,
 ) *database.User {
@@ -203,6 +216,7 @@ func UserFromContext(
 	return user
 }
 
+// WithUser returns a new context containing the provided user.
 func WithUser(
 	ctx context.Context,
 	user *database.User,

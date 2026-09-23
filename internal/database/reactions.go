@@ -6,13 +6,16 @@ import (
 	"fmt"
 )
 
+// ErrReactionNotFound is returned when a requested reaction does not exist.
 var ErrReactionNotFound = errors.New("reaction not found")
 
+// Reaction values represent the supported like and dislike states.
 const (
 	ReactionDislike = -1
 	ReactionLike    = 1
 )
 
+// SetPostReaction creates or updates a user's reaction to a post.
 func SetPostReaction(db *sql.DB, userID, postID int64, reaction int) error {
 	if reaction != ReactionLike && reaction != ReactionDislike {
 		return errors.New("invalid post reaction")
@@ -33,6 +36,7 @@ func SetPostReaction(db *sql.DB, userID, postID int64, reaction int) error {
 	return nil
 }
 
+// RemovePostReaction removes a user's reaction from a post.
 func RemovePostReaction(db *sql.DB, userID, postID int64) error {
 	result, err := db.Exec(`
 		DELETE FROM post_reactions
@@ -54,6 +58,7 @@ func RemovePostReaction(db *sql.DB, userID, postID int64) error {
 	return nil
 }
 
+// GetPostReactionCounts returns the number of likes and dislikes for a post.
 func GetPostReactionCounts(db *sql.DB, postID int64) (likes, dislikes int, err error) {
 	err = db.QueryRow(`
 		SELECT
@@ -69,6 +74,7 @@ func GetPostReactionCounts(db *sql.DB, postID int64) (likes, dislikes int, err e
 	return likes, dislikes, nil
 }
 
+// GetPostReactionByUser retrieves a user's reaction to a specific post.
 func GetPostReactionByUser(db *sql.DB, userID, postID int64) (int, error) {
 	var reaction int
 
@@ -89,6 +95,7 @@ func GetPostReactionByUser(db *sql.DB, userID, postID int64) (int, error) {
 	return reaction, nil
 }
 
+// GetLikedPostsByUser retrieves all posts liked by a specific user.
 func GetLikedPostsByUser(db *sql.DB, userID int64) ([]Post, error) {
 	rows, err := db.Query(`
 		SELECT p.id, p.user_id, p.title, p.content, p.image_path,
@@ -108,6 +115,7 @@ func GetLikedPostsByUser(db *sql.DB, userID int64) ([]Post, error) {
 	return scanPosts(rows)
 }
 
+// GetDislikedPostsByUser retrieves all posts disliked by a specific user.
 func GetDislikedPostsByUser(db *sql.DB, userID int64) ([]Post, error) {
 	rows, err := db.Query(`
 		SELECT p.id, p.user_id, p.title, p.content, p.image_path,
@@ -127,6 +135,7 @@ func GetDislikedPostsByUser(db *sql.DB, userID int64) ([]Post, error) {
 	return scanPosts(rows)
 }
 
+// SetCommentReaction creates or updates a user's reaction to a comment.
 func SetCommentReaction(db *sql.DB, userID, commentID int64, reaction int) error {
 	if reaction != ReactionLike && reaction != ReactionDislike {
 		return errors.New("invalid comment reaction")
@@ -147,6 +156,7 @@ func SetCommentReaction(db *sql.DB, userID, commentID int64, reaction int) error
 	return nil
 }
 
+// RemoveCommentReaction removes a user's reaction from a comment.
 func RemoveCommentReaction(db *sql.DB, userID, commentID int64) error {
 	result, err := db.Exec(`
 		DELETE FROM comment_reactions
@@ -168,6 +178,7 @@ func RemoveCommentReaction(db *sql.DB, userID, commentID int64) error {
 	return nil
 }
 
+// GetCommentReactionCounts returns the number of likes and dislikes for a comment.
 func GetCommentReactionCounts(db *sql.DB, commentID int64) (likes, dislikes int, err error) {
 	err = db.QueryRow(`
 		SELECT
@@ -183,6 +194,7 @@ func GetCommentReactionCounts(db *sql.DB, commentID int64) (likes, dislikes int,
 	return likes, dislikes, nil
 }
 
+// GetCommentReactionByUser retrieves a user's reaction to a specific comment.
 func GetCommentReactionByUser(db *sql.DB, userID, commentID int64) (int, error) {
 	var reaction int
 

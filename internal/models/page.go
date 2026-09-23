@@ -2,12 +2,15 @@ package models
 
 import "forum/internal/database"
 
+// AuthFormData stores authentication form values that can be preserved
+// when the authentication page is rendered again.
 type AuthFormData struct {
 	Username   string
 	Email      string
 	Identifier string
 }
 
+// CategoryPageData contains the data required to render a category page.
 type CategoryPageData struct {
 	ID          int64
 	Name        string
@@ -20,12 +23,14 @@ type CategoryPageData struct {
 	Rules       []string
 }
 
+// CommunityStats contains summary statistics about the forum community.
 type CommunityStats struct {
 	MemberCount  int
 	PostCount    int
 	CommentCount int
 }
 
+// PageData contains the shared data passed to the application's HTML templates.
 type PageData struct {
 	IsAuthenticated         bool
 	UnreadNotificationCount int
